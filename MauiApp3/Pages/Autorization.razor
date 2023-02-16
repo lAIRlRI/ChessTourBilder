@@ -1,0 +1,49 @@
+﻿@page "/"
+@layout MainLayout
+@inject NavigationManager NavigationManager
+
+<body class="main-conteneer">
+    <section class="left-conteneer left-conteneer-color input-main first">
+        <div class="icon"></div>
+        <h1 class="text-color-left top-row-text text  big-text" href="">CTB</h1>
+        <h2 class="text text-color-left" href="">Chess Tour Bilder</h2>
+    </section>
+    <section class="left-conteneer input-main second">
+        <h1 class="top-row-text text text-color-right" href="">Авторизация</h1>
+        <input @bind-value="organizer.Login" placeholder="Логин" type="text">
+        <input @bind-value="organizer.Password" placeholder="Пароль" type="password">
+        @if (style) 
+        {
+            <h6 class="text alert">Неправильный логин или пароль</h6>
+        }
+        <button class="text text-color-right border-none" @onclick="@OnAvtorizate">Войти</button>
+        <button class="text text-color-right border-none" @onclick="@(()=>OnClickNavigate("/registration"))">Регистрация</button>
+    </section>
+</body>
+
+@code
+{
+    private Data.Controler.PlayerControler controler = new();
+    private Data.Controler.EventControler eventControler = new();
+    private Data.Model.Organizer organizer = new();
+    private bool style = false;
+
+
+    void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    void OnAvtorizate()
+    {
+        Data.Controler.OrganizerControler.nowOrganizer = Data.Controler.OrganizerControler.Get()
+                                                            .Where(p => p.Login == organizer.Login
+                                                                                    && p.Password == organizer.Password)
+                                                            .FirstOrDefault();
+        if (Data.Controler.OrganizerControler.nowOrganizer == null)
+        {
+            style = true;
+            return;
+        }
+        OnClickNavigate("/eventList");
+    }
+
+}
+

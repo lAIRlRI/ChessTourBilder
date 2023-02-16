@@ -1,0 +1,136 @@
+﻿.main-conteneer {
+    padding: 5px;
+    background-color: #FFF9F9;
+}
+
+.icon {
+    background-color: brown;
+    height: 5rem;
+    width: 5rem;
+    margin: 2rem;
+}
+
+.error-text {
+    color: red;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1rem;
+    font-family: 'Roboto';
+}
+
+.text-aling {
+    text-align: center;
+}
+
+.text-small {
+    color: #A16B1E;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 35px;
+    font-family: 'Roboto';
+}
+
+.text {
+    color: #A16B1E;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 35px;
+    font-family: 'Roboto';
+}
+
+.top-row-text {
+    font-weight: 500;
+    font-size: 45px;
+    line-height: 53px;
+}
+
+.top-row-conteneer {
+    display: flex;
+    padding: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pozition-conteneer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.element {
+    border-radius: 8px;
+    background: #F8B75C;
+    margin: 1rem;
+    padding: 0.5rem;
+    height: 50%;
+}
+
+.title-text {
+    margin: 1rem;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 50px;
+    line-height: 59px;
+    color: #A16B1E;
+}
+
+.main-conteneer-block {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.image {
+    background-color: brown;
+    height: 12rem;
+    width: 12rem;
+    margin: 2rem;
+}
+
+.text-pozition {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 30px;
+    margin: 0.3rem;
+    line-height: 41px;
+    text-align: center;
+    color: #FFFFFF;
+}
+
+::placeholder {
+    color: #A16B1E;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 35px;
+    font-family: 'Roboto';
+}
+
+input {
+    outline: none;
+    border: none;
+    border-bottom: 3px solid #F8B75C;
+    margin: 1rem;
+    color: #A16B1E;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 35px;
+    font-family: 'Roboto';
+}
+
+.input-main {
+    width: 62%;
+}
+
+.add-element {
+    display: flex;
+    flex-wrap: wrap;
+}

@@ -1,0 +1,26 @@
+﻿@page "/navMenu"
+@layout MainLayout
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <div class="image"></div>
+        <a class="top-row-conteneer-text text" href="tourList">@(Data.Helper.FI())</a>
+    </div>
+    <nav>
+        <div class="nav-item">
+            <span class="nav-item-icon"></span>
+            <a href="/eventList" class="text">Турниры</a>
+        </div>
+        <div class="nav-item ">
+            <span class="nav-item-icon"></span>
+            <a href="/playerList" class="text">Игроки</a>
+        </div>
+        <div class="nav-item ">
+            <span class="nav-item-icon"></span>
+            <a href="/" class="text">Выйти</a>
+        </div>
+    </nav>
+</body>
+
+@code {
+}

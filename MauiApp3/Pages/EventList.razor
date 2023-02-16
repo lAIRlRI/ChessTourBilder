@@ -1,0 +1,103 @@
+﻿@page "/eventList"
+@using MauiApp3.Data.Model
+@using Data.Controler
+@using System.Text.RegularExpressions
+@layout MauiApp3.Shared.MainLayout
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <button @onclick="@(()=>OnClickNavigate("/navMenu"))" class="icon"></button>
+        <h1 class="top-row-text text">@(Data.Helper.FI())</h1>
+    </div>
+    <section class="main-conteneer-block">
+        <input @bind-value="like" class="input-main" placeholder="Поиск" type="text">
+    </section>
+    <div class="top-row-conteneer">
+        <h1 class="title-text">Турниры</h1>
+        <h1 class="title-text" @onclick="AddClick">@addstr</h1>
+    </div>
+    <section class="pozition-conteneer">
+        @if (add)
+        {
+            <div class="element add-element">
+                <div>
+                    <p class="error-text">@result[0]</p>
+                    <input @bind-value="eventModel.Name" placeholder="Название турнира" />
+                </div>
+                <div>
+                    <p class="error-text">@result[1]</p>
+                    <input @bind-value="eventModel.PrizeFund" type="number" placeholder="Призовой фонд" />
+                </div>
+                <div>
+                    <p class="error-text">@result[2]</p>
+                    <input @bind-value="eventModel.DataStart" type="datetime" placeholder="Дата начала" />
+                </div>
+                <div>
+                    <p class="error-text">@result[3]</p>
+                    <input @bind-value="eventModel.DataFinish" type="datetime" placeholder="Дата окончания" />
+                </div>
+                <div>
+                    <p class="error-text">@result[4]</p>
+                    <input @bind-value="eventModel.LocationEvent" placeholder="Место проведения" />
+                </div>
+                <div style="display:flex;">
+                    <p>Публичный</p>
+                    <input @bind-value="eventModel.IsPublic" type="checkbox" class="text-pozition"/>
+                </div>
+                <button class="top-row-text text" @onclick="Add">Добавить</button>
+            </div>
+        }
+
+        @foreach (var item in eventModels.Where(p => Regex.IsMatch(p.Name, like + @"(\w*)", RegexOptions.IgnoreCase)))
+        {
+            <div class="element" @onclick="@(()=>OnClickNavigateEvent(item))">
+                <div class="text-pozition">Название турнира: @item.Name</div>
+                <div class="text-pozition">Дата проведения: @item.DataStart-@item.DataFinish</div>
+                <div class="text-pozition">Место проведения: @item.LocationEvent</div>
+                <div class="text-pozition">Призовой фонд: @item.PrizeFund р.</div>
+            </div>
+        }
+    </section>
+</body>
+
+@code {
+    List<Data.Model.Event> eventModels = OrganizerControler.nowOrganizer.Administrator == -1
+                                        ? EventControler.staticEvent
+                                            .Where(p => p.OrganizerID == OrganizerControler.nowOrganizer.OrganizerID
+                                                || p.IsPublic == true).ToList() : EventControler.staticEvent;
+    static string like = "", addstr = "Добавить";
+    bool add =  false;
+    string[] result = new string[5];
+    Data.Model.Event eventModel = new();
+
+
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    private void Add()
+    {
+        Array.Clear(result);
+        if (!Data.Helper.CheckEvent(eventModel, ref result)) return;
+        eventModel.OrganizerID = OrganizerControler.nowOrganizer.OrganizerID;
+        eventModel.StatusID = 1;
+        if (EventControler.Insert(eventModel))
+        {
+            add = false;
+            EventControler ev = new();
+            OnClickNavigateEvent(EventControler.GetLast());
+        }
+    }
+
+    private void AddClick()
+    {
+        add = !add;
+        addstr = add ? "Закрыть" : "Добавить";
+    }
+
+    private void OnClickNavigateEvent(Event ev)
+    {
+        EventControler.nowEvent = ev;
+        NavigationManager.NavigateTo("/eventPage");
+    }
+}

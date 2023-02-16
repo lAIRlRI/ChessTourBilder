@@ -1,0 +1,29 @@
+﻿@page "/playerPositionList"
+@layout MainLayout
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
+        <h1 class="top-row-text text" href="">@(Data.Helper.FI())</h1>
+    </div>
+    <section class="main-conteneer-block">
+        <input class="input-main" placeholder="Поиск" type="text">
+    </section>
+    <section>
+        <div class="color-first pozition-conteneer">
+            <div class="text-pozition">Позиция</div>
+            <div class="input-main text-aling text-pozition">Игрок</div>
+        </div>
+        <div class="color-second pozition-conteneer ">
+            <div class="text-pozition">Позиция</div>
+            <div class="input-main text-aling text-pozition">Игрок</div>
+        </div>
+    </section>
+</body>
+
+@code {
+
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+}
