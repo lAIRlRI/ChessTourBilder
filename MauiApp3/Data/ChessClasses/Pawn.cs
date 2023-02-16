@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace MauiApp3.Data.ChessClasses
 {
+    ///<summary>
+    ///Фигура Пешка
+    ///</summary>
     internal class Pawn : Figure
     {
-        public override string Name { get; } = "P";
+        public override string Name { get; } = "";
+        public Pawn(string poziton, bool IsWhile) : base(poziton, IsWhile) { }
 
-        public override void Move() => "";
+        public override void Move()
+        {
+            return;
+        }
     }
 }

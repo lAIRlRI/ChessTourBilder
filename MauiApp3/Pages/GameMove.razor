@@ -1,7 +1,10 @@
-﻿<h3>GameMove</h3>
+﻿@page "/gameMove"
+@layout MainLayout
+@inject NavigationManager NavigationManager
 
-<section>
-    <p>Чей ход</p>
+
+<section class="main-conteneer">
+    <p class="top-row-text text">Чей ход</p>
     <div>
         <select placeholder="Фигура">
             @* @foreach (var item in Figures)
@@ -17,10 +20,15 @@
         </select>
     </div>
    <div>
-       <button>Сделать ход</button>
-       <button>Завершить партию</button>
+        <button @onclick="SetMove" class="top-row-text text">Сделать ход</button>
+        <button class="top-row-text text">Завершить партию</button>
    </div>
 </section>
 @code {
     //DisplayAlert???
+
+    private void SetMove() 
+    {
+        
+    }
 }
