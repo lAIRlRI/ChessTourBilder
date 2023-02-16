@@ -1,0 +1,26 @@
+﻿<h3>GameMove</h3>
+
+<section>
+    <p>Чей ход</p>
+    <div>
+        <select placeholder="Фигура">
+            @* @foreach (var item in Figures)
+            {
+            <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
+            }*@
+        </select>
+        <select placeholder="Ход">
+            @* @foreach (var item in Figures)
+            {
+            <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
+            }*@
+        </select>
+    </div>
+   <div>
+       <button>Сделать ход</button>
+       <button>Завершить партию</button>
+   </div>
+</section>
+@code {
+    //DisplayAlert???
+}

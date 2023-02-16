@@ -51,6 +51,7 @@
 
     <ItemGroup>
       <Content Remove="Pages\Autorization.razor" />
+      <Content Remove="Pages\GameMove.razor" />
       <Content Remove="Pages\TourList.razor" />
     </ItemGroup>
 
@@ -64,11 +65,17 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Pages\Autorization.razor" />
+      <_ContentIncludedByDefault Remove="Pages\GameMove.razor" />
     </ItemGroup>
 
     <ItemGroup>
       <None Include="Pages\Autorization.razor" />
+      <None Include="Pages\GameMove.razor" />
       <None Include="Pages\TourList.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Pages\GameMove.razor" />
     </ItemGroup>
 
 </Project>
