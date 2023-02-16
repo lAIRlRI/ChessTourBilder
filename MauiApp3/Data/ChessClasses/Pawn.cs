@@ -10,6 +10,6 @@ namespace MauiApp3.Data.ChessClasses
     {
         public override string Name { get; } = "P";
 
-        public override string Move() => "";
+        public override void Move() => "";
     }
 }
