@@ -9,62 +9,68 @@ namespace MauiApp3.Data.ChessClasses
 {
     internal class ChessGame
     {
+        public Figure[] Figures { get; set; } = new Figure[32];
+
+        public List<string> Move { get; } = new List<string>();
+
         public ChessGame(int wPlayer, int bPlayer)
         {
+            DataBaseFullConn.OpenConn();
             CreateChessTable(wPlayer, bPlayer);
+            GetFigures();
         }
 
-        private Figure[] GetFigures() 
+        private void GetFigures()
         {
-            var table = DataBase.ConnDataSet("select * from #Figures where InGame = 1");
+            var table = DataBaseFullConn.ConnDataSet("select * from #Figures");
             int i = 0;
-            Figure[] figures = new Figure[table.Tables[0].Rows.Count];
             foreach (DataRow item in table.Tables[0].Rows)
             {
                 //хештаблицы???; избавиться от object
-                switch (item["Figure"]) 
+                switch (item["Figure"])
                 {
                     case "":
-                        figures[i] = new Pawn(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
+                        Figures[i] = new Pawn(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
                         break;
                     case "K":
-                        figures[i] = new King(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
+                        Figures[i] = new King(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
                         break;
                     case "Q":
-                        figures[i] = new Queen(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
+                        Figures[i] = new Queen(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
                         break;
                     case "B":
-                        figures[i] = new Bishop(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
+                        Figures[i] = new Bishop(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
                         break;
                     case "N":
-                        figures[i] = new Knight(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
+                        Figures[i] = new Knight(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
                         break;
                     case "R":
-                        figures[i] = new Rook(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
+                        Figures[i] = new Rook(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]));
                         break;
                 }
                 i++;
             }
-
-            return figures;
         }
 
-        public void SetFigure(Figure figure, string move) 
+        public void SetFigure(Figure figure, string move)
         {
             //figure.Move();
-            string str = $"UPDATE #Figures " +
-            $"SET InGame = 1" +
-            $",Pozition = {move}" +
-            $" WHERE Figure = {figure.Name} and Pozition = {figure.Pozition}";
-            DataBase.ConnChange(str);
+            int InGame = 1;
+            string str = "UPDATE #Figures " +
+                $"SET InGame = {InGame}" +
+                $",Pozition = '{move}'" +
+                $" WHERE Figure = '{figure.Name}' and Pozition = '{figure.Pozition}'";
+            DataBaseFullConn.ConnChange(str);
+            Move.Add(figure.Name + move);
+            GetFigures();
         }
 
-        public Figure[] GetFigure(bool IsWhile) 
+        public Figure[] GetFigure(bool IsWhile)
         {
-            return GetFigures().Where(p => p.IsWhile == IsWhile).ToArray(); 
+            return Figures.Where(p => p.IsWhile == IsWhile).OrderBy(i => i.Name).ToArray();
         }
 
-        private void CreateChessTable(int wPlayer, int bPlayer) 
+        private void CreateChessTable(int wPlayer, int bPlayer)
         {
             string str = "create table #Figures(" +
                 "Figure nvarchar(1) not null," +
@@ -105,7 +111,12 @@ namespace MauiApp3.Data.ChessClasses
                 $"('R','H8', {bPlayer}, 0)," +
                 $"('R','A1', {wPlayer}, 1)," +
                 $"('R','A8', {bPlayer}, 0)";
-            DataBase.ConnChange(str);
+            DataBaseFullConn.ConnChange(str);
+        }
+
+        public async void EndGame()
+        {
+            DataBaseFullConn.CloseCon();
         }
     }
 }

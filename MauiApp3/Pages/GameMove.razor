@@ -1,47 +1,76 @@
 ﻿@page "/gameMove"
-@using MauiApp3.Data.ChessClasses
 @using MauiApp3.Data.Controler
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
 
 <section class="main-conteneer">
-    <p class="top-row-text text">@(IsWhile ? "Белые" : "Чёрные")</p>
+    <p class="top-row-text text">@str</p>
     <div>
-        <select @bind="figure" placeholder="Фигура">
-            @foreach (var item in chessGame.GetFigure(IsWhile))
-            {
-                <option value="@item">@item.Name@item.Pozition</option>
-            }
-        </select>
-        <select @bind="move" placeholder="Ход">
-            @for (int i = 0; i < 8; i++)
-            {
-                for (int j = 1; j <= 8; j++)
+        <div>
+            <p class="text">Фигура</p>
+            <select @bind="index">
+                @foreach (var item in chessGame.GetFigure(IsWhile))
                 {
-                    <option value="coloms[i]+j">coloms[i]+j</option>
+                    <option value="@i">@item.Name@item.Pozition</option>
+                    i++;
                 }
-            }
-        </select>
+            </select>
+        </div>
+        <div>
+            <select @bind="move" placeholder="Ход">
+                @for (int i = 0; i < 8; i++)
+                {
+                    for (int j = 1; j <= 8; j++)
+                    {
+                        <option value="@(coloms[i]+j)">@(coloms[i] + j)</option>
+                    }
+                }
+            </select>
+        </div>
     </div>
     <div>
         <button @onclick="SetMove" class="top-row-text text">Сделать ход</button>
-        <button class="top-row-text text">Завершить партию</button>
+        <button @onclick="EndGame" class="top-row-text text">Завершить партию</button>
     </div>
+    <div>
+        @foreach (var item in chessGame.Move)
+        {
+            @(item + "; ")
+        }
+    </div>
+    @if (End)
+    {
+        <select @bind="result" placeholder="Ход">
+            <option value="Белые">Белые</option>
+            <option value="Чёрные">Чёрные</option>
+            <option value="Ничья">Ничья</option>
+        </select>
+        <button @onclick="EndGame" class="top-row-text text">Завершить партию</button>
+    }
 </section>
 @code {
-    //DisplayAlert???
-    ChessGame chessGame = new(ConsignmentControler.nowConsignment.whitePlayer.PlayerID, ConsignmentControler.nowConsignment.blackPlayer.PlayerID);
-    Figure figure;
-    string move;
+
+    Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment.whitePlayer.PlayerID, ConsignmentControler.nowConsignment.blackPlayer.PlayerID);
     string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
-    bool IsWhile = true;
+    bool IsWhile = true, End;
+    string move, str = "Белые", result;
+    int index = 0, i = 0;
+
+    private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
 
     private void SetMove()
     {
-        if (figure == null) return;
+        if (index == -1) return;
         if (move == null) return;
-        chessGame.SetFigure(figure, move);
+        chessGame.SetFigure(chessGame.GetFigure(IsWhile)[index], move);
         IsWhile = !IsWhile;
+        Swap();
+        i = index = 0;
+    }
+
+    private void EndGame()
+    {
+        chessGame.EndGame();
     }
 }
