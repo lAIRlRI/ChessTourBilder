@@ -36,6 +36,22 @@ public class DataBase
         }
     }
 
+    public static DataSet ConnDataSet(string str)
+    {
+        try
+        {
+            sqlConnection.Open();
+            SqlDataAdapter adapter = new SqlDataAdapter(str, sqlConnection);
+            DataSet ds = new DataSet();
+            adapter.Fill(ds);
+            return ds;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
     public static bool ConnChange(string str) 
     {
         try
@@ -50,6 +66,8 @@ public class DataBase
             throw e;
         }
     }
+
+
 
     public static bool ConnChange(string str, List<SqlParameter> list)
     {

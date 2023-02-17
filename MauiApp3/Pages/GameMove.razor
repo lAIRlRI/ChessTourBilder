@@ -1,34 +1,47 @@
 ﻿@page "/gameMove"
+@using MauiApp3.Data.ChessClasses
+@using MauiApp3.Data.Controler
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
 
 <section class="main-conteneer">
-    <p class="top-row-text text">Чей ход</p>
+    <p class="top-row-text text">@(IsWhile ? "Белые" : "Чёрные")</p>
     <div>
-        <select placeholder="Фигура">
-            @* @foreach (var item in Figures)
+        <select @bind="figure" placeholder="Фигура">
+            @foreach (var item in chessGame.GetFigure(IsWhile))
             {
-            <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
-            }*@
+                <option value="@item">@item.Name@item.Pozition</option>
+            }
         </select>
-        <select placeholder="Ход">
-            @* @foreach (var item in Figures)
+        <select @bind="move" placeholder="Ход">
+            @for (int i = 0; i < 8; i++)
             {
-            <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
-            }*@
+                for (int j = 1; j <= 8; j++)
+                {
+                    <option value="coloms[i]+j">coloms[i]+j</option>
+                }
+            }
         </select>
     </div>
-   <div>
+    <div>
         <button @onclick="SetMove" class="top-row-text text">Сделать ход</button>
         <button class="top-row-text text">Завершить партию</button>
-   </div>
+    </div>
 </section>
 @code {
     //DisplayAlert???
+    ChessGame chessGame = new(ConsignmentControler.nowConsignment.whitePlayer.PlayerID, ConsignmentControler.nowConsignment.blackPlayer.PlayerID);
+    Figure figure;
+    string move;
+    string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
+    bool IsWhile = true;
 
-    private void SetMove() 
+    private void SetMove()
     {
-        
+        if (figure == null) return;
+        if (move == null) return;
+        chessGame.SetFigure(figure, move);
+        IsWhile = !IsWhile;
     }
 }
