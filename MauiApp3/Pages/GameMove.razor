@@ -6,19 +6,19 @@
 
 <section class="main-conteneer">
     <p class="top-row-text text">@str</p>
-    <div>
+    <div style="display: flex; flex-wrap: wrap;">
         <div>
-            <p class="text">Фигура</p>
             <select @bind="index">
+                <option value="">Выберете фигуру</option>
                 @foreach (var item in chessGame.GetFigure(IsWhile))
                 {
-                    <option value="@i">@item.Name@item.Pozition</option>
-                    i++;
+                    <option value="@item.Pozition">@item.Name@item.Pozition</option>
                 }
             </select>
         </div>
         <div>
-            <select @bind="move" placeholder="Ход">
+            <select @bind="move">
+                <option value="">Выберете ход</option>
                 @for (int i = 0; i < 8; i++)
                 {
                     for (int j = 1; j <= 8; j++)
@@ -28,49 +28,55 @@
                 }
             </select>
         </div>
-    </div>
+    </div> 
     <div>
         <button @onclick="SetMove" class="top-row-text text">Сделать ход</button>
-        <button @onclick="EndGame" class="top-row-text text">Завершить партию</button>
+        <button @onclick="SwapEnd" class="top-row-text text">Завершить партию</button>
     </div>
+    @if (End)
+    {
+        <select @bind="result">
+            <option value="">Выберете результат</option>
+            <option value="1">Белые</option>
+            <option value="0">Чёрные</option>
+            <option value="0.5">Ничья</option>
+        </select>
+        <button @onclick="EndGame" class="top-row-text text">Завершить партию</button>
+    }
     <div>
         @foreach (var item in chessGame.Move)
         {
             @(item + "; ")
         }
     </div>
-    @if (End)
-    {
-        <select @bind="result" placeholder="Ход">
-            <option value="Белые">Белые</option>
-            <option value="Чёрные">Чёрные</option>
-            <option value="Ничья">Ничья</option>
-        </select>
-        <button @onclick="EndGame" class="top-row-text text">Завершить партию</button>
-    }
 </section>
 @code {
 
-    Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment.whitePlayer.PlayerID, ConsignmentControler.nowConsignment.blackPlayer.PlayerID);
+    Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment);
     string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
     bool IsWhile = true, End;
-    string move, str = "Белые", result;
-    int index = 0, i = 0;
+    string move, index, str = "Белые";
+    double? result;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
+    private void SwapEnd() => End = !End;
 
     private void SetMove()
     {
-        if (index == -1) return;
+        if (index == null) return;
         if (move == null) return;
-        chessGame.SetFigure(chessGame.GetFigure(IsWhile)[index], move);
+
+        chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.Pozition == index).FirstOrDefault(), move);
+        index = "";
         IsWhile = !IsWhile;
         Swap();
-        i = index = 0;
     }
 
     private void EndGame()
     {
-        chessGame.EndGame();
+        if (result == null) return;
+        chessGame.EndGame(result);
+        Data.DataBaseFullConn.CloseCon();
+        NavigationManager.NavigateTo("/game");
     }
 }

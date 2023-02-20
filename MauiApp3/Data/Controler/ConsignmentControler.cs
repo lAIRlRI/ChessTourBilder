@@ -54,11 +54,14 @@ internal class ConsignmentControler
     public static bool Update(Consignment model)
     {
         SqlParameterSet(model);
-        return DataBase.ConnChange($"UPDATE [dbo].[Consignment] " +
+        if(!DataBase.ConnChange($"UPDATE [dbo].[Consignment] " +
             $"SET [TourID ] = @TourID" +
             $",[StatusID] = @StatusID" +
             $",[DateStart] = @DateStart" +
-            $" WHERE ConsignmentID = {model.ConsignmentID}", list);
+            $" WHERE ConsignmentID = {model.ConsignmentID}", list)) return false;
+        if(!ConsignmentPlayerControler.Update(model.blackPlayer)) return false;
+        if (!ConsignmentPlayerControler.Update(model.whitePlayer)) return false;
+        return true;
     }
 
     public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[Consignment] WHERE ConsignmentID = {id}");

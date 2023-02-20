@@ -67,8 +67,6 @@ public class DataBase
         }
     }
 
-
-
     public static bool ConnChange(string str, List<SqlParameter> list)
     {
         try

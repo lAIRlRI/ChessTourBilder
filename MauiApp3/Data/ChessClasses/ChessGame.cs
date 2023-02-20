@@ -4,25 +4,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using MauiApp3.Data.Model;
+using MauiApp3.Data.Controler;
 
 namespace MauiApp3.Data.ChessClasses
 {
     internal class ChessGame
     {
-        public Figure[] Figures { get; set; } = new Figure[32];
+        public Figure[] Figures { get; } = new Figure[32];
 
         public List<string> Move { get; } = new List<string>();
 
-        public ChessGame(int wPlayer, int bPlayer)
+        private Consignment consignment;
+        private string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
+        private string tableFigures = "[#Figures" + DateTime.UtcNow+"]";
+
+        public ChessGame(Consignment consignment)
         {
             DataBaseFullConn.OpenConn();
-            CreateChessTable(wPlayer, bPlayer);
+            this.consignment = consignment;
+            DataBaseFullConn.ConnChange($"create table {tableMove} (" +
+                "ID int identity(1,1) not null," +
+                "PlayerID int not null," +
+                "Move nvarchar(10) not null," +
+                "ConsignmentID int not null," +
+                "TourID int not null," +
+                "LastMove bit not null default 0," +
+                "Winner bit not null default 0)");
+            CreateChessTable(consignment.whitePlayer.PlayerID, consignment.blackPlayer.PlayerID);
+
             GetFigures();
         }
 
         private void GetFigures()
         {
-            var table = DataBaseFullConn.ConnDataSet("select * from #Figures");
+            var table = DataBaseFullConn.ConnDataSet($"select * from {tableFigures}");
             int i = 0;
             foreach (DataRow item in table.Tables[0].Rows)
             {
@@ -56,11 +72,17 @@ namespace MauiApp3.Data.ChessClasses
         {
             //figure.Move();
             int InGame = 1;
-            string str = "UPDATE #Figures " +
+            string str = $"UPDATE {tableFigures} " +
                 $"SET InGame = {InGame}" +
                 $",Pozition = '{move}'" +
                 $" WHERE Figure = '{figure.Name}' and Pozition = '{figure.Pozition}'";
             DataBaseFullConn.ConnChange(str);
+
+            int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
+            str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
+                        $" values ({ID},'{move}',{consignment.ConsignmentID},{consignment.TourID})";
+            DataBaseFullConn.ConnChange(str);
+
             Move.Add(figure.Name + move);
             GetFigures();
         }
@@ -72,13 +94,14 @@ namespace MauiApp3.Data.ChessClasses
 
         private void CreateChessTable(int wPlayer, int bPlayer)
         {
-            string str = "create table #Figures(" +
+
+            string str = $"create table {tableFigures}(" +
                 "Figure nvarchar(1) not null," +
                 "Pozition nvarchar(2) not null," +
                 "PlayerID int not null," +
                 "IsWhile bit not null," +
                 "InGame bit not null default 1)" +
-                "insert into #Figures (Figure,Pozition,PlayerID,IsWhile)" +
+                $"insert into {tableFigures} (Figure,Pozition,PlayerID,IsWhile)" +
                 $"values ('','A2', {wPlayer}, 1)," +
                 $"('','B2', {wPlayer}, 1)," +
                 $"('','C2', {wPlayer}, 1)," +
@@ -114,9 +137,60 @@ namespace MauiApp3.Data.ChessClasses
             DataBaseFullConn.ConnChange(str);
         }
 
-        public async void EndGame()
+        public void EndGame(double? result)
         {
-            DataBaseFullConn.CloseCon();
+            string str = $"update {tableMove} set " +
+                $"LastMove = 1 " +
+                $"where ID in (select top 1 ID from {tableMove} order by ID desc)";
+            DataBaseFullConn.ConnChange(str);
+
+            if (result == 0.5) 
+            {
+                consignment.whitePlayer.Result = 0.5;
+                consignment.blackPlayer.Result = 0.5;
+            }
+            else
+            {
+                int ID;
+                if (result == 1)
+                {
+                    ID = consignment.whitePlayer.PlayerID;
+                    consignment.whitePlayer.Result = 1;
+                    consignment.blackPlayer.Result = 0;
+                }
+                else 
+                { 
+                    ID = consignment.blackPlayer.PlayerID;
+                    consignment.whitePlayer.Result = 0;
+                    consignment.blackPlayer.Result = 1;
+                }
+
+                str = $" update {tableMove} set " +
+                    $"Winner = 1 " +
+                    $"where ID in (select top 1 ID from {tableMove} where PlayerID = {ID} order by ID desc)";
+
+            }
+            DataBaseFullConn.ConnChange(str);
+            consignment.whitePlayer.player.ELORating = ELO((double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.Result);
+            consignment.blackPlayer.player.ELORating = ELO((double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.Result);
+
+            ConsignmentPlayerControler.Update(consignment.whitePlayer);
+            ConsignmentPlayerControler.Update(consignment.blackPlayer);        }
+
+        private double ELO(double mPlayer, double sPlayer, double result)
+        {
+            double d = sPlayer - mPlayer;
+            int k;
+
+            if (Math.Abs(d) > 400) d = 400;
+
+            double Ea = 1 / (1 + Math.Pow(10, d / 400));
+
+            if (mPlayer >= 2400) k = 10;
+            else if (mPlayer >= 2000) k = 20;
+            else k = 40;
+
+            return Math.Round(mPlayer + k * (result - Ea), 1);
         }
     }
 }

@@ -20,6 +20,20 @@ public class DataBaseFullConn
                            $"Integrated Security = true;";
     static SqlConnection sqlConnection = new SqlConnection(sqlcon);
 
+    public static SqlDataReader Conn(string str)
+    {
+        try
+        {
+            SqlCommand sqlCommand = new SqlCommand(str, sqlConnection);
+            SqlDataReader reader = sqlCommand.ExecuteReader();
+            return reader;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
     public static DataSet ConnDataSet(string str)
     {
         try
@@ -41,6 +55,22 @@ public class DataBaseFullConn
         {
             SqlCommand sqlCommand = new SqlCommand(str, sqlConnection);
             bool result = sqlCommand.ExecuteNonQuery() > 0;
+            return result;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    public static bool ConnChange(string str, List<SqlParameter> list)
+    {
+        try
+        {
+            SqlCommand sqlCommand = new SqlCommand(str, sqlConnection);
+            foreach (var item in list) sqlCommand.Parameters.Add(item);
+            bool result = sqlCommand.ExecuteNonQuery() > 0;
+            sqlCommand.Parameters.Clear();
             return result;
         }
         catch (Exception e)

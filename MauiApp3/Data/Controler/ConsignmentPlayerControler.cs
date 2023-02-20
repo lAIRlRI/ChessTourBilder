@@ -53,14 +53,17 @@ internal class ConsignmentPlayerControler
     public static bool Update(ConsignmentPlayer model)
     {
         SqlParameterSet(model);
-        return DataBase.ConnChange($"UPDATE [dbo].[ConsignmentPlayer] " +
+        if(!DataBase.ConnChange($"UPDATE [dbo].[ConsignmentPlayer] " +
             $"SET [ConsignmentID] = @ConsignmentID" +
             $",[PlayerID] = @PlayerID" +
             $",[IsWhile] = @IsWhile" +
             $",[Result] = @Result" +
             $",[Score] = @Score" +
             $",[GameMove] = @GameMove" +
-            $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list);
+            $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list)) return false;
+        if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
+        return true;
+
     }
 
     public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[ConsignmentPlayer] WHERE ConsignmentPlayerID = {id}");
