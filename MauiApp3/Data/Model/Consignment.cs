@@ -12,6 +12,7 @@ namespace MauiApp3.Data.Model
         public int TourID { get; set; }
         public int StatusID { get; set; }
         public DateTime? DateStart { get; set; }
+        public string GameMove { get; set; }
 
         public ConsignmentPlayer whitePlayer;
         public ConsignmentPlayer blackPlayer;

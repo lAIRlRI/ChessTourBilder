@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class DataBase
 {
-    static string db = "CTB_version_2_2_20230204";
+    static string db = "CTB_version_2_3_20230222";
     static string ip = "DESKTOP-7T6ACSF\\SQLEXPRESS";
     static string userName = "ARR";
     static string userPassword = "1234";

@@ -15,7 +15,6 @@ namespace MauiApp3.Data.Model
         public bool IsWhile { get; set; }
         public double? Result { get; set; }
         public double? Score { get; set; }
-        public string GameMove { get; set; }
 
         public Player player;
     }

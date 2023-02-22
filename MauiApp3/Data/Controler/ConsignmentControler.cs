@@ -15,7 +15,8 @@ internal class ConsignmentControler
                                         {
                                             new SqlParameter() {ParameterName = "@TourID" },
                                             new SqlParameter() {ParameterName = "@StatusID" },
-                                            new SqlParameter() {ParameterName = "@DateStart" }
+                                            new SqlParameter() {ParameterName = "@DateStart" },
+                                            new SqlParameter() {ParameterName = "@GameMove" }
                                         };
 
 
@@ -24,11 +25,11 @@ internal class ConsignmentControler
         list[0].Value = model.TourID;
         list[1].Value = model.StatusID;
         list[2].Value = model.DateStart;
+        list[3].Value = model.GameMove == null ? DBNull.Value : model.GameMove;
     }
 
     public static bool Insert(Consignment model)
     {
-
         SqlParameterSet(model);
         if (!DataBase.ConnChange("INSERT INTO [dbo].[Consignment](" +
                                                             "[TourID]," +
@@ -58,9 +59,10 @@ internal class ConsignmentControler
             $"SET [TourID ] = @TourID" +
             $",[StatusID] = @StatusID" +
             $",[DateStart] = @DateStart" +
+            $",[GameMove] = @GameMove" +
             $" WHERE ConsignmentID = {model.ConsignmentID}", list)) return false;
         if(!ConsignmentPlayerControler.Update(model.blackPlayer)) return false;
-        if (!ConsignmentPlayerControler.Update(model.whitePlayer)) return false;
+        if(!ConsignmentPlayerControler.Update(model.whitePlayer)) return false;
         return true;
     }
 

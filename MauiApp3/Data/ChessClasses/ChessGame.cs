@@ -17,7 +17,7 @@ namespace MauiApp3.Data.ChessClasses
 
         private Consignment consignment;
         private string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
-        private string tableFigures = "[#Figures" + DateTime.UtcNow+"]";
+        private string tableFigures = "[#Figures" + DateTime.UtcNow + "]";
 
         public ChessGame(Consignment consignment)
         {
@@ -30,7 +30,10 @@ namespace MauiApp3.Data.ChessClasses
                 "ConsignmentID int not null," +
                 "TourID int not null," +
                 "LastMove bit not null default 0," +
-                "Winner bit not null default 0)");
+                "Winner bit not null default 0," +
+                "FOREIGN KEY(PlayerID) REFERENCES Player(FIDEID)," +
+                "FOREIGN KEY(ConsignmentID) REFERENCES Consignment(ConsignmentID)," +
+                "FOREIGN KEY(TourID) REFERENCES Tour(TourID))");
             CreateChessTable(consignment.whitePlayer.PlayerID, consignment.blackPlayer.PlayerID);
 
             GetFigures();
@@ -144,7 +147,7 @@ namespace MauiApp3.Data.ChessClasses
                 $"where ID in (select top 1 ID from {tableMove} order by ID desc)";
             DataBaseFullConn.ConnChange(str);
 
-            if (result == 0.5) 
+            if (result == 0.5)
             {
                 consignment.whitePlayer.Result = 0.5;
                 consignment.blackPlayer.Result = 0.5;
@@ -158,8 +161,8 @@ namespace MauiApp3.Data.ChessClasses
                     consignment.whitePlayer.Result = 1;
                     consignment.blackPlayer.Result = 0;
                 }
-                else 
-                { 
+                else
+                {
                     ID = consignment.blackPlayer.PlayerID;
                     consignment.whitePlayer.Result = 0;
                     consignment.blackPlayer.Result = 1;
@@ -173,9 +176,9 @@ namespace MauiApp3.Data.ChessClasses
             DataBaseFullConn.ConnChange(str);
             consignment.whitePlayer.player.ELORating = ELO((double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.Result);
             consignment.blackPlayer.player.ELORating = ELO((double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.Result);
-
-            ConsignmentPlayerControler.Update(consignment.whitePlayer);
-            ConsignmentPlayerControler.Update(consignment.blackPlayer);        }
+            consignment.GameMove = string.Join(';', Move);
+            ConsignmentControler.Update(consignment);
+        }
 
         private double ELO(double mPlayer, double sPlayer, double result)
         {

@@ -73,7 +73,7 @@
     Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };
     bool update = true;
     bool add = false;
-    List<Data.Model.Player> list = PlayerControler.staticPlayer.Where(p => EventPlayerControler.Get().Where(q => q.EventID == EventControler.nowEvent.EventID).Select(w => w.PlayerID).Contains(p.FIDEID.GetValueOrDefault())).ToList();
+    List<Data.Model.Player> list = PlayerControler.Get().Where(p => EventPlayerControler.Get().Where(q => q.EventID == EventControler.nowEvent.EventID).Select(w => w.PlayerID).Contains(p.FIDEID.GetValueOrDefault())).ToList();
 
 
     private void OnUpdate() => update = !update;

@@ -16,8 +16,7 @@ internal class ConsignmentPlayerControler
                                             new SqlParameter() {ParameterName = "@PlayerID" },
                                             new SqlParameter() {ParameterName = "@IsWhile" },
                                             new SqlParameter() {ParameterName = "@Result" },
-                                            new SqlParameter() {ParameterName = "@Score" },
-                                            new SqlParameter() {ParameterName = "@GameMove" }
+                                            new SqlParameter() {ParameterName = "@Score" }
                                         };
 
 
@@ -28,7 +27,6 @@ internal class ConsignmentPlayerControler
         list[2].Value = model.IsWhile;
         list[3].Value = model.Result == null ? DBNull.Value : model.Result;
         list[4].Value = model.Score == null ? DBNull.Value : model.Score;
-        list[5].Value = model.GameMove == null ? DBNull.Value : model.GameMove;
     }
 
     public static bool Insert(ConsignmentPlayer model)
@@ -39,15 +37,13 @@ internal class ConsignmentPlayerControler
                                                             "[PlayerID]," +
                                                             "[IsWhile]," +
                                                             "[Result]," +
-                                                            "[Score]," +
-                                                            "[GameMove])" +
+                                                            "[Score])" +
                                                       "VALUES(" +
                                                             $"@ConsignmentID," +
                                                             $"@PlayerID," +
                                                             $"@IsWhile," +
                                                             $"@Result," +
-                                                            $"@Score," +
-                                                            $"@GameMove)", list);
+                                                            $"@Score)", list);
     }
 
     public static bool Update(ConsignmentPlayer model)
@@ -59,7 +55,6 @@ internal class ConsignmentPlayerControler
             $",[IsWhile] = @IsWhile" +
             $",[Result] = @Result" +
             $",[Score] = @Score" +
-            $",[GameMove] = @GameMove" +
             $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list)) return false;
         if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
         return true;
@@ -113,9 +108,7 @@ internal class ConsignmentPlayerControler
                     Result = reader.IsDBNull(reader.GetOrdinal("Result")) ?
                                                             null : Convert.ToDouble(reader["Result"]),
                     Score = reader.IsDBNull(reader.GetOrdinal("Score")) ?
-                                                            null : Convert.ToDouble(reader["Score"]),
-                    GameMove = reader.IsDBNull(reader.GetOrdinal("GameMove")) ? 
-                                                            null : reader["GameMove"].ToString()
+                                                            null : Convert.ToDouble(reader["Score"])
                 }
             );
         }
