@@ -1,6 +1,7 @@
 ﻿@page "/player"
 @layout MainLayout
 @using Data.Controler
+@using System.Data
 @inject NavigationManager NavigationManager
 
 
@@ -60,10 +61,13 @@
         <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
     }
     <section class="pozition-conteneer">
-        <div class="element">
-            <h3 class="text">Назывние турнира</h3>
-            <h4 class="text">Место: 1</h4>
-        </div>
+        @foreach (DataRow item in ds.Tables[0].Rows)
+        {
+            <div class="element">
+                <h3 class="text">@item[0].ToString()</h3>
+                <h4 class="text">@item[1].ToString()</h4>
+            </div>
+        }
     </section>
 </body>
 
@@ -71,7 +75,8 @@
     Data.Model.Player playerModel = new();
     bool update = true;
     string[] result = new string[7];
-
+    DataSet ds = Data.DataBase.ConnDataSet("select e.Name as Name, ep.TopPlece as TopPlece from Event e" +
+                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}");
 
     private void OnUpdate() => update = !update;
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);

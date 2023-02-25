@@ -28,10 +28,11 @@
                 }
             </select>
         </div>
-    </div> 
+    </div>
     <div>
-        <button @onclick="SetMove" class="top-row-text text">Сделать ход</button>
-        <button @onclick="SwapEnd" class="top-row-text text">Завершить партию</button>
+        <button @onclick="SetMove" class="text">Сделать ход</button>
+        <button @onclick="SwapEnd" class="text">Завершить партию</button>
+        <button @onclick="DeleteMove" class="text">Удалить ход</button>
     </div>
     @if (End)
     {
@@ -41,7 +42,7 @@
             <option value="0">Чёрные</option>
             <option value="0.5">Ничья</option>
         </select>
-        <button @onclick="EndGame" class="top-row-text text">Завершить партию</button>
+        <button @onclick="EndGame" class="text">Подвердить</button>
     }
     <div>
         @foreach (var item in chessGame.Move)
@@ -50,16 +51,26 @@
         }
     </div>
 </section>
+
 @code {
 
     Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment);
     string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
-    bool IsWhile = true, End;
+    bool IsWhile = true, End, del = false;
     string move, index, str = "Белые";
     double? result;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
+
+    private void DeleteMove()
+    {
+        if (!del) return;
+        IsWhile = !IsWhile;
+        Swap();
+        del = false;
+        chessGame.DeleteLastMove();
+    }
 
     private void SetMove()
     {
@@ -69,6 +80,7 @@
         chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.Pozition == index).FirstOrDefault(), move);
         index = "";
         IsWhile = !IsWhile;
+        del = true;
         Swap();
     }
 

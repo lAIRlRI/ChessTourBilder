@@ -13,6 +13,10 @@ namespace MauiApp3.Data.ChessClasses
     {
         public Figure[] Figures { get; } = new Figure[32];
 
+        private string lastPozition;
+        private string lastMove;
+        private string lastFigure;
+
         public List<string> Move { get; } = new List<string>();
 
         private Consignment consignment;
@@ -85,7 +89,9 @@ namespace MauiApp3.Data.ChessClasses
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
                         $" values ({ID},'{move}',{consignment.ConsignmentID},{consignment.TourID})";
             DataBaseFullConn.ConnChange(str);
-
+            lastPozition = figure.Pozition;
+            lastMove = move;
+            lastFigure = figure.Name;
             Move.Add(figure.Name + move);
             GetFigures();
         }
@@ -194,6 +200,19 @@ namespace MauiApp3.Data.ChessClasses
             else k = 40;
 
             return Math.Round(mPlayer + k * (result - Ea), 1);
+        }
+
+        public void DeleteLastMove() 
+        {
+            DataBaseFullConn.ConnChange($"Delete from {tableMove} where ID in " +
+                                           $"(select top 1 ID from {tableMove} order by ID desc)");
+            string str = $"UPDATE {tableFigures} " +
+               $"SET InGame = 1" +
+               $",Pozition = '{lastPozition}'" +
+               $" WHERE Figure = '{lastFigure}' and Pozition = '{lastMove}'";
+            DataBaseFullConn.ConnChange(str);
+            Move.RemoveAt(Move.Count - 1);
+            GetFigures();
         }
     }
 }
