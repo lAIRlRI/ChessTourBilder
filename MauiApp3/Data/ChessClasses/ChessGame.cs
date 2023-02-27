@@ -153,7 +153,7 @@ namespace MauiApp3.Data.ChessClasses
                 $"where ID in (select top 1 ID from {tableMove} order by ID desc)";
             DataBaseFullConn.ConnChange(str);
 
-            if (result == 0.5)
+            if (result == 2)
             {
                 consignment.whitePlayer.Result = 0.5;
                 consignment.blackPlayer.Result = 0.5;

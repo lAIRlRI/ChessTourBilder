@@ -64,8 +64,8 @@
         @foreach (DataRow item in ds.Tables[0].Rows)
         {
             <div class="element">
-                <h3 class="text">@item[0].ToString()</h3>
-                <h4 class="text">@item[1].ToString()</h4>
+                <h3 class="text">@item["Name"].ToString()</h3>
+                <h4 class="text">@item["TopPlece"].ToString()</h4>
             </div>
         }
     </section>
@@ -75,7 +75,7 @@
     Data.Model.Player playerModel = new();
     bool update = true;
     string[] result = new string[7];
-    DataSet ds = Data.DataBase.ConnDataSet("select e.Name as Name, ep.TopPlece as TopPlece from Event e" +
+    DataSet ds = Data.DataBase.ConnDataSet("select Name, TopPlece from Event e " +
                             $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}");
 
     private void OnUpdate() => update = !update;

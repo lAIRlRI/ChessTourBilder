@@ -44,6 +44,7 @@ public class DataBase
             SqlDataAdapter adapter = new SqlDataAdapter(str, sqlConnection);
             DataSet ds = new DataSet();
             adapter.Fill(ds);
+            CloseCon();
             return ds;
         }
         catch (Exception e)
