@@ -12,7 +12,7 @@ namespace MauiApp3.Data.ChessClasses
     internal class Queen : Figure
     {
         public override string Name { get; } = "Q";
-        public Queen(string poziton, bool IsWhile) : base(poziton, IsWhile) { }
+        public Queen(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
         public override void Move() { }
     }

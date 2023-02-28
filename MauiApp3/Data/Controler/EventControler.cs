@@ -41,7 +41,7 @@ internal class EventControler
     public static bool Insert(Event model)
     {
         SqlParameterSet(model);
-        return DataBase.ConnChange("INSERT INTO [dbo].[Event](" +
+        DataBase.ConnChange("INSERT INTO [dbo].[Event](" +
                                                             "[Name]," +
                                                             "[PrizeFund]," +
                                                             "[DataStart]," +
@@ -59,6 +59,14 @@ internal class EventControler
                                                             $"@OrganizerID," +
                                                             $"@LocationEvent," +
                                                             $"@IsPublic)", list);
+        DataBase.ConnChange($"create table {GetLast().GetTableName()} (" +
+                                                   "EventID int not null," +
+                                                   "PlayerID int not null," +
+                                                   "Result float not null," +
+                                                   "ConsignmentID int not null," +
+                                                   "FOREIGN KEY(PlayerID) REFERENCES Player(FIDEID)," +
+                                                   "FOREIGN KEY(ConsignmentID) REFERENCES Consignment(ConsignmentID))");
+        return true;
     }
 
     public static bool Update(Event model)

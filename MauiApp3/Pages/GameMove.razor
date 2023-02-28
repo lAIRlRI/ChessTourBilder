@@ -9,10 +9,10 @@
     <div style="display: flex; flex-wrap: wrap;">
         <div>
             <select @bind="index">
-                <option value="">Выберете фигуру</option>
+                <option value="0">Выберете фигуру</option>
                 @foreach (var item in chessGame.GetFigure(IsWhile))
                 {
-                    <option value="@item.Pozition">@item.Name@item.Pozition</option>
+                    <option value="@item.ID">@item.Name@item.Pozition</option>
                 }
             </select>
         </div>
@@ -57,7 +57,8 @@
     Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment);
     string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
     bool IsWhile = true, End, del = false;
-    string move, index, str = "Белые";
+    string move, str = "Белые";
+    int index;
     double? result;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
@@ -77,8 +78,8 @@
         if (index == null) return;
         if (move == null) return;
 
-        chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.Pozition == index).FirstOrDefault(), move);
-        index = "";
+        if(!chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault(), move)) return;
+        index = 0;
         IsWhile = !IsWhile;
         del = true;
         Swap();

@@ -17,5 +17,11 @@ namespace MauiApp3.Data.Model
         public int StatusID { get; set; }
         public int OrganizerID { get; set; }
         public bool IsPublic { get; set; }
+
+
+        public string GetTableName()
+        {
+            return "[Result" + Name + EventID + "]";
+        }
     }
 }

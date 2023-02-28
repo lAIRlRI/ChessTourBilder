@@ -12,7 +12,7 @@ namespace MauiApp3.Data.ChessClasses
     internal class Pawn : Figure
     {
         public override string Name { get; } = "";
-        public Pawn(string poziton, bool IsWhile) : base(poziton, IsWhile) { }
+        public Pawn(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
         public override void Move()
         {

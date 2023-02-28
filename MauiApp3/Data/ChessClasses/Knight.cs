@@ -13,7 +13,7 @@ namespace MauiApp3.Data.ChessClasses
     {
         public override string Name { get; } = "N";
 
-        public Knight(string poziton, bool IsWhile) : base(poziton, IsWhile) { }
+        public Knight(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
         public override void Move() { }
     }

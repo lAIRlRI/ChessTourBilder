@@ -129,7 +129,7 @@ internal class ConsignmentControler
                     TourID = Convert.ToInt32(reader["TourID"]),
                     StatusID = Convert.ToInt32(reader["StatusID"]),
                     DateStart = Convert.ToDateTime(reader["DateStart"]),
-                    GameMove = Convert.ToDateTime(reader["GameMove"]),
+                    GameMove = reader["GameMove"].ToString(),
                 }
             );
         }

@@ -1,5 +1,6 @@
 ﻿@page "/playerPositionList"
 @layout MainLayout
+@using System.Data
 @inject NavigationManager NavigationManager
 
 
@@ -15,15 +16,26 @@
         <div class="color-first pozition-conteneer">
             <div class="text-pozition">Позиция</div>
             <div class="input-main text-aling text-pozition">Игрок</div>
+            <div class="input-main text-aling text-pozition">Очки</div>
         </div>
-        <div class="color-second pozition-conteneer ">
-            <div class="text-pozition">Позиция</div>
-            <div class="input-main text-aling text-pozition">Игрок</div>
-        </div>
+        @foreach (DataRow item in ds.Tables[0].Rows)
+        {
+            <div class="color-second pozition-conteneer">
+                <div class="text-pozition">@i</div>
+                <div class="input-main text-aling text-pozition">@item["Fi"].ToString()</div>
+                <div class="input-main text-aling text-pozition">@item["Points"].ToString()</div>
+            </div>
+            i++;
+        }
     </section>
 </body>
 
 @code {
+    DataSet ds = Data.DataBase.ConnDataSet(";with playerSum as" +
+    $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
+    "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID");
+
+    int i = 1;
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 }

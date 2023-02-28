@@ -17,7 +17,6 @@ internal class EventPlayerControler
                                             new SqlParameter() {ParameterName = "@TopPlece" }
                                         };
 
-
     private static void SqlParameterSet(EventPlayer model)
     {
         list[0].Value = model.EventID;

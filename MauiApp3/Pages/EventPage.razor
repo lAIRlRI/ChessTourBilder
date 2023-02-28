@@ -14,7 +14,7 @@
     </div>
     <div class="top-row-conteneer">
         <div class="nav-item">
-            <button class="top-row-text text">Результаты</button>
+            <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))"  class="top-row-text text">Результаты</button>
             <button @onclick="@(()=>OnClickNavigation("/tourList"))" class="top-row-text text">Туры</button>
             @if (Data.Helper.CheckDeleteButton())
             {
