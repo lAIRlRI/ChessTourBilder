@@ -46,6 +46,10 @@
                     <p>Публичный</p>
                     <input @bind-value="eventModel.IsPublic" type="checkbox" class="text-pozition"/>
                 </div>
+                 <div style="display:flex;">
+                    <p>Круговой</p>
+                    <input @bind-value="eventModel.TypeEvent" type="checkbox" class="text-pozition"/>
+                </div>
                 <button class="top-row-text text" @onclick="Add">Добавить</button>
             </div>
         }

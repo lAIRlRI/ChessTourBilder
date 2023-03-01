@@ -31,9 +31,14 @@
 </body>
 
 @code {
-    DataSet ds = Data.DataBase.ConnDataSet(";with playerSum as" +
-    $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
-    "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID");
+    DataSet ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
+            Data.DataBase.ConnDataSet(";with playerSum as" +
+            $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
+            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc")
+        :
+            Data.DataBase.ConnDataSet(";with playerSum as" +
+            $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
+            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc");
 
     int i = 1;
 

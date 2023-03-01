@@ -20,6 +20,7 @@ internal class EventControler
                                             new SqlParameter() {ParameterName = "@StatusID" },
                                             new SqlParameter() {ParameterName = "@OrganizerID" },
                                             new SqlParameter() {ParameterName = "@LocationEvent" },
+                                            new SqlParameter() {ParameterName = "@TypeEvent" },
                                             new SqlParameter() {ParameterName = "@IsPublic" }
                                         };
 
@@ -33,7 +34,8 @@ internal class EventControler
         list[4].Value = model.StatusID;
         list[5].Value = model.OrganizerID;
         list[6].Value = model.LocationEvent;
-        list[7].Value = model.IsPublic;
+        list[7].Value = model.TypeEvent;
+        list[8].Value = model.IsPublic;
     }
 
     public EventControler() => staticEvent = Get();
@@ -49,6 +51,7 @@ internal class EventControler
                                                             "[StatusID]," +
                                                             "[OrganizerID]," +
                                                             "[LocationEvent]," +
+                                                            "[TypeEvent]," +
                                                             "[IsPublic])" +
                                                       "VALUES(" +
                                                             $"@Name," +
@@ -58,6 +61,7 @@ internal class EventControler
                                                             $"@StatusID," +
                                                             $"@OrganizerID," +
                                                             $"@LocationEvent," +
+                                                            $"@TypeEvent," +
                                                             $"@IsPublic)", list);
         DataBase.ConnChange($"create table {GetLast().GetTableName()} (" +
                                                    "EventID int not null," +
@@ -81,10 +85,15 @@ internal class EventControler
             ",[OrganizerID] = @OrganizerID" +
             ",[IsPublic] = @IsPublic" +
             ",[LocationEvent] = @LocationEvent" +
+            ",[TypeEvent] = @TypeEvent" +
             " WHERE EventID = {model.EventID}", list);
     }
 
-    public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[Event] WHERE EventID = {id}");
+    public static bool Delete(Event model)
+    {
+        DataBase.ConnChange("delete table " + model.GetTableName());
+        return DataBase.ConnChange($"DELETE FROM [dbo].[Event] WHERE EventID = {model.EventID}");
+    }
 
     public static List<Event> Get(string str)
     {
@@ -130,6 +139,7 @@ internal class EventControler
                     DataFinish = Convert.ToDateTime(reader["DataFinish"]),
                     StatusID = Convert.ToInt32(reader["StatusID"]),
                     OrganizerID = Convert.ToInt32(reader["OrganizerID"]),
+                    TypeEvent = Convert.ToBoolean(reader["TypeEvent"]),
                     IsPublic = Convert.ToBoolean(reader["IsPublic"])
                 }
             );

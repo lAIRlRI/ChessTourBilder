@@ -132,7 +132,7 @@
 
     private void OnDelete()
     {
-        if (!EventControler.Delete(EventControler.nowEvent.EventID)) return;
+        if (!EventControler.Delete(EventControler.nowEvent)) return;
         EventControler ev = new();
         OnClickNavigation("/eventList");
     }

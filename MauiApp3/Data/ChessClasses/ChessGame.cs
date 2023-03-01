@@ -37,6 +37,8 @@ namespace MauiApp3.Data.ChessClasses
                 "FOREIGN KEY(PlayerID) REFERENCES Player(FIDEID)," +
                 "FOREIGN KEY(ConsignmentID) REFERENCES Consignment(ConsignmentID)," +
                 "FOREIGN KEY(TourID) REFERENCES Tour(TourID))");
+
+            DataBaseFullConn.ConnChange($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
             CreateChessTable();
 
             GetFigures();
@@ -234,6 +236,7 @@ namespace MauiApp3.Data.ChessClasses
 
         public void DeleteLastMove()
         {
+
             DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move from {tableMove} " +
                 "where ID in " +
                 $"(select top 1 ID from {tableMove} order by ID desc)");

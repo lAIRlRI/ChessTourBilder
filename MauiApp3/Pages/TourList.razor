@@ -62,6 +62,7 @@
         model.EventID = EventControler.nowEvent.EventID;
         if (TourControler.Insert(model))
         {
+            model = TourControler.GetLast();
             OnClickNavigateEvent(model);
         }
     }

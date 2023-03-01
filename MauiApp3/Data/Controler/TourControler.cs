@@ -62,6 +62,13 @@ internal class TourControler
         return models[0];
     }
 
+    public static Tour GetLast()
+    {
+        reader = DataBase.Conn("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)");
+        Reader();
+        return models[0];
+    }
+
     private static void Reader()
     {
         models = new List<Tour>();
