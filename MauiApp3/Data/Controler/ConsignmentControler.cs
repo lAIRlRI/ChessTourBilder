@@ -3,6 +3,7 @@
 using MauiApp3.Data.Model;
 using MauiApp3.Pages;
 using Microsoft.Data.SqlClient;
+using System.Data;
 using System;
 using System.Collections.Generic;
 
@@ -39,7 +40,7 @@ internal class ConsignmentControler
                                                             $"@TourID," +
                                                             $"@StatusID," +
                                                             $"@DateStart)", list)) return false;
-        int modelID = Get().Max(p => p.ConsignmentID);
+        int modelID = GetDataSet().Max(p => p.ConsignmentID);
         model.whitePlayer.ConsignmentID = modelID;
         model.whitePlayer.IsWhile = true;
 
@@ -78,16 +79,24 @@ internal class ConsignmentControler
 
     public static Consignment GetLast()
     {
-        reader = DataBase.Conn("SELECT * FROM Consignment where ConsignmentID = (select max(ConsignmentID) from Consignment)");
-        Reader();
+        DataSet ds = DataBase.ConnDataSet("SELECT * FROM Consignment where ConsignmentID = (select max(ConsignmentID) from Consignment)");
+        DataSeter(ds);
         ConsignmentPlayerGet();
         return models[0];
     }
 
     public static List<Consignment> Get()
     {
-        reader = DataBase.Conn("select * from Consignment");
+        reader = DataBase.Conn("SELECT * FROM Consignment");
         Reader();
+        ConsignmentPlayerGet();
+        return models;
+    }
+
+    public static List<Consignment> GetDataSet()
+    {
+        DataSet ds = DataBase.ConnDataSet("SELECT * FROM Consignment");
+        DataSeter(ds);
         ConsignmentPlayerGet();
         return models;
     }
@@ -135,5 +144,24 @@ internal class ConsignmentControler
         }
         reader.Close();
         DataBase.CloseCon();
+    }
+
+    private static void DataSeter(DataSet set)
+    {
+        models = new List<Consignment>();
+        foreach(DataRow item in set.Tables[0].Rows)
+        {
+            models.Add(
+                new Consignment()
+                {
+                    ConsignmentID = Convert.ToInt32(item["ConsignmentID"]),
+                    TourID = Convert.ToInt32(item["TourID"]),
+                    StatusID = Convert.ToInt32(item["StatusID"]),
+                    DateStart = Convert.ToDateTime(item["DateStart"]),
+                    GameMove = item["GameMove"].ToString(),
+                }
+            );
+        }
+
     }
 }

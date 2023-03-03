@@ -67,9 +67,7 @@ internal class EventControler
                                                    "EventID int not null," +
                                                    "PlayerID int not null," +
                                                    "Result float not null," +
-                                                   "ConsignmentID int not null," +
-                                                   "FOREIGN KEY(PlayerID) REFERENCES Player(FIDEID)," +
-                                                   "FOREIGN KEY(ConsignmentID) REFERENCES Consignment(ConsignmentID))");
+                                                   "ConsignmentID int not null)");
         return true;
     }
 
@@ -91,7 +89,6 @@ internal class EventControler
 
     public static bool Delete(Event model)
     {
-        DataBase.ConnChange("delete table " + model.GetTableName());
         return DataBase.ConnChange($"DELETE FROM [dbo].[Event] WHERE EventID = {model.EventID}");
     }
 

@@ -15,12 +15,13 @@ namespace MauiApp3.Data.ChessClasses
         private string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
         private string tableFigures = "[#Figures" + DateTime.UtcNow + "]";
         private Figure NotGameFigure;
-        private string lastPozition;
-        private int lastFigure = 0;
+        private Cell lastPozition;
+        private int orderCaptures = 0;
         private int lastIDFigure;
 
         public Figure[] Figures { get; } = new Figure[32];
         public List<string> Move { get; } = new List<string>();
+        public bool IsGameContinues { get; private set; } = true;
 
         public ChessGame(Consignment consignment)
         {
@@ -33,10 +34,7 @@ namespace MauiApp3.Data.ChessClasses
                 "ConsignmentID int not null," +
                 "TourID int not null," +
                 "LastMove bit not null default 0," +
-                "Winner bit not null default 0," +
-                "FOREIGN KEY(PlayerID) REFERENCES Player(FIDEID)," +
-                "FOREIGN KEY(ConsignmentID) REFERENCES Consignment(ConsignmentID)," +
-                "FOREIGN KEY(TourID) REFERENCES Tour(TourID))");
+                "Winner bit not null default 0)");
 
             DataBaseFullConn.ConnChange($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
             CreateChessTable();
@@ -85,20 +83,31 @@ namespace MauiApp3.Data.ChessClasses
         public bool SetFigure(Figure figure, string move)
         {
             if (figure == null) return false;
+
             string insertMove = figure.Name + move;
-            NotGameFigure = Figures.Where(p => p.Pozition == move && p.InGame == true).FirstOrDefault();
+
+            NotGameFigure = Figures.Where(p => p.Pozition.cell == move && p.InGame == true).FirstOrDefault();
+
             string str;
+
             if (NotGameFigure != default(Figure))
             {
                 if (NotGameFigure.IsWhile == figure.IsWhile) return false;
-                lastFigure++;
+                orderCaptures++;
                 str = $"UPDATE {tableFigures} " +
                 $"SET InGame = 0," +
-                $" EatID = {lastFigure}" +
+                $" EatID = {orderCaptures}" +
                 $" WHERE ID = {NotGameFigure.ID}";
                 DataBaseFullConn.ConnChange(str);
                 insertMove = figure.Name + "x" + move;
+                if (NotGameFigure.Name == "K")
+                {
+                    IsGameContinues = false;
+                    if (NotGameFigure.IsWhile) EndGame(0);
+                    EndGame(1);
+                }
             }
+
             str = $"UPDATE {tableFigures} " +
                 $"SET Pozition = '{move}'" +
                 $" WHERE ID = {figure.ID}";
@@ -108,10 +117,14 @@ namespace MauiApp3.Data.ChessClasses
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
                         $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID})";
             DataBaseFullConn.ConnChange(str);
+
             lastPozition = figure.Pozition;
             lastIDFigure = figure.ID;
+
             Move.Add(insertMove);
+
             GetFigures();
+
             return true;
         }
 
@@ -122,7 +135,6 @@ namespace MauiApp3.Data.ChessClasses
 
         private void CreateChessTable()
         {
-
             string str = $"create table {tableFigures}(" +
                 "ID int identity(1,1) not null," +
                 "Figure nvarchar(1) not null," +
@@ -200,11 +212,17 @@ namespace MauiApp3.Data.ChessClasses
 
             }
             DataBaseFullConn.ConnChange(str);
+
             consignment.whitePlayer.player.ELORating = ELO((double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.Result);
             consignment.blackPlayer.player.ELORating = ELO((double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.Result);
+
             consignment.GameMove = string.Join(';', Move);
+
             ConsignmentControler.Update(consignment);
-            if (result != 2) 
+
+            IsGameContinues = false;
+
+            if (result != 2)
             {
                 DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                    $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},{consignment.whitePlayer.Result},{consignment.ConsignmentID})");
@@ -212,6 +230,7 @@ namespace MauiApp3.Data.ChessClasses
                     $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},{consignment.blackPlayer.Result},{consignment.ConsignmentID})");
                 return;
             }
+
             DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                 $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},0.5,{consignment.ConsignmentID})");
             DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
@@ -236,7 +255,6 @@ namespace MauiApp3.Data.ChessClasses
 
         public void DeleteLastMove()
         {
-
             DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move from {tableMove} " +
                 "where ID in " +
                 $"(select top 1 ID from {tableMove} order by ID desc)");
@@ -246,7 +264,7 @@ namespace MauiApp3.Data.ChessClasses
                                            $"(select top 1 ID from {tableMove} order by ID desc)");
 
             string str = $"UPDATE {tableFigures} " +
-               $"SET Pozition = '{lastPozition}'" +
+               $"SET Pozition = '{lastPozition.cell}'" +
                $" WHERE ID = {lastIDFigure}";
             DataBaseFullConn.ConnChange(str);
 
@@ -254,10 +272,12 @@ namespace MauiApp3.Data.ChessClasses
             {
                 str = $"UPDATE {tableFigures} " +
                 $"SET InGame = 1" +
-                $" WHERE EatID = {lastFigure}";
+                $" WHERE EatID = {orderCaptures}";
                 DataBaseFullConn.ConnChange(str);
             }
+
             Move.RemoveAt(Move.Count - 1);
+
             GetFigures();
         }
     }

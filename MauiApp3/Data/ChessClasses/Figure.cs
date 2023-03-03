@@ -9,7 +9,7 @@ namespace MauiApp3.Data.ChessClasses
     internal abstract class Figure
     {
         public abstract string Name { get; }
-        public string Pozition { get; set; }
+        public Cell Pozition { get; set; }
         public bool IsWhile { get; set; }
         public int ID { get; }
         public bool InGame { get; set; } = true;
@@ -17,11 +17,11 @@ namespace MauiApp3.Data.ChessClasses
 
         public Figure(string pozition, bool isWhile, int id)
         {
-            Pozition = pozition;
+            Pozition = new(pozition);
             IsWhile = isWhile;
             ID = id;
         }
 
-        public abstract void Move();
+        public abstract bool Move(Cell pozition, Cell move);
     }
 }

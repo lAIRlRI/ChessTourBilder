@@ -2,6 +2,7 @@
 
 using MauiApp3.Data.Model;
 using Microsoft.Data.SqlClient;
+using System.Data;
 using System;
 using System.Collections.Generic;
 
@@ -45,11 +46,11 @@ internal class ConsignmentPlayerControler
     public static bool Update(ConsignmentPlayer model)
     {
         SqlParameterSet(model);
-        if(!DataBase.ConnChange($"UPDATE [dbo].[ConsignmentPlayer] " +
+        if (!DataBase.ConnChange($"UPDATE [dbo].[ConsignmentPlayer] " +
             $"SET [ConsignmentID] = @ConsignmentID" +
             $",[PlayerID] = @PlayerID" +
             $",[IsWhile] = @IsWhile" +
-            $",[Result] = @Result"+
+            $",[Result] = @Result" +
             $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list)) return false;
         if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
         return true;
@@ -60,15 +61,15 @@ internal class ConsignmentPlayerControler
 
     public static List<ConsignmentPlayer> Get(string str)
     {
-        reader = DataBase.Conn(str);
-        Reader();
+        DataSet ds = DataBase.ConnDataSet(str);
+        DataSeter(ds);
         ConsignmentPlayerPlayerGet();
         return models;
     }
 
     public static List<ConsignmentPlayer> Get()
     {
-        reader = DataBase.Conn("select * from ConsignmentPlayer" );
+        reader = DataBase.Conn("select * from ConsignmentPlayer");
         Reader();
         ConsignmentPlayerPlayerGet();
         return models;
@@ -78,12 +79,12 @@ internal class ConsignmentPlayerControler
     {
         foreach (var item in models)
         {
-            item.player = PlayerControler.staticPlayer.Where(p => p.FIDEID == item.PlayerID).FirstOrDefault();
+            item.player = PlayerControler.Get().Where(p => p.FIDEID == item.PlayerID).First();
         }
     }
 
     private static void Reader()
-    {       
+    {
         models = new List<ConsignmentPlayer>();
         while (reader.Read())
         {
@@ -107,5 +108,23 @@ internal class ConsignmentPlayerControler
         }
         reader.Close();
         DataBase.CloseCon();
+    }
+
+    private static void DataSeter(DataSet set)
+    {
+        models = new List<ConsignmentPlayer>();
+        foreach (DataRow item in set.Tables[0].Rows)
+        {
+            models.Add(
+                new ConsignmentPlayer()
+                {
+                    ConsignmentPlayerID = Convert.ToInt32(item["ConsignmentPlayerID"]),
+                    ConsignmentID = Convert.ToInt32(item["ConsignmentID"]),
+                    PlayerID = Convert.ToInt32(item["PlayerID"]),
+                    IsWhile = Convert.ToBoolean(item["IsWhile"]),
+                    Result = item.IsNull("Result") ? null : Convert.ToDouble(item["Result"])
+                }
+            );
+        }
     }
 }

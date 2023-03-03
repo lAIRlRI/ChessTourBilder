@@ -12,11 +12,13 @@ namespace MauiApp3.Data.ChessClasses
     internal class Pawn : Figure
     {
         public override string Name { get; } = "";
+        public bool IsMoving { get; set; } = false;
+
         public Pawn(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override void Move()
+        public override bool Move(Cell pozition, Cell move)
         {
-            return;
+            return true;
         }
     }
 }

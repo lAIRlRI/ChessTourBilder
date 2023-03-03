@@ -11,10 +11,14 @@ namespace MauiApp3.Data.ChessClasses
     ///</summary>
     internal class King : Figure
     {
-        public override string Name { get; } = "K";
+        public override string Name { get;} = "K";
+        public bool IsMoving { get; set; } = false;
 
         public King(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override void Move() { }
+        public override bool Move(Cell pozition, Cell move)
+        {
+            return true;
+        }
     }
 }

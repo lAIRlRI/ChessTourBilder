@@ -12,9 +12,13 @@ namespace MauiApp3.Data.ChessClasses
     internal class Rook : Figure
     {
         public override string Name { get; } = "R";
+        public bool IsMoving { get; set; } = false;
 
         public Rook(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override void Move() { }
+        public override bool Move(Cell pozition, Cell move)
+        {
+            return true;
+        }
     }
 }

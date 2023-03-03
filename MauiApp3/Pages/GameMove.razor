@@ -12,7 +12,7 @@
                 <option value="0">Выберете фигуру</option>
                 @foreach (var item in chessGame.GetFigure(IsWhile))
                 {
-                    <option value="@item.ID">@item.Name@item.Pozition</option>
+                    <option value="@item.ID">@item.Name@item.Pozition.cell</option>
                 }
             </select>
         </div>
@@ -29,21 +29,31 @@
             </select>
         </div>
     </div>
-    <div>
-        <button @onclick="SetMove" class="text">Сделать ход</button>
-        <button @onclick="SwapEnd" class="text">Завершить партию</button>
-        <button @onclick="DeleteMove" class="text">Удалить ход</button>
-    </div>
-    @if (End)
+    @if (chessGame.IsGameContinues)
     {
-        <select @bind="result">
-            <option value="">Выберете результат</option>
-            <option value="1">Белые</option>
-            <option value="0">Чёрные</option>
-            <option value="2">Ничья</option>
-        </select>
-        <button @onclick="EndGame" class="text">Подвердить</button>
+        <div>
+            <button @onclick="SetMove" class="text">Сделать ход</button>
+            <button @onclick="SwapEnd" class="text">Завершить партию</button>
+            <button @onclick="DeleteMove" class="text">Удалить ход</button>
+            <button @onclick="Surrender" class="text">Сдаться</button>
+        </div>
+        @if (End)
+        {
+            <select @bind="result">
+                <option value="">Выберете результат</option>
+                <option value="1">Белые</option>
+                <option value="0">Чёрные</option>
+                <option value="2">Ничья</option>
+            </select>
+            <button @onclick="EndGame" class="text">Подвердить</button>
+        }
     }
+    else
+    {
+        <div>Белые @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
+        <button @onclick="Exit" class="text">Выйти</button>
+    }
+   
     <div>
         @foreach (var item in chessGame.Move)
         {
@@ -58,7 +68,7 @@
     string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
     bool IsWhile = true, End, del = false;
     string move, str = "Белые";
-    int index;
+    int? index;
     double? result;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
@@ -78,7 +88,7 @@
         if (index == null) return;
         if (move == null) return;
 
-        if(!chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault(), move)) return;
+        if (!chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault(), move)) return;
         index = 0;
         IsWhile = !IsWhile;
         del = true;
@@ -89,7 +99,17 @@
     {
         if (result == null) return;
         chessGame.EndGame(result);
+    }
+
+    private void Exit() 
+    {
         Data.DataBaseFullConn.CloseCon();
         NavigationManager.NavigateTo("/game");
+    }
+
+    private void Surrender()
+    {
+        if (IsWhile) chessGame.EndGame(0);
+        else chessGame.EndGame(1);
     }
 }
