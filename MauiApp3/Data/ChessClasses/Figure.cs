@@ -22,6 +22,6 @@ namespace MauiApp3.Data.ChessClasses
             ID = id;
         }
 
-        public abstract bool Move(Cell pozition, Cell move);
+        public abstract bool Move(Cell move, Figure[] figures, Cell pozition);
     }
 }

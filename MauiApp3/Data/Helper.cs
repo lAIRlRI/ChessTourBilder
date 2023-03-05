@@ -14,18 +14,20 @@ namespace MauiApp3.Data
     {
         static Regex regex = new Regex("[^а-яА-Яa-zA-Z]");
 
-        public static Hashtable StringToInt = new Hashtable(new Dictionary<string, int>()
+        public static Hashtable StringToInt = new Hashtable(new Dictionary<char, int>()
             {
-                {"A", 1 },
-                {"B", 2 },
-                {"C", 3 },
-                {"D", 4 },
-                {"E", 5 },
-                {"F", 6 },
-                {"G", 7 },
-                {"H", 8 },
+                {'A', 1 },
+                {'B', 2 },
+                {'C', 3 },
+                {'D', 4 },
+                {'E', 5 },
+                {'F', 6 },
+                {'G', 7 },
+                {'H', 8 }
             }
         );
+
+        public static string[] IntToString = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
         private static string Text() => $"Поле не должно быть пустым";
         private static string Text(string str) => $"Поле {str} не должно быть пустым";

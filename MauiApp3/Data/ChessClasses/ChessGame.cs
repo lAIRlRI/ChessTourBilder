@@ -83,7 +83,7 @@ namespace MauiApp3.Data.ChessClasses
         public bool SetFigure(Figure figure, string move)
         {
             if (figure == null) return false;
-
+            if (!figure.Move(new Cell(move), Figures, figure.Pozition)) return false;
             string insertMove = figure.Name + move;
 
             NotGameFigure = Figures.Where(p => p.Pozition.cell == move && p.InGame == true).FirstOrDefault();

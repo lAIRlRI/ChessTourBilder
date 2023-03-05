@@ -15,8 +15,9 @@ namespace MauiApp3.Data.ChessClasses
 
         public Knight(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override bool Move(Cell pozition, Cell move)
+        public override bool Move(Cell pozition, Figure[] figures, Cell move)
         {
+
             return true;
         }
     }
