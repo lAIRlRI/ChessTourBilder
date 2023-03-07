@@ -13,11 +13,11 @@ namespace MauiApp3.Data.ChessClasses
     {
         public override string Name { get;} = "K";
         public bool IsMoving { get; set; } = false;
-
         public King(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
         public override bool Move(Cell pozition, Figure[] figures, Cell move)
         {
+            if (Math.Abs(pozition.X - move.X) > 1 || Math.Abs(pozition.Y - move.Y) > 1) return false;
             return true;
         }
     }

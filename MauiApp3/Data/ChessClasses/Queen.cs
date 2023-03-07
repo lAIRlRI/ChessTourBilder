@@ -23,8 +23,6 @@ namespace MauiApp3.Data.ChessClasses
             bishop = new Bishop(poziton,IsWhile,ID);
         }
 
-
-
         public override bool Move(Cell pozition, Figure[] figures, Cell move)
         {
             if(!rook.Move(pozition,figures, move)) return false;

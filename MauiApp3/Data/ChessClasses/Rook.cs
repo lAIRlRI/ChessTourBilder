@@ -24,16 +24,18 @@ namespace MauiApp3.Data.ChessClasses
             if (pozition.X != move.X && pozition.Y != move.Y) return false;
             if (pozition.X == move.X && pozition.Y == move.Y) return false;
 
-            GetCells(pozition);
+            GetCellsHorizontal(pozition);
 
             if (cellsHorizontal.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
             {
-                if(GetCellsHorizontal(move, pozition, cellsHorizontal, figures)) return true;
+                if(ChangePozition(move, pozition, cellsHorizontal, figures)) return true;
             }
+
+            GetCellsVertical(pozition);
 
             if (cellsVertical.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
             {
-                if(GetCellsVertical(move, pozition, cellsVertical, figures)) return true;
+                if(ChangePozition(move, pozition, cellsVertical, figures)) return true;
             }
 
             return false;
