@@ -36,7 +36,7 @@ namespace MauiApp3.Data.ChessClasses
             return x.X > y.X || x.Y > y.Y;
         }
 
-        private static string GetString(int x, int y) 
+        public static string GetString(int x, int y) 
         {
             return Helper.IntToString[x - 1] + y;
         }

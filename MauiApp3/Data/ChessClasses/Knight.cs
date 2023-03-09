@@ -29,14 +29,14 @@ namespace MauiApp3.Data.ChessClasses
             {
                 if (pozition.Y + 2 < 8)
                 {
-                    Cell.add(new Cell(pozition.X + 1, pozition.Y + 2));
-                    Cell.add(new Cell(pozition.X + 2, pozition.Y + 1));
+                    cells.Add(new Cell(pozition.X + 1, pozition.Y + 2));
+                    cells.Add(new Cell(pozition.X + 2, pozition.Y + 1));
                 }
 
                 if (pozition.Y - 2 > 0) 
                 {
-                    Cell.add(new Cell(pozition.X + 2, pozition.Y - 1));
-                    Cell.add(new Cell(pozition.X + 1, pozition.Y - 2));
+                    cells.Add(new Cell(pozition.X + 2, pozition.Y - 1));
+                    cells.Add(new Cell(pozition.X + 1, pozition.Y - 2));
                 }
             }
 
@@ -44,14 +44,14 @@ namespace MauiApp3.Data.ChessClasses
             {
                 if (pozition.Y + 2 < 8)
                 {
-                    Cell.add(new Cell(pozition.X - 2, pozition.Y + 1));
-                    Cell.add(new Cell(pozition.X - 1, pozition.Y + 2));
+                    cells.Add(new Cell(pozition.X - 2, pozition.Y + 1));
+                    cells.Add(new Cell(pozition.X - 1, pozition.Y + 2));
                 }
                 
                 if (pozition.Y - 2 > 0) 
                 {
-                    Cell.add(new Cell(pozition.X - 2, pozition.Y - 1));
-                    Cell.add(new Cell(pozition.X - 1, pozition.Y - 2));
+                    cells.Add(new Cell(pozition.X - 2, pozition.Y - 1));
+                    cells.Add(new Cell(pozition.X - 1, pozition.Y - 2));
                 }
             }
 

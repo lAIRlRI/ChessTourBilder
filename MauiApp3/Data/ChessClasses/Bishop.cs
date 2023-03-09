@@ -19,7 +19,7 @@ namespace MauiApp3.Data.ChessClasses
 
         public override bool Move(Cell move, Figure[] figures, Cell pozition)
         {
-            if (pozition.Y == pozition.Y && pozition.X == move.X) return false;
+            if (pozition.Y == move.Y && pozition.X == move.X) return false;
 
             if (pozition.X - pozition.Y == move.X - move.Y)
             {
@@ -31,8 +31,8 @@ namespace MauiApp3.Data.ChessClasses
                 }
             }
 
-            if (Math.Abs(pozition.X - 9) - Math.Abs(pozition.Y - 9) == Math.Abs(move.X - 9) - Math.Abs(move.Y - 9)) return false;
-            {
+            if (pozition.X - Math.Abs(pozition.Y - 9) == move.X- Math.Abs(move.Y - 9)) 
+            { 
                 GetCellsVertical(pozition);
 
                 if (cellsVertical.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
@@ -51,7 +51,7 @@ namespace MauiApp3.Data.ChessClasses
 
         private Cell[] GetCells(Cell pozition) 
         {
-            Cell[] cells = new Cell[8 - Math.abs(pozition.Y - pozition.X)];
+            Cell[] cells = new Cell[8 - Math.Abs(pozition.Y - pozition.X)];
 
             Cell start;
 
@@ -59,7 +59,7 @@ namespace MauiApp3.Data.ChessClasses
                 start = new Cell(1, pozition.Y - pozition.X + 1);
             else start = new Cell(pozition.X - pozition.Y + 1, 1);
 
-            for (int i = 0; i < 8 - cells.length; i++)
+            for (int i = 0; i < cells.Length; i++)
             {
                 cells[i] = new Cell(start.X + i, start.Y + i);
             }
@@ -69,28 +69,29 @@ namespace MauiApp3.Data.ChessClasses
 
         public void GetCellsVertical(Cell pozition)
         {
-            Cell cell = new(Math.Abs(pozition.X - 9), Math.Abs(pozition.Y - 9));
+            Cell cell = new(pozition.X, Math.Abs(pozition.Y-9));
             cellsVertical = GetCells(cell);
 
             foreach (var item in cellsVertical)
             {
-                item.X = Math.Abs(item.X - 9);
-                item.Y = Math.Abs(item.Y - 9);
+                item.Y =  Math.Abs(item.Y - 9);
+                item.cell =  Cell.GetString(item.X,item.Y);
             }
         }
 
         private bool ChangePozition(Cell move, Cell pozition, Cell[] cells, Figure[] figures)
         {
             Cell[] cellsDiapozon;
-            if (move < pozition)
+
+            if (move.Y < pozition.Y)
             {
-                cellsDiapozon = cells.Where(p => p < pozition && p > move).ToArray();
+                cellsDiapozon = cells.Where(p => p.Y < pozition.Y && p.Y > move.Y).ToArray();
             }
-            else cellsDiapozon = cells.Where(p => p > pozition && p < move).ToArray();
+            else cellsDiapozon = cells.Where(p => p.Y > pozition.Y && p.Y < move.Y).ToArray();
 
             foreach (var item in cellsDiapozon)
             {
-                if (figures.Where(p => p.Pozition.cell == item.cell) != default(Figure)) return false;
+                if (figures.Where(p => p.Pozition.cell == item.cell).FirstOrDefault() != default(Figure)) return false;
             }
 
             return true;

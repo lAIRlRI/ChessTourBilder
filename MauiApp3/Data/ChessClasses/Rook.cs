@@ -72,7 +72,7 @@ namespace MauiApp3.Data.ChessClasses
 
             foreach (var item in cellsDiapozon)
             {
-                if (figures.Where(p => p.Pozition.cell == item.cell) != default(Figure)) return false;
+                if (figures.Where(p => p.Pozition.cell == item.cell).FirstOrDefault() != default(Figure)) return false;
             }
 
             return true;
