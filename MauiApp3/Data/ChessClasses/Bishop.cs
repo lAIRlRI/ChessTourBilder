@@ -13,64 +13,80 @@ namespace MauiApp3.Data.ChessClasses
     {
         public override string Name { get; } = "B";
 
-        private Cell[] cellsHorizontal, cellsVertical;
+        private List<Cell> cellsHorizontal, cellsVertical;
 
         public Bishop(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override bool Move(Cell move, Figure[] figures, Cell pozition)
+        public override string Move(Cell move, Figure[] figures)
         {
-            if (pozition.Y == move.Y && pozition.X == move.X) return false;
+            if (Pozition.Y == move.Y && Pozition.X == move.X) return null;
 
-            if (pozition.X - pozition.Y == move.X - move.Y)
+            if (Pozition.X - Pozition.Y == move.X - move.Y)
             {
-                GetCellsHorizontal(pozition);
+                GetCellsHorizontal();
 
                 if (cellsHorizontal.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
                 {
-                    if (ChangePozition(move, pozition, cellsHorizontal, figures)) return true;
+                    if (ChangePozition(move, cellsHorizontal, figures)) return move.cell;
                 }
             }
 
-            if (pozition.X - Math.Abs(pozition.Y - 9) == move.X- Math.Abs(move.Y - 9)) 
+            if (Pozition.X - Math.Abs(Pozition.Y - 9) == move.X- Math.Abs(move.Y - 9)) 
             { 
-                GetCellsVertical(pozition);
+                GetCellsVertical();
 
                 if (cellsVertical.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
                 {
-                    if (ChangePozition(move, pozition, cellsVertical, figures)) return true;
+                    if (ChangePozition(move, cellsVertical, figures)) return move.cell;
                 }
             }
 
-            return false;
+            return null;
         }
 
-        public void GetCellsHorizontal(Cell pozition)
+        public override List<Cell> GetCells(Figure[] figures) 
         {
-            cellsHorizontal = GetCells(pozition);
+            GetCellsVertical();
+            GetCellsHorizontal();
+
+            List<Cell> cells = cellsHorizontal.Concat(cellsVertical).ToList();
+            List<Cell> cellsTrue = new List<Cell>();
+
+            foreach (var item in cells)
+            {
+                if(ChangePozition(item, cells, figures)) cellsTrue.Add(item);
+            }
+
+            return cellsTrue;
         }
 
-        private Cell[] GetCells(Cell pozition) 
+        public void GetCellsHorizontal()
         {
-            Cell[] cells = new Cell[8 - Math.Abs(pozition.Y - pozition.X)];
+            cellsHorizontal = GetCellsHV(Pozition);
+        }
+
+        private List<Cell> GetCellsHV(Cell cell) 
+        {
+            List<Cell> cells = new List<Cell>(8 - Math.Abs(cell.Y - cell.X));
 
             Cell start;
 
-            if (pozition.X < pozition.Y)
-                start = new Cell(1, pozition.Y - pozition.X + 1);
-            else start = new Cell(pozition.X - pozition.Y + 1, 1);
+            if (cell.X < cell.Y)
+                start = new Cell(1, cell.Y - cell.X + 1);
+            else start = new Cell(cell.X - cell.Y + 1, 1);
 
-            for (int i = 0; i < cells.Length; i++)
+            for (int i = 0; i < cells.Count; i++)
             {
-                cells[i] = new Cell(start.X + i, start.Y + i);
+                cells.Add(new Cell(start.X + i, start.Y + i));
             }
 
             return cells;
         }
 
-        public void GetCellsVertical(Cell pozition)
+        public void GetCellsVertical()
         {
-            Cell cell = new(pozition.X, Math.Abs(pozition.Y-9));
-            cellsVertical = GetCells(cell);
+            Cell cell = new(Pozition.X, Math.Abs(Pozition.Y-9));
+            cellsVertical = GetCellsHV(cell);
 
             foreach (var item in cellsVertical)
             {
@@ -79,15 +95,15 @@ namespace MauiApp3.Data.ChessClasses
             }
         }
 
-        private bool ChangePozition(Cell move, Cell pozition, Cell[] cells, Figure[] figures)
+        private bool ChangePozition(Cell move, List<Cell> cells, Figure[] figures)
         {
             Cell[] cellsDiapozon;
 
-            if (move.Y < pozition.Y)
+            if (move.Y < Pozition.Y)
             {
-                cellsDiapozon = cells.Where(p => p.Y < pozition.Y && p.Y > move.Y).ToArray();
+                cellsDiapozon = cells.Where(p => p.Y < Pozition.Y && p.Y > move.Y).ToArray();
             }
-            else cellsDiapozon = cells.Where(p => p.Y > pozition.Y && p.Y < move.Y).ToArray();
+            else cellsDiapozon = cells.Where(p => p.Y > Pozition.Y && p.Y < move.Y).ToArray();
 
             foreach (var item in cellsDiapozon)
             {

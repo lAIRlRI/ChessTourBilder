@@ -12,32 +12,35 @@ namespace MauiApp3.Data.ChessClasses
     internal class Pawn : Figure
     {
         public override string Name { get; } = "";
-        public bool IsMoving { get; set; } = false;
 
         public Pawn(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override bool Move(Cell pozition, Figure[] figures, Cell move)
+        public override string Move(Cell move, Figure[] figures)
         {
-            if (pozition.cell = move.cell) return false;
-            return true;
+            if (Pozition.cell == move.cell) return null;
+            return move.cell;
         }
 
-        public Cell[] GetCell(Cell pozition)
+        public override List<Cell> GetCells(Figure[] figures)
         {
-            List<Cell> cells = new List<Cell>();
 
+
+            List<Cell> cells = new List<Cell>();
+            if (Pozition.Y == 8) return cells;
             int vector = -1;
+
 
             if (IsWhile) vector = 1;
 
-            for (int i = pozition.X - 1; i < 3; i++)
+            for (int i = Pozition.X - 1; i <= Pozition.X + 1; i++)
             {
-                cells.Add(i, pozition.Y + vector);
+                if (i > 8 || i < 1) continue;
+                cells.Add(new Cell(i, Pozition.Y + vector));
             }
 
-            if (IsMoving) cells.Add(pozition.X, pozition.Y + 2);
+            if (!IsMoving) cells.Add(new Cell(Pozition.X, Pozition.Y + 2));
 
-            return cells.Where(p => p.X > 0 && p.Y > 0 && p.X < 9 && p.Y < 9).ToArray();
+            return cells.Where(p => p.Y > 0 && p.Y < 9).ToList();
         }
     }
 }

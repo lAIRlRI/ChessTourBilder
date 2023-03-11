@@ -14,7 +14,6 @@ namespace MauiApp3.Data.ChessClasses
         private Consignment consignment;
         private string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
         private string tableFigures = "[#Figures" + DateTime.UtcNow + "]";
-        private Figure NotGameFigure;
         private Cell lastPozition;
         private int orderCaptures = 0;
         private int lastIDFigure;
@@ -83,35 +82,11 @@ namespace MauiApp3.Data.ChessClasses
         public bool SetFigure(Figure figure, string move)
         {
             if (figure == null) return false;
-            if (!figure.Move(new Cell(move), Figures, figure.Pozition)) return false;
-            string insertMove = figure.Name + move;
+            
+            string insertMove = figure.SetFigure(Figures, move, tableFigures, orderCaptures);
 
-            NotGameFigure = Figures.Where(p => p.Pozition.cell == move && p.InGame == true).FirstOrDefault();
-
+            if (insertMove == null) return false; 
             string str;
-
-            if (NotGameFigure != default(Figure))
-            {
-                if (NotGameFigure.IsWhile == figure.IsWhile) return false;
-                orderCaptures++;
-                str = $"UPDATE {tableFigures} " +
-                $"SET InGame = 0," +
-                $" EatID = {orderCaptures}" +
-                $" WHERE ID = {NotGameFigure.ID}";
-                DataBaseFullConn.ConnChange(str);
-                insertMove = figure.Name + "x" + move;
-                if (NotGameFigure.Name == "K")
-                {
-                    IsGameContinues = false;
-                    if (NotGameFigure.IsWhile) EndGame(0);
-                    EndGame(1);
-                }
-            }
-
-            str = $"UPDATE {tableFigures} " +
-                $"SET Pozition = '{move}'" +
-                $" WHERE ID = {figure.ID}";
-            DataBaseFullConn.ConnChange(str);
 
             int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
@@ -130,7 +105,7 @@ namespace MauiApp3.Data.ChessClasses
 
         public Figure[] GetFigure(bool IsWhile)
         {
-            return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).OrderBy(i => i.Name).ToArray();
+            return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
         }
 
         private void CreateChessTable()

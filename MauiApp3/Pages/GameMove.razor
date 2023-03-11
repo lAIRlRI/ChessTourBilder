@@ -9,7 +9,6 @@
     <div style="display: flex; flex-wrap: wrap;">
         <div>
             <select @bind="index">
-                <option value="0">Выберете фигуру</option>
                 @foreach (var item in chessGame.GetFigure(IsWhile))
                 {
                     <option value="@item.ID">@item.Name@item.Pozition.cell</option>
@@ -18,13 +17,9 @@
         </div>
         <div>
             <select @bind="move">
-                <option value="">Выберете ход</option>
-                @for (int i = 0; i < 8; i++)
+                @foreach (var item in chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault().GetCells(chessGame.Figures))
                 {
-                    for (int j = 1; j <= 8; j++)
-                    {
-                        <option value="@(coloms[i]+j)">@(coloms[i] + j)</option>
-                    }
+                    <option value="@item.cell">@item.cell</option>
                 }
             </select>
         </div>
@@ -63,16 +58,21 @@
 </section>
 
 @code {
-
+    List<Data.ChessClasses.Cell> cells = new List<Data.ChessClasses.Cell>();
     Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment);
     string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
     bool IsWhile = true, End, del = false;
     string move, str = "Белые";
-    int? index;
+    int? index = 1;
     double? result;
+    Data.ChessClasses.Figure figure = new Data.ChessClasses.Pawn("A8", true, -1);
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
+
+    private void CheckFigure() 
+    {
+    }
 
     private void DeleteMove()
     {
@@ -89,7 +89,7 @@
         if (move == null) return;
 
         if (!chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault(), move)) return;
-        index = 0;
+        index = 1;
         IsWhile = !IsWhile;
         del = true;
         Swap();

@@ -15,47 +15,47 @@ namespace MauiApp3.Data.ChessClasses
 
         public Knight(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
-        public override bool Move(Cell pozition, Figure[] figures, Cell move)
+        public override string Move(Cell move, Figure[] figures)
         {
-            if (Math.Pow(move.X - pozition.X, 2) + Math.Pow(move.Y - pozition.Y, 2) != 5) return false;
-            return true;
+            if (Math.Pow(move.X - Pozition.X, 2) + Math.Pow(move.Y - Pozition.Y, 2) != 5) return null;
+            return move.cell;
         }
 
-        private Cell[] GetCells(Cell pozition)
+
+
+        public override List<Cell> GetCells(Figure[] figures)
         {
             List<Cell> cells = new List<Cell>();
 
-            if (pozition.X + 2 < 8)
-            {
-                if (pozition.Y + 2 < 8)
-                {
-                    cells.Add(new Cell(pozition.X + 1, pozition.Y + 2));
-                    cells.Add(new Cell(pozition.X + 2, pozition.Y + 1));
-                }
+            if (Pozition.X - 2 > 0) 
+            {                
+                if (Pozition.Y + 1 < 9) cells.Add(new Cell(Pozition.X - 2, Pozition.Y + 1));
 
-                if (pozition.Y - 2 > 0) 
-                {
-                    cells.Add(new Cell(pozition.X + 2, pozition.Y - 1));
-                    cells.Add(new Cell(pozition.X + 1, pozition.Y - 2));
-                }
+                if (Pozition.Y - 1 > 0) cells.Add(new Cell(Pozition.X - 2, Pozition.Y - 1));
             }
 
-            if (pozition.X - 2 > 0) 
+            if (Pozition.X - 1 > 0)
             {
-                if (pozition.Y + 2 < 8)
-                {
-                    cells.Add(new Cell(pozition.X - 2, pozition.Y + 1));
-                    cells.Add(new Cell(pozition.X - 1, pozition.Y + 2));
-                }
-                
-                if (pozition.Y - 2 > 0) 
-                {
-                    cells.Add(new Cell(pozition.X - 2, pozition.Y - 1));
-                    cells.Add(new Cell(pozition.X - 1, pozition.Y - 2));
-                }
+                if (Pozition.Y + 2 < 9) cells.Add(new Cell(Pozition.X - 1, Pozition.Y + 2));
+
+                if (Pozition.Y - 2 > 0) cells.Add(new Cell(Pozition.X - 1, Pozition.Y - 2));
             }
 
-            return cells.ToArray();
+            if (Pozition.X + 1 < 9)
+            {
+                if (Pozition.Y + 2 < 9) cells.Add(new Cell(Pozition.X + 1, Pozition.Y + 2));
+
+                if (Pozition.Y - 2 > 0) cells.Add(new Cell(Pozition.X + 1, Pozition.Y - 2));
+            }
+
+            if (Pozition.X + 2 < 9)
+            {
+                if (Pozition.Y + 1 < 9) cells.Add(new Cell(Pozition.X + 2, Pozition.Y + 1));
+
+                if (Pozition.Y - 1 > 0) cells.Add(new Cell(Pozition.X + 2, Pozition.Y - 1));
+            }
+
+            return cells;
         }
     }
 }
