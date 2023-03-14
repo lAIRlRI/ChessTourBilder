@@ -45,14 +45,20 @@ namespace MauiApp3.Data.ChessClasses
             GetCellsVertical();
             GetCellsHorizontal();
 
-            Cell[] cells = cellsHorizontal.Concat(cellsVertical).ToArray();
             List<Cell> cellsTrue = new List<Cell>();
 
-            foreach (var item in cells)
+            foreach (var item in cellsHorizontal)
             {
-                if (ChangePozition(item, cells, figures)) cellsTrue.Add(item);
-
+                if (Pozition.X == item.X && Pozition.Y == item.Y) continue;
+                if (ChangePozition(item, cellsHorizontal, figures)) cellsTrue.Add(item);
             }
+
+            foreach (var item in cellsVertical)
+            {
+                if (Pozition.X == item.X && Pozition.Y == item.Y) continue;
+                if (ChangePozition(item, cellsVertical, figures)) cellsTrue.Add(item);
+            }
+
             return cellsTrue;
         }
 

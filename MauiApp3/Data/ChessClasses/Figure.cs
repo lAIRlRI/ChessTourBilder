@@ -59,7 +59,7 @@ namespace MauiApp3.Data.ChessClasses
             return insertMove;
         }
 
-        public string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
+        public virtual string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
         {
             string insertMove = Name + move;
 
@@ -81,7 +81,8 @@ namespace MauiApp3.Data.ChessClasses
             }
 
             str = $"UPDATE {tableFigures} " +
-                $"SET Pozition = '{move}'" +
+                $"SET Pozition = '{move}'," +
+                $"IsMoving = 1" +
                 $" WHERE ID = {ID}";
             DataBaseFullConn.ConnChange(str);
 

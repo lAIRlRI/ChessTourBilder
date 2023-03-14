@@ -94,7 +94,7 @@ namespace MauiApp3.Data.ChessClasses
             return insertMove;
         }
 
-        public new string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
+        public override string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
         {
             string str;
             string insertMove = Name + move;
@@ -102,12 +102,14 @@ namespace MauiApp3.Data.ChessClasses
             if (move == $"A{Pozition.Y}")
             {
                 str = $"UPDATE {tableFigures} " +
-                      $"SET Pozition = 'C{Pozition.Y}'" +
+                      $"SET Pozition = 'C{Pozition.Y}'," +
+                      $"IsMoving = 1" +
                       $" WHERE ID = {ID}";
                 DataBaseFullConn.ConnChange(str);
 
                 str = $"UPDATE {tableFigures} " +
-                      $"SET Pozition = 'D{Pozition.Y}'" +
+                      $"SET Pozition = 'D{Pozition.Y}'," +
+                      $"IsMoving = 1" +
                       $" WHERE Figure = 'R' and Pozition = 'A{Pozition.Y}'";
                 DataBaseFullConn.ConnChange(str);
 
@@ -117,12 +119,14 @@ namespace MauiApp3.Data.ChessClasses
             if (move == $"H{Pozition.Y}")
             {
                 str = $"UPDATE {tableFigures} " +
-                      $"SET Pozition = 'G{Pozition.Y}'" +
+                      $"SET Pozition = 'G{Pozition.Y}'," +
+                      $"IsMoving = 1" +
                       $" WHERE ID = {ID}";
                 DataBaseFullConn.ConnChange(str);
-                 
+
                 str = $"UPDATE {tableFigures} " +
-                      $"SET Pozition = 'F{Pozition.Y}'" +
+                      $"SET Pozition = 'F{Pozition.Y}'," +
+                      $"IsMoving = 1" +
                       $" WHERE Figure = 'R' and Pozition = 'H{Pozition.Y}'";
                 DataBaseFullConn.ConnChange(str);
 
@@ -146,7 +150,8 @@ namespace MauiApp3.Data.ChessClasses
             }
 
             str = $"UPDATE {tableFigures} " +
-                $"SET Pozition = '{move}'" +
+                $"SET Pozition = '{move}'," +
+                $"IsMoving = 1" +
                 $" WHERE ID = {ID}";
             DataBaseFullConn.ConnChange(str);
 
@@ -170,19 +175,22 @@ namespace MauiApp3.Data.ChessClasses
         private bool ChangeCastling(string poz, bool count, Figure[] figures)
         {
             Cell[] cells;
-
-            Figure rook = figures.Where(p => p.Pozition.cell == poz && p.IsWhile == IsWhile).FirstOrDefault();
-
-            if (rook == null) return false;
-            if (rook.Name != "R") return false;
-            if (rook.IsMoving == true) return false;
+            Figure rook;
 
             if (count)
             {
+                rook = figures.Where(p => p.Pozition.Y == Convert.ToInt32(poz) && p.IsWhile == IsWhile && p.Pozition.X == Convert.ToInt32(8)).FirstOrDefault();
+                if (rook == null) return false;
+                if (rook.Name != "R") return false;
+                if (rook.IsMoving) return false;
                 cells = new Cell[2] { new Cell("F" + poz), new Cell("G" + poz) };
             }
             else
             {
+                rook = figures.Where(p => p.Pozition.Y == Convert.ToInt32(poz) && p.IsWhile == IsWhile && p.Pozition.X == Convert.ToInt32(1)).FirstOrDefault();
+                if (rook == null) return false;
+                if (rook.Name != "R") return false;
+                if (rook.IsMoving) return false;
                 cells = new Cell[3] { new Cell("B" + poz), new Cell("C" + poz), new Cell("D" + poz) };
             }
 
@@ -229,7 +237,7 @@ namespace MauiApp3.Data.ChessClasses
             if (str != null)
             {
                 if (str[0] == "O-O") cellsTrue.Add(new Cell("H" + Pozition.Y.ToString()));
-                else if (str[0] == "O-O-O") cellsTrue.Add(new Cell("A" + Pozition.Y.ToString()));
+                else if (str[1] == "O-O-O") cellsTrue.Add(new Cell("A" + Pozition.Y.ToString()));
             }
 
             return cellsTrue;

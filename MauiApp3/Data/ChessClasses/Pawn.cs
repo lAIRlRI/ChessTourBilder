@@ -18,7 +18,15 @@ namespace MauiApp3.Data.ChessClasses
         public override string Move(Cell move, Figure[] figures)
         {
             if (Pozition.cell == move.cell) return null;
-            return move.cell;
+            int vector = -1;
+            if (IsWhile) vector = 1;
+
+            if (Pozition.X + 1 == move.X && Pozition.Y + vector == move.Y) return move.cell;
+            if (Pozition.X - 1 == move.X && Pozition.Y + vector == move.Y) return move.cell;
+            if (Pozition.X == move.X && Pozition.Y + vector == move.Y) return move.cell;
+            if (Pozition.X == move.X && Pozition.Y + vector * 2 == move.Y) return move.cell;
+
+            return null;
         }
 
         public override List<Cell> GetCells(Figure[] figures)
@@ -38,9 +46,54 @@ namespace MauiApp3.Data.ChessClasses
                 cells.Add(new Cell(i, Pozition.Y + vector));
             }
 
-            if (!IsMoving) cells.Add(new Cell(Pozition.X, Pozition.Y + 2));
+            if (!IsMoving) cells.Add(new Cell(Pozition.X, Pozition.Y + (vector * 2)));
 
             return cells.Where(p => p.Y > 0 && p.Y < 9).ToList();
         }
+
+        public override string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
+        {
+            string insertMove = Name + move;
+
+            Figure NotGameFigure = figures.Where(p => p.Pozition.cell == move && p.InGame == true).FirstOrDefault();
+
+            string str;
+
+            if (NotGameFigure != default(Figure))
+            {
+                if (move[0] == Pozition.cell[0]) return null;
+                if (NotGameFigure.IsWhile == IsWhile) return null;
+
+                orderCaptures++;
+                str = $"UPDATE {tableFigures} " +
+                $"SET InGame = 0," +
+                $" EatID = {orderCaptures}" +
+                $" WHERE ID = {NotGameFigure.ID}";
+                DataBaseFullConn.ConnChange(str);
+                insertMove = Name + "x" + move;
+            }
+
+            if (move[1] == '8' || move[1] == '1')
+            {
+                orderCaptures++;
+                str = $"UPDATE {tableFigures} " +
+                $"SET InGame = 0," +
+                $" EatID = {orderCaptures}" +
+                $" WHERE ID = {ID}";
+                DataBaseFullConn.ConnChange(str);
+                return "rpt";
+            }
+
+            if (move[0] != Pozition.cell[0] && NotGameFigure == default(Figure)) return null;
+
+            str = $"UPDATE {tableFigures} " +
+                $"SET Pozition = '{move}'," +
+                $"IsMoving = 1 " +
+                $" WHERE ID = {ID}";
+            DataBaseFullConn.ConnChange(str);
+
+            return insertMove;
+        }
+
     }
 }

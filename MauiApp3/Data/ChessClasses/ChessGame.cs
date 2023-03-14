@@ -18,7 +18,7 @@ namespace MauiApp3.Data.ChessClasses
         private int orderCaptures = 0;
         private int lastIDFigure;
 
-        public Figure[] Figures { get; } = new Figure[32];
+        public Figure[] Figures { get; private set; } = new Figure[32];
         public List<string> Move { get; } = new List<string>();
         public bool IsGameContinues { get; private set; } = true;
 
@@ -45,6 +45,8 @@ namespace MauiApp3.Data.ChessClasses
         {
             var table = DataBaseFullConn.ConnDataSet($"select * from {tableFigures}");
             int i = 0;
+            Figures = new Figure[table.Tables[0].Rows.Count];
+
             foreach (DataRow item in table.Tables[0].Rows)
             {
                 //хештаблицы???; избавиться от object
@@ -52,40 +54,60 @@ namespace MauiApp3.Data.ChessClasses
                 {
                     case "":
                         Figures[i] = new Pawn(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { InGame = Convert.ToBoolean(item["InGame"]) };
+                        { 
+                            InGame = Convert.ToBoolean(item["InGame"]),
+                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                        };
                         break;
                     case "K":
                         Figures[i] = new King(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { InGame = Convert.ToBoolean(item["InGame"]) };
+                        {
+                            InGame = Convert.ToBoolean(item["InGame"]),
+                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                        };
                         break;
                     case "Q":
                         Figures[i] = new Queen(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { InGame = Convert.ToBoolean(item["InGame"]) };
+                        {
+                            InGame = Convert.ToBoolean(item["InGame"]),
+                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                        };
                         break;
                     case "B":
                         Figures[i] = new Bishop(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { InGame = Convert.ToBoolean(item["InGame"]) };
+                        {
+                            InGame = Convert.ToBoolean(item["InGame"]),
+                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                        };
                         break;
                     case "N":
                         Figures[i] = new Knight(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { InGame = Convert.ToBoolean(item["InGame"]) };
+                        {
+                            InGame = Convert.ToBoolean(item["InGame"]),
+                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                        };
                         break;
                     case "R":
                         Figures[i] = new Rook(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { InGame = Convert.ToBoolean(item["InGame"]) };
+                        {
+                            InGame = Convert.ToBoolean(item["InGame"]),
+                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                        };
                         break;
                 }
                 i++;
             }
         }
 
-        public bool SetFigure(Figure figure, string move)
+        public string SetFigure(Figure figure, string move)
         {
-            if (figure == null) return false;
-            
-            string insertMove = figure.SetFigure(Figures, move, tableFigures, orderCaptures);
+            if (figure == null) return "no";
 
-            if (insertMove == null) return false; 
+            string insertMove = figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures);
+
+            if (insertMove == null) return "no";
+            if ("rpt" == insertMove) return "rpt";
+
             string str;
 
             int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
@@ -100,6 +122,21 @@ namespace MauiApp3.Data.ChessClasses
 
             GetFigures();
 
+            return "ok";
+        }
+
+        public bool InsertFigure(string pozition, string name, bool IsWhile) 
+        {
+            int b = IsWhile ? 1 : 0;
+            string str = $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
+                $"values ('{name}','{pozition}',{b})";
+            DataBaseFullConn.ConnChange(str);
+            int ID = IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
+            str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
+                        $" values ({ID},'{pozition+name}',{consignment.ConsignmentID},{consignment.TourID})";
+            DataBaseFullConn.ConnChange(str);
+            GetFigures();
+            Move.Add(pozition + name);
             return true;
         }
 
@@ -116,6 +153,7 @@ namespace MauiApp3.Data.ChessClasses
                 "Pozition nvarchar(2) not null," +
                 "IsWhile bit not null," +
                 "InGame bit not null default 1," +
+                "IsMoving bit not null default 0," +
                 "EatID int not null default 0)" +
                 $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
                 $"values ('','A2', 1)," +

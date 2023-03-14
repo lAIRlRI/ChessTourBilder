@@ -49,12 +49,18 @@ namespace MauiApp3.Data.ChessClasses
             GetCellsVertical();
             GetCellsHorizontal();
 
-            List<Cell> cells = cellsHorizontal.Concat(cellsVertical).ToList();
             List<Cell> cellsTrue = new List<Cell>();
 
-            foreach (var item in cells)
+            foreach (var item in cellsHorizontal)
             {
-                if(ChangePozition(item, cells, figures)) cellsTrue.Add(item);
+                if (Pozition.X == item.X && Pozition.Y == item.Y) continue;
+                if(ChangePozition(item, cellsHorizontal, figures)) cellsTrue.Add(item);
+            }
+
+            foreach (var item in cellsVertical)
+            {
+                if (Pozition.X == item.X && Pozition.Y == item.Y) continue;
+                if (ChangePozition(item, cellsVertical, figures)) cellsTrue.Add(item);
             }
 
             return cellsTrue;
@@ -67,7 +73,7 @@ namespace MauiApp3.Data.ChessClasses
 
         private List<Cell> GetCellsHV(Cell cell) 
         {
-            List<Cell> cells = new List<Cell>(8 - Math.Abs(cell.Y - cell.X));
+            List<Cell> cells = new List<Cell>();
 
             Cell start;
 
@@ -75,7 +81,7 @@ namespace MauiApp3.Data.ChessClasses
                 start = new Cell(1, cell.Y - cell.X + 1);
             else start = new Cell(cell.X - cell.Y + 1, 1);
 
-            for (int i = 0; i < cells.Count; i++)
+            for (int i = 0; i < 8 - Math.Abs(cell.Y - cell.X); i++)
             {
                 cells.Add(new Cell(start.X + i, start.Y + i));
             }

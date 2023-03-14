@@ -8,7 +8,8 @@
     <p class="top-row-text text">@str</p>
     <div style="display: flex; flex-wrap: wrap;">
         <div>
-            <select @bind="index">
+            <select disabled="@dis" @bind="index">
+                <option selected value="">Выберете фигуру</option>
                 @foreach (var item in chessGame.GetFigure(IsWhile))
                 {
                     <option value="@item.ID">@item.Name@item.Pozition.cell</option>
@@ -16,13 +17,30 @@
             </select>
         </div>
         <div>
-            <select @bind="move">
-                @foreach (var item in chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault().GetCells(chessGame.Figures))
+            <select disabled="@dis" @bind="move">
+                <option selected value="">Выберете ход</option>
+                @if (index != null)
                 {
-                    <option value="@item.cell">@item.cell</option>
+                    foreach (var item in chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault().GetCells(chessGame.Figures))
+                    {
+                        <option value="@item.cell">@item.cell</option>
+                    }
                 }
             </select>
         </div>
+        @if (rpt) 
+        {
+            <div>
+                <select @bind="newFigure">
+                    <option selected value="">Выберете фигуру</option>
+                    <option value="Q">Ферзь</option>
+                    <option value="N">Конь</option>
+                    <option value="B">Слон</option>
+                    <option value="R">Ладья</option>
+                </select>
+            </div>
+        }
+       
     </div>
     @if (chessGame.IsGameContinues)
     {
@@ -48,7 +66,7 @@
         <div>Белые @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
         <button @onclick="Exit" class="text">Выйти</button>
     }
-   
+
     <div>
         @foreach (var item in chessGame.Move)
         {
@@ -60,39 +78,83 @@
 @code {
     List<Data.ChessClasses.Cell> cells = new List<Data.ChessClasses.Cell>();
     Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment);
-    string[] coloms = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
-    bool IsWhile = true, End, del = false;
-    string move, str = "Белые";
-    int? index = 1;
+
+    bool IsWhile = true, End = false, del = false, rpt = false, dis = false;
+    string move, str = "Белые", stage = "ok", newFigure;
+    int? index = null;
     double? result;
     Data.ChessClasses.Figure figure = new Data.ChessClasses.Pawn("A8", true, -1);
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
 
-    private void CheckFigure() 
-    {
-    }
-
     private void DeleteMove()
     {
         if (!del) return;
         IsWhile = !IsWhile;
+        index = null;
         Swap();
         del = false;
         chessGame.DeleteLastMove();
+    }
+
+    private bool SwitchStageGet()
+    {
+        switch (stage)
+        {
+            case "ok":
+                return true;
+            case "rpt":
+                if (newFigure == null) return false;
+                chessGame.InsertFigure(move, newFigure, IsWhile);
+                dis = false;
+                rpt = false;
+                stage = "ok";
+                return false;
+            case "end":
+                if (IsWhile) chessGame.EndGame(1);
+                else chessGame.EndGame(0);
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private void SwitchStageSet()
+    {
+        switch (stage)
+        {
+            case "ok":
+                IsWhile = !IsWhile;
+                index = null;
+                del = true;
+                Swap();
+                break;
+            case "no":
+                stage = "ok";
+                break;
+            case "rpt":
+                dis = true;
+                rpt = true;
+                break;
+            default:
+                break;
+        }
     }
 
     private void SetMove()
     {
         if (index == null) return;
         if (move == null) return;
+        if (SwitchStageGet())
+            stage = chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault(), move);
+        SwitchStageSet();
+    }
 
-        if (!chessGame.SetFigure(chessGame.GetFigure(IsWhile).Where(p => p.ID == index).FirstOrDefault(), move)) return;
-        index = 1;
-        IsWhile = !IsWhile;
-        del = true;
-        Swap();
+    private void RPT()
+    {
+        dis = true;
+        rpt = true;
     }
 
     private void EndGame()
@@ -101,7 +163,7 @@
         chessGame.EndGame(result);
     }
 
-    private void Exit() 
+    private void Exit()
     {
         Data.DataBaseFullConn.CloseCon();
         NavigationManager.NavigateTo("/game");
