@@ -26,6 +26,7 @@ namespace MauiApp3.Data.ChessClasses
         public override List<Cell> GetCells(Figure[] figures)
         {
             List<Cell> cells = new List<Cell>();
+            List<Cell> cellsTrue = new List<Cell>();
 
             if (Pozition.X - 2 > 0) 
             {                
@@ -55,7 +56,12 @@ namespace MauiApp3.Data.ChessClasses
                 if (Pozition.Y - 1 > 0) cells.Add(new Cell(Pozition.X + 2, Pozition.Y - 1));
             }
 
-            return cells;
+            foreach (var item in cells)
+            {
+                if (figures.Where(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile).FirstOrDefault() == default(Figure)) cellsTrue.Add(item);
+            }
+
+            return cellsTrue;
         }
     }
 }

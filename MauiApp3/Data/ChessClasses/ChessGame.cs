@@ -103,7 +103,10 @@ namespace MauiApp3.Data.ChessClasses
         {
             if (figure == null) return "no";
 
-            string insertMove = figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures);
+            (string, int) function = figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures, tableMove);
+
+            string insertMove = function.Item1;
+            orderCaptures = function.Item2;
 
             if (insertMove == null) return "no";
             if ("rpt" == insertMove) return "rpt";

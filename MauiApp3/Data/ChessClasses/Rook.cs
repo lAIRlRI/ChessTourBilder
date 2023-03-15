@@ -27,20 +27,20 @@ namespace MauiApp3.Data.ChessClasses
 
             if (cellsHorizontal.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
             {
-                if(ChangePozition(move, cellsHorizontal, figures)) return move.cell;
+                if (ChangePozition(move, cellsHorizontal, figures)) return move.cell;
             }
 
             GetCellsVertical();
 
             if (cellsVertical.Where(p => p.cell == move.cell).FirstOrDefault() != default(Cell))
             {
-                if(ChangePozition(move, cellsVertical, figures)) return move.cell;
+                if (ChangePozition(move, cellsVertical, figures)) return move.cell;
             }
 
             return null;
         }
 
-        public override List<Cell> GetCells(Figure[] figures) 
+        public override List<Cell> GetCells(Figure[] figures)
         {
             GetCellsVertical();
             GetCellsHorizontal();
@@ -85,6 +85,8 @@ namespace MauiApp3.Data.ChessClasses
         private bool ChangePozition(Cell move, Cell[] cells, Figure[] figures)
         {
             Cell[] cellsDiapozon;
+
+            if (figures.Where(p => p.Pozition.cell == move.cell && p.IsWhile == IsWhile).FirstOrDefault() != default(Figure)) return false;
 
             if (move < Pozition)
             {

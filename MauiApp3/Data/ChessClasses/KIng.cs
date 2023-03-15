@@ -94,8 +94,12 @@ namespace MauiApp3.Data.ChessClasses
             return insertMove;
         }
 
-        public override string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
+        public override (string, int) SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
         {
+            (string, int) result;
+            result.Item1 = null;
+            result.Item2 = orderCaptures;
+
             string str;
             string insertMove = Name + move;
 
@@ -112,8 +116,8 @@ namespace MauiApp3.Data.ChessClasses
                       $"IsMoving = 1" +
                       $" WHERE Figure = 'R' and Pozition = 'A{Pozition.Y}'";
                 DataBaseFullConn.ConnChange(str);
-
-                return "O-O-O";
+                result.Item1 = "O-O-O";
+                return result;
             }
 
             if (move == $"H{Pozition.Y}")
@@ -130,23 +134,22 @@ namespace MauiApp3.Data.ChessClasses
                       $" WHERE Figure = 'R' and Pozition = 'H{Pozition.Y}'";
                 DataBaseFullConn.ConnChange(str);
 
-                return "O-O";
+                result.Item1 = "O-O";
+                return result;
             }
 
             Figure NotGameFigure = figures.Where(p => p.Pozition.cell == move && p.InGame == true).FirstOrDefault();
 
             if (NotGameFigure != default(Figure))
             {
-                if (NotGameFigure.IsWhile == IsWhile) return null;
-
-                orderCaptures++;
+                if (NotGameFigure.IsWhile == IsWhile) return result;
+                result.Item2++;
                 str = $"UPDATE {tableFigures} " +
                 $"SET InGame = 0," +
-                $" EatID = {orderCaptures}" +
+                $" EatID = {result.Item2}" +
                 $" WHERE ID = {NotGameFigure.ID}";
                 DataBaseFullConn.ConnChange(str);
                 insertMove = Name + "x" + move;
-
             }
 
             str = $"UPDATE {tableFigures} " +
@@ -154,8 +157,8 @@ namespace MauiApp3.Data.ChessClasses
                 $"IsMoving = 1" +
                 $" WHERE ID = {ID}";
             DataBaseFullConn.ConnChange(str);
-
-            return insertMove;
+            result.Item1 = insertMove;
+            return result;
         }
 
         private string[] Castling(Figure[] figures)

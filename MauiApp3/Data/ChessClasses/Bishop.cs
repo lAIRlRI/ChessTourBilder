@@ -54,7 +54,7 @@ namespace MauiApp3.Data.ChessClasses
             foreach (var item in cellsHorizontal)
             {
                 if (Pozition.X == item.X && Pozition.Y == item.Y) continue;
-                if(ChangePozition(item, cellsHorizontal, figures)) cellsTrue.Add(item);
+                if (ChangePozition(item, cellsHorizontal, figures)) cellsTrue.Add(item);
             }
 
             foreach (var item in cellsVertical)
@@ -104,6 +104,8 @@ namespace MauiApp3.Data.ChessClasses
         private bool ChangePozition(Cell move, List<Cell> cells, Figure[] figures)
         {
             Cell[] cellsDiapozon;
+
+            if (figures.Where(p => p.Pozition.cell == move.cell && p.IsWhile == IsWhile).FirstOrDefault() != default(Figure)) return false;
 
             if (move.Y < Pozition.Y)
             {

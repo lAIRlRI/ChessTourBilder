@@ -1,5 +1,6 @@
 ﻿@page "/gameMove"
 @using MauiApp3.Data.Controler
+@using MauiApp3.Data.ChessClasses
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
@@ -28,7 +29,7 @@
                 }
             </select>
         </div>
-        @if (rpt) 
+        @if (rpt)
         {
             <div>
                 <select @bind="newFigure">
@@ -40,7 +41,7 @@
                 </select>
             </div>
         }
-       
+
     </div>
     @if (chessGame.IsGameContinues)
     {
@@ -73,20 +74,48 @@
             @(item + "; ")
         }
     </div>
+    <section>
+        @for (var i = 8; i > 0; i--)
+        {
+            <div style="display: flex;">
+                @for (int j = 1; j < 9; j++)
+                {
+                    <div style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid black">
+                        @if (CheckFigure(i, j) != default(Figure)) 
+                        {
+                            <p style="color: @ColorFigure(figureView.IsWhile)">@figureView.Name@figureView.Pozition.cell</p>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </section>
 </section>
 
 @code {
-    List<Data.ChessClasses.Cell> cells = new List<Data.ChessClasses.Cell>();
-    Data.ChessClasses.ChessGame chessGame = new(ConsignmentControler.nowConsignment);
-
+    List<Cell> cells = new List<Cell>();
+    ChessGame chessGame = new(ConsignmentControler.nowConsignment);
     bool IsWhile = true, End = false, del = false, rpt = false, dis = false;
     string move, str = "Белые", stage = "ok", newFigure;
     int? index = null;
     double? result;
-    Data.ChessClasses.Figure figure = new Data.ChessClasses.Pawn("A8", true, -1);
+    Figure figure = new Pawn("A8", true, -1);
+    Figure figureView;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
+
+    private string ColorFigure(bool IsWhile)
+    {
+        if (IsWhile) return "white";
+        return "black";
+    }
+
+    private Figure CheckFigure(int i, int j)
+    {
+        figureView = chessGame.Figures.Where(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true).FirstOrDefault();
+        return figureView;
+    }
 
     private void DeleteMove()
     {

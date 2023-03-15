@@ -59,8 +59,12 @@ namespace MauiApp3.Data.ChessClasses
             return insertMove;
         }
 
-        public virtual string SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures)
+        public virtual (string, int) SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
         {
+            (string, int) result;
+            result.Item1 = null;
+            result.Item2 = orderCaptures;
+
             string insertMove = Name + move;
 
             Figure NotGameFigure = figures.Where(p => p.Pozition.cell == move && p.InGame == true).FirstOrDefault();
@@ -69,12 +73,11 @@ namespace MauiApp3.Data.ChessClasses
 
             if (NotGameFigure != default(Figure))
             {
-                if (NotGameFigure.IsWhile == IsWhile) return null;
-
-                orderCaptures++;
+                if (NotGameFigure.IsWhile == IsWhile) return result;
+                result.Item2++;
                 str = $"UPDATE {tableFigures} " +
                 $"SET InGame = 0," +
-                $" EatID = {orderCaptures}" +
+                $" EatID = {result.Item2}" +
                 $" WHERE ID = {NotGameFigure.ID}";
                 DataBaseFullConn.ConnChange(str);
                 insertMove = Name + "x" + move;
@@ -86,7 +89,9 @@ namespace MauiApp3.Data.ChessClasses
                 $" WHERE ID = {ID}";
             DataBaseFullConn.ConnChange(str);
 
-            return insertMove;
+            result.Item1 = insertMove;
+
+            return result;
         }
     }
 }
