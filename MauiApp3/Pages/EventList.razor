@@ -68,9 +68,9 @@
 
 @code {
     List<Data.Model.Event> eventModels = OrganizerControler.nowOrganizer.Administrator == -1
-                                        ? EventControler.staticEvent
+                                        ? EventControler.Get()
                                             .Where(p => p.OrganizerID == OrganizerControler.nowOrganizer.OrganizerID
-                                                || p.IsPublic == true).ToList() : EventControler.staticEvent;
+                                                || p.IsPublic == true).ToList() : EventControler.Get();
     static string like = "", addstr = "Добавить";
     bool add =  false;
     string[] result = new string[5];

@@ -7,9 +7,10 @@ using System.Collections.Generic;
 public class DataBase
 {
     static string db = "CTB_version_2_4_20230301";
-    static string ip = "DESKTOP-7T6ACSF\\SQLEXPRESS";
-    static string userName = "ARR";
-    static string userPassword = "1234";
+    //"CTB_version_2_4_20230301";
+    static string ip = @"DESKTOP-7T6ACSF\SQLEXPRESS";
+    static string userName = "";//"ARR";
+    static string userPassword = "";//"1234";
     static string sqlcon = $"Data Source = {ip}; " +
                            $"Initial Catalog = {db}; " +
                            $"User ID = {userName};" +
@@ -21,6 +22,8 @@ public class DataBase
     static SqlConnection sqlConnection = new SqlConnection(sqlcon);
     static SqlCommand sqlCommand;
     static SqlDataReader reader;
+
+    static DataBaseFullConn DataBaseFullConn = new DataBaseFullConn();
 
     public static SqlDataReader Conn(string str)
     {
@@ -103,5 +106,47 @@ public class DataBase
     {
         sqlCommand.Parameters.Clear();
         sqlConnection.Close();
+    }
+
+    public static bool ChangeConnection() 
+    {
+        try
+        {
+            sqlConnection.Open();
+            SqlCommand sqlCommand = new SqlCommand("select 1 from Organizer", sqlConnection);
+            bool result = sqlCommand.ExecuteNonQuery() > 0;
+            sqlConnection.Close();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool NewConnection(string[] values) 
+    {
+        SqlConnection temp = new SqlConnection($"Data Source = {values[0]}; " +
+                           $"Initial Catalog = {values[1]}; " +
+                           $"User ID = {values[2]};" +
+                           $"Password = {values[3]};" +
+                           $"Trusted_Connection = true;" +
+                           $"TrustServerCertificate = true;" +
+                           $"Encrypt = false;" +
+                           $"Integrated Security = true;");
+        try
+        {
+            temp.Open();
+            SqlCommand sqlCommand = new SqlCommand("select 1 from Organizer", temp);
+            bool result = sqlCommand.ExecuteNonQuery() > 0;
+            temp.Close();
+            sqlConnection = temp;
+            DataBaseFullConn.NewConnection(values);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

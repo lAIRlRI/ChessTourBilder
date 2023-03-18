@@ -1,0 +1,46 @@
+﻿@page "/setting"
+@layout MainLayout
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <section class="left-conteneer">
+        <h1 class="top-row-text text text-color-right" href="">Настройки</h1>
+        <div class="form">
+            <div>
+                <p class="text-color-right error-text">@result[0]</p>
+                <input @bind-value="values[0]" placeholder="IP" type="text">
+            </div>
+            <div>
+                <p class="text-color-right error-text">@result[1]</p>
+                <input @bind-value="values[1]" placeholder="DBName" type="text">
+            </div>
+            <div>
+                <p class="text-color-right error-text">@result[2]</p>
+                <input @bind-value="values[2]" placeholder="User Name" type="text">
+            </div>
+            <div>
+                <p class="text-color-right error-text">@result[3]</p>
+                <input @bind-value="values[3]" placeholder="User Password" type="text">
+            </div>
+        </div>
+        <button class="text text-color-right border-none" @onclick="@Cheker" href="">Зарегистрироваться</button>
+    </section>
+</body>
+
+@code {
+    string[] result = new string[4], values = new string[4];
+
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    private void Cheker() 
+    {
+        Array.Clear(result);
+        if (!Data.Helper.CheckDB(values, ref result)) return;
+        
+        if (Data.DataBase.NewConnection(values))
+        {
+            OnClickNavigate("/");
+        }
+    }
+}

@@ -30,6 +30,7 @@ namespace MauiApp3.Data.ChessClasses
                 "ID int identity(1,1) not null," +
                 "PlayerID int not null," +
                 "Move nvarchar(10) not null," +
+                "Pozition nvarchar(10) not null," +
                 "ConsignmentID int not null," +
                 "TourID int not null," +
                 "LastMove bit not null default 0," +
@@ -54,7 +55,7 @@ namespace MauiApp3.Data.ChessClasses
                 {
                     case "":
                         Figures[i] = new Pawn(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
-                        { 
+                        {
                             InGame = Convert.ToBoolean(item["InGame"]),
                             IsMoving = Convert.ToBoolean(item["IsMoving"])
                         };
@@ -114,8 +115,8 @@ namespace MauiApp3.Data.ChessClasses
             string str;
 
             int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
-            str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
-                        $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID})";
+            str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID, Pozition)" +
+                        $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID},'{figure.Pozition.cell}')";
             DataBaseFullConn.ConnChange(str);
 
             lastPozition = figure.Pozition;
@@ -128,7 +129,7 @@ namespace MauiApp3.Data.ChessClasses
             return "ok";
         }
 
-        public bool InsertFigure(string pozition, string name, bool IsWhile) 
+        public bool InsertFigure(string pozition, string name, bool IsWhile)
         {
             int b = IsWhile ? 1 : 0;
             string str = $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
@@ -136,7 +137,7 @@ namespace MauiApp3.Data.ChessClasses
             DataBaseFullConn.ConnChange(str);
             int ID = IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
-                        $" values ({ID},'{pozition+name}',{consignment.ConsignmentID},{consignment.TourID})";
+                        $" values ({ID},'{pozition + name}',{consignment.ConsignmentID},{consignment.TourID})";
             DataBaseFullConn.ConnChange(str);
             GetFigures();
             Move.Add(pozition + name);
@@ -269,7 +270,7 @@ namespace MauiApp3.Data.ChessClasses
             return Math.Round(mPlayer + k * (result - Ea), 1);
         }
 
-        public void DeleteLastMove()
+        public void DeleteLastMove(bool IsWhile)
         {
             DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move from {tableMove} " +
                 "where ID in " +
@@ -289,6 +290,54 @@ namespace MauiApp3.Data.ChessClasses
                 str = $"UPDATE {tableFigures} " +
                 $"SET InGame = 1" +
                 $" WHERE EatID = {orderCaptures}";
+                DataBaseFullConn.ConnChange(str);
+            }
+
+            int pozition = IsWhile ? 1 : 8;
+
+            if (move == "O-O-O")
+            {
+                str = $"UPDATE {tableFigures} " +
+                     $"SET Pozition = 'E{pozition}'," +
+                     $"IsMoving = 0" +
+                     $" WHERE Pozition = 'C{pozition}'";
+                DataBaseFullConn.ConnChange(str);
+
+                str = $"UPDATE {tableFigures} " +
+                     $"SET Pozition = 'A{pozition}'," +
+                     $"IsMoving = 0" +
+                     $" WHERE Pozition = 'D{pozition}'";
+                DataBaseFullConn.ConnChange(str);
+            }
+
+            if (move == "O-O")
+            {
+                str = $"UPDATE {tableFigures} " +
+                     $"SET Pozition = 'E{pozition}'," +
+                     $"IsMoving = 0" +
+                     $" WHERE Pozition = 'G{pozition}'";
+                DataBaseFullConn.ConnChange(str);
+
+                str = $"UPDATE {tableFigures} " +
+                     $"SET Pozition = 'H{pozition}'," +
+                     $"IsMoving = 0" +
+                     $" WHERE Pozition = 'F{pozition}'";
+                DataBaseFullConn.ConnChange(str);
+            }
+
+            char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
+
+            char temp = figure.Where(p => p == move[move.Length - 1]).FirstOrDefault();
+
+            if (temp != default(char))
+            {
+                str = $"UPDATE {tableFigures} " +
+               $"SET Pozition = '{lastPozition.cell}'" +
+               $" WHERE ID = {lastIDFigure}";
+                DataBaseFullConn.ConnChange(str);
+
+                str = $"Delete from {tableFigures} " +
+                     $" WHERE ID in (select top 1 ID from {tableFigures} order by ID desc)";
                 DataBaseFullConn.ConnChange(str);
             }
 

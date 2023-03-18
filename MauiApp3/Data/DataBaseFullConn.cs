@@ -79,6 +79,48 @@ public class DataBaseFullConn
         }
     }
 
+    public static bool ChangeConnection()
+    {
+        try
+        {
+            sqlConnection.Open();
+            SqlCommand sqlCommand = new SqlCommand("select 1 from Organizer", sqlConnection);
+            bool result = sqlCommand.ExecuteNonQuery() > 0;
+            sqlConnection.Close();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool NewConnection(string[] values)
+    {
+        SqlConnection temp = new SqlConnection($"Data Source = {values[0]}; " +
+                           $"Initial Catalog = {values[1]}; " +
+                           $"User ID = {values[2]};" +
+                           $"Password = {values[3]};" +
+                           $"Trusted_Connection = true;" +
+                           $"TrustServerCertificate = true;" +
+                           $"Encrypt = false;" +
+                           $"Integrated Security = true;");
+        try
+        {
+            temp.Open();
+            SqlCommand sqlCommand = new SqlCommand("select 1 from Organizer", temp);
+            bool result = sqlCommand.ExecuteNonQuery() > 0;
+            temp.Close();
+            sqlConnection = temp;
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static void OpenConn() 
     {
         sqlConnection.Open();

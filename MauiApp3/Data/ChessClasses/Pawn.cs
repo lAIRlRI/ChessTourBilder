@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace MauiApp3.Data.ChessClasses
 {
@@ -49,11 +50,11 @@ namespace MauiApp3.Data.ChessClasses
             {
                 Cell cell = new(Pozition.X, Pozition.Y + (vector * 2));
                 Cell cellChange = new(Pozition.X, Pozition.Y + vector);
-                if (figures.Where(p => p.Pozition.cell == cellChange.cell && p.IsWhile == IsWhile).FirstOrDefault() == default(Figure))
+                if (figures.Where(p => p.Pozition.cell == cellChange.cell).FirstOrDefault() == default(Figure))
                 {
                     cells.Add(cell);
                 }
-            };
+            }
 
             foreach (var item in cells)
             {
@@ -132,23 +133,22 @@ namespace MauiApp3.Data.ChessClasses
         private string Proxod(string move, string tableMove, Figure[] figures, string tableFigures, int oreder)
         {
             if (move[0] == Pozition.cell[0]) return null;
-            int vectorY = IsWhile ? 7 : 2;
-            int vectorE = IsWhile ? 6 : 3;
+            int vectorY = IsWhile ? 6 : 3;
+            int vectorE = IsWhile ? 5 : 4;
+            int vectorN = IsWhile ? 7 : 2;
 
-            if (move[1].ToString() != vector.ToString()) return null;
 
-            DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move from {tableMove} " +
+            if (move[1].ToString() != vectorY.ToString()) return null;
+
+            DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move, Pozition from {tableMove} " +
                "where ID in " +
                $"(select top 1 ID from {tableMove} order by ID desc)");
+
             string moveChange = dataSet.Tables[0].Rows[0][0].ToString();
+            string pozitionChange = dataSet.Tables[0].Rows[0][1].ToString();
 
             if (moveChange != $"{move[0]}{vectorE}") return null;
-
-            dataSet = DataBaseFullConn.ConnDataSet($"select Move from {tableMove} " +
-               $"where Move = {move[0]}{vectorY}");
-            if (!dataSet.IsNull("Move")) return false;
-
-            moveChange = $"{move[0]}{vectorE}";
+            if (pozitionChange != $"{move[0]}{vectorN}") return null;
 
             Figure figure = figures.Where(p => p.Pozition.cell == moveChange).FirstOrDefault();
 

@@ -62,6 +62,23 @@ namespace MauiApp3.Data
             return bools.All(p => p == null);
         }
 
+        public static bool CheckDB(string[] values, ref string[] bools)
+        {
+            if (string.IsNullOrWhiteSpace(values[0]))
+                bools[0] = Text();
+
+            if (string.IsNullOrWhiteSpace(values[1]))
+                bools[1] = Text();
+
+            if (string.IsNullOrWhiteSpace(values[2]))
+                bools[2] = Text();
+
+            if (string.IsNullOrWhiteSpace(values[3]))
+                bools[3] = Text();
+
+            return bools.All(p => p == null);
+        }
+
         public static bool CheckPlayer(Player player, ref string[] bools)
         {
             if (player.FIDEID.ToString().Length != 7)
