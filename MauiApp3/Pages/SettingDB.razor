@@ -24,23 +24,66 @@
                 <input @bind-value="values[3]" placeholder="User Password" type="text">
             </div>
         </div>
-        <button class="text text-color-right border-none" @onclick="@Cheker" href="">Зарегистрироваться</button>
+        <p>@DBChangeText</p>
+        if(@ExpBD)
+        {
+        <button>Создать БД</button>
+        }
+        if(@ExpTable)
+        {
+        <button>Создать твблицы БД</button>
+        }
+        <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
     </section>
 </body>
 
 @code {
     string[] result = new string[4], values = new string[4];
 
+    string DBChangeResult;
+    string DBChangeText;
+
+    bool ExpBD, ExpTable;
+
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Cheker() 
+    private void OnCreateDB()
     {
+        string str = $"create database {values[1]} " +
+        Data.DataBase.ConnChange(str);
+
+    }
+
+    private void Cheker()
+    {
+        ExpBD = ExpTable = false;
         Array.Clear(result);
         if (!Data.Helper.CheckDB(values, ref result)) return;
-        
-        if (Data.DataBase.NewConnection(values))
+
+        DBChangeResult = Data.DataBase.NewConnection(values);
+        switch (DBChangeResult)
         {
-            OnClickNavigate("/");
+            case "ok":
+                OnClickNavigate("/");
+                break;
+            case "NoConn":
+                DBChangeText = "Не удалось подключиться к серверу";
+                break;
+            case "NoDB":
+                DBChangeText = "Не удалось подключиться к базе данных";
+                ExpBD = true;
+                break;
+            case "NoTable":
+                DBChangeText = "В бвзе отсутствуют необходимые таблицы";
+                ExpTable = true;
+                break;
+            default:
+                break;
         }
+    }
+
+    private void OnCreateTable(string str)
+    {
+        Data.DataBase.ConnChange($"use {str}");
     }
 }

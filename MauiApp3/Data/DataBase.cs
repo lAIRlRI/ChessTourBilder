@@ -124,7 +124,7 @@ public class DataBase
         }
     }
 
-    public static bool NewConnection(string[] values) 
+    public static string NewConnection(string[] values) 
     {
         SqlConnection temp = new SqlConnection($"Data Source = {values[0]}; " +
                            $"Initial Catalog = {values[1]}; " +
@@ -134,19 +134,43 @@ public class DataBase
                            $"TrustServerCertificate = true;" +
                            $"Encrypt = false;" +
                            $"Integrated Security = true;");
+        temp.Open();
+        SqlCommand sqlCommand;
+  
         try
         {
-            temp.Open();
-            SqlCommand sqlCommand = new SqlCommand("select 1 from Organizer", temp);
-            bool result = sqlCommand.ExecuteNonQuery() > 0;
-            temp.Close();
-            sqlConnection = temp;
-            DataBaseFullConn.NewConnection(values);
-            return true;
+
+            sqlCommand = new SqlCommand("select 1", temp);
+            sqlCommand.ExecuteNonQuery();
+
         }
         catch
         {
-            return false;
+            return "NoConn";
         }
+
+        try
+        {
+            sqlCommand = new SqlCommand($"use {values[1]}", temp);
+            sqlCommand.ExecuteNonQuery();
+        }
+        catch
+        {
+            return "NoDB";
+        }
+
+        try
+        {
+            sqlCommand = new SqlCommand($"select 1 from Organizer", temp);
+            sqlCommand.ExecuteNonQuery();
+        }
+        catch
+        {
+            return "NoTable";
+        }
+
+        temp.Close();
+        sqlConnection = temp;
+        return "ok";
     }
 }
