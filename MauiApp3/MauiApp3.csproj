@@ -57,6 +57,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="Data\server.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
       <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
     </ItemGroup>
 
@@ -83,6 +87,12 @@
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Pages\SettingDB.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="Data\server.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

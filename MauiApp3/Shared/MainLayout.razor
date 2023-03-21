@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 <div class="">
     <div class="">
@@ -8,4 +9,13 @@
 
 @code
 {
+    protected override void OnInitialized()
+    {
+        Data.DataBase dataBase = new Data.DataBase();
+
+        if (!Data.DataBase.ChangeConnection())
+        {
+            NavigationManager.NavigateTo("/setting");
+        }
+    }
 }

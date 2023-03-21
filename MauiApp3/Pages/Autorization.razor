@@ -43,17 +43,7 @@
         OnClickNavigate("/eventList");
     }
 
-    protected override void OnInitialized()
-    {
-        if (!Data.DataBase.ChangeConnection()) 
-        {
-            OnClickNavigate("/setting");
-        }
-        if (!Data.DataBaseFullConn.ChangeConnection())
-        {
-            OnClickNavigate("/setting");
-        }
-    }
+  
 
 }
 

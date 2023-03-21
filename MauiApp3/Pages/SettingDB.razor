@@ -1,5 +1,6 @@
 ﻿@page "/setting"
 @layout MainLayout
+@using Microsoft.Data.SqlClient;
 @inject NavigationManager NavigationManager
 
 
@@ -25,13 +26,13 @@
             </div>
         </div>
         <p>@DBChangeText</p>
-        if(@ExpBD)
+        @if (ExpBD)
         {
-        <button>Создать БД</button>
+            <button @onclick="(()=>OnCreateDB())">Создать БД</button>
         }
-        if(@ExpTable)
+        @if (ExpTable)
         {
-        <button>Создать твблицы БД</button>
+            <button @onclick="(()=>OnCreateTable(values[1]))">Создать Таблицы</button>
         }
         <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
     </section>
@@ -49,13 +50,32 @@
 
     private void OnCreateDB()
     {
-        string str = $"create database {values[1]} " +
-        Data.DataBase.ConnChange(str);
-
+        DBChangeText = "Ждите, создвём бд \n";
+        try
+        {
+        string str = $"create database {values[1]} ";
+        Data.DataBase.temp = new SqlConnection($"Data Source = {values[0]}; " +
+                      $"Initial Catalog = master; " +
+                      $"User ID = {values[2]};" +
+                      $"Password = {values[3]};" +
+                      $"Trusted_Connection = true;" +
+                      $"TrustServerCertificate = true;" +
+                      $"Encrypt = false;" +
+                      $"Integrated Security = true;");
+        Data.DataBase.ConnChangeTemp(str);
+        DBChangeText += "бд созданно \n";
+        OnCreateTable(values[1]);
+        }
+        catch(Exception e)
+        {
+            DBChangeText = "Не удалось создать бд";
+            throw e;
+        }
     }
 
     private void Cheker()
     {
+        DBChangeText = "Ждите";
         ExpBD = ExpTable = false;
         Array.Clear(result);
         if (!Data.Helper.CheckDB(values, ref result)) return;
@@ -84,6 +104,16 @@
 
     private void OnCreateTable(string str)
     {
-        Data.DataBase.ConnChange($"use {str}");
+        try
+        {
+            DBChangeText += "Ждите, создвём таблицы \n ";
+            Data.DataBase.ConnChangeTemp($"use {values[1]} " + Data.Helper.Tablels);
+            Cheker();
+        }
+        catch (Exception e)
+        {
+            DBChangeText = "Не удалось создать таблицы";
+            throw e;
+        }
     }
 }

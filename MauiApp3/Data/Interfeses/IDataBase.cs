@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using Microsoft.Data.SqlClient;
 
 namespace MauiApp3.Data.Interfeses
 {
