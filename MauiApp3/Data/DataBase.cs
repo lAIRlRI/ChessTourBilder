@@ -19,30 +19,6 @@ public class DataBase
     static SqlDataReader reader;
     public static SqlConnection temp;
 
-    public static DataBaseFullConn DataBaseFullConn = new DataBaseFullConn();
-
-    public DataBase()
-    {
-        paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\server.txt");
-        string[] lines = File.ReadAllLines(paths);
-        if (lines.Length == 4)
-        {
-            ip = lines[0];
-            db = lines[1];
-            userName = lines[2];
-            userPassword = lines[3];
-        }
-        sqlcon = $"Data Source = {ip}; " +
-                              $"Initial Catalog = {db}; " +
-                              $"User ID = {userName};" +
-                              $"Password = {userPassword};" +
-                              $"Trusted_Connection = true;" +
-                              $"TrustServerCertificate = true;" +
-                              $"Encrypt = false;" +
-                              $"Integrated Security = true;";
-        sqlConnection = new SqlConnection(sqlcon);
-    }
-
     public static SqlDataReader Conn(string str)
     {
         try
@@ -78,8 +54,7 @@ public class DataBase
     {
         try
         {
-           
-            temp.Open();
+            if (temp.State == ConnectionState.Closed) temp.Open();
             sqlCommand = new SqlCommand(str, temp);
             sqlCommand.ExecuteNonQuery();
             temp.Close();
@@ -145,12 +120,37 @@ public class DataBase
 
     public static bool ChangeConnection()
     {
+
         try
         {
+            paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\serverSetting.txt");
+            Console.WriteLine(paths);
+            string[] lines = File.ReadAllLines(paths);
+
+            if (lines.Length != 4) return false;
+
+            string[] values;
+            ip = lines[0];
+            db = lines[1];
+            userName = lines[2];
+            userPassword = lines[3];
+
+            sqlcon = $"Data Source = {ip}; " +
+                                  $"Initial Catalog = {db}; " +
+                                  $"User ID = {userName};" +
+                                  $"Password = {userPassword};" +
+                                  $"Trusted_Connection = true;" +
+                                  $"TrustServerCertificate = true;" +
+                                  $"Encrypt = false;" +
+                                  $"Integrated Security = true;";
+            sqlConnection = new SqlConnection(sqlcon);
+
             sqlConnection.Open();
             SqlCommand sqlCommand = new SqlCommand("select 1 from Organizer", sqlConnection);
             bool result = sqlCommand.ExecuteNonQuery() > 0;
             sqlConnection.Close();
+
+            DataBaseFullConn dataBaseFullConn = new(lines);
             return true;
         }
         catch
@@ -161,7 +161,7 @@ public class DataBase
 
     public static string NewConnection(string[] values)
     {
-        
+
         SqlCommand sqlCommand;
 
         try
@@ -177,26 +177,27 @@ public class DataBase
             temp.Open();
             sqlCommand = new SqlCommand("select 1", temp);
             sqlCommand.ExecuteNonQuery();
+            temp.Close();
         }
         catch
         {
             return "NoConn";
-
         }
 
         try
         {
-             temp = new SqlConnection($"Data Source = {values[0]}; " +
-                          $"Initial Catalog = {values[1]}; " +
-                          $"User ID = {values[2]};" +
-                          $"Password = {values[3]};" +
-                          $"Trusted_Connection = true;" +
-                          $"TrustServerCertificate = true;" +
-                          $"Encrypt = false;" +
-                          $"Integrated Security = true;");
+            temp = new SqlConnection($"Data Source = {values[0]}; " +
+                         $"Initial Catalog = {values[1]}; " +
+                         $"User ID = {values[2]};" +
+                         $"Password = {values[3]};" +
+                         $"Trusted_Connection = true;" +
+                         $"TrustServerCertificate = true;" +
+                         $"Encrypt = false;" +
+                         $"Integrated Security = true;");
             temp.Open();
             sqlCommand = new SqlCommand($"use {values[1]}", temp);
             sqlCommand.ExecuteNonQuery();
+            temp.Close();
         }
         catch
         {
@@ -205,15 +206,16 @@ public class DataBase
 
         try
         {
+            temp.Open();
             sqlCommand = new SqlCommand($"select 1 from Organizer", temp);
             sqlCommand.ExecuteNonQuery();
+            temp.Close();
         }
         catch
         {
             return "NoTable";
         }
 
-        temp.Close();
         sqlConnection = temp;
 
         using (StreamWriter w = new StreamWriter(paths))
@@ -223,6 +225,7 @@ public class DataBase
             w.WriteLine(values[2]);
             w.WriteLine(values[3]);
         }
+        DataBaseFullConn dataBaseFullConn = new(values);
 
         return "ok";
     }

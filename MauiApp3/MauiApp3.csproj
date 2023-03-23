@@ -95,4 +95,10 @@
       </Resource>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Data\serverSetting.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

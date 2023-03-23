@@ -6,19 +6,26 @@ using System.Collections.Generic;
 
 public class DataBaseFullConn
 {
-    static string db = "CTB_version_2_4_20230301";
-    static string ip = "DESKTOP-7T6ACSF\\SQLEXPRESS";
-    static string userName = "ARR";
-    static string userPassword = "1234";
-    static string sqlcon = $"Data Source = {ip}; " +
-                           $"Initial Catalog = {db}; " +
-                           $"User ID = {userName};" +
-                           $"Password = {userPassword};" +
-                           $"Trusted_Connection = true;" +
-                           $"TrustServerCertificate = true;" +
-                           $"Encrypt = false;" +
-                           $"Integrated Security = true;";
-    static SqlConnection sqlConnection = new SqlConnection(sqlcon);
+    static string db;
+    static string ip;
+    static string userName;
+    static string userPassword;
+    static string sqlcon;
+    static SqlConnection sqlConnection;
+
+    public DataBaseFullConn(string[] lines)
+    {
+        sqlcon = $"Data Source = {lines[0]}; " +
+                              $"Initial Catalog = {lines[1]}; " +
+                              $"User ID = {lines[2]};" +
+                              $"Password = {lines[3]};" +
+                              $"Trusted_Connection = true;" +
+                              $"TrustServerCertificate = true;" +
+                              $"Encrypt = false;" +
+                              $"Integrated Security = true;";
+        sqlConnection = new SqlConnection(sqlcon);
+    }
+
 
     public static SqlDataReader Conn(string str)
     {

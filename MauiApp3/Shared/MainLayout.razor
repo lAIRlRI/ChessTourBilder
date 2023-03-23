@@ -11,8 +11,6 @@
 {
     protected override void OnInitialized()
     {
-        Data.DataBase dataBase = new Data.DataBase();
-
         if (!Data.DataBase.ChangeConnection())
         {
             NavigationManager.NavigateTo("/setting");

@@ -65,7 +65,7 @@
 </body>
 
 @code {
-    List<Data.Model.Player> playerModels = PlayerControler.staticPlayer;
+    List<Data.Model.Player> playerModels = PlayerControler.Get();
     static string like = "", addstr = "Добавить";
     bool add = false;
     string[] result = new string[7];
