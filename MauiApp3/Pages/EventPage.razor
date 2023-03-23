@@ -61,21 +61,24 @@
             <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
         }
     </div>
-    <button class="top-row-text text" @onclick="OnAdd">Добавить игрока</button>
-    @if (add)
+    @if (addPlayer)
     {
-        <div class="element">
-            <div>
-                <p>@result[1]</p>
-                <select @bind="FIDEID" placeholder="Белыми">
-                    @foreach (var item in PlayerControler.staticPlayer)
-                    {
-                        <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
-                    }
-                </select>
+        <button class="top-row-text text" @onclick="OnAdd">Добавить игрока</button>
+        @if (add)
+        {
+            <div class="element">
+                <div>
+                    <p>@result[1]</p>
+                    <select @bind="FIDEID" placeholder="Белыми">
+                        @foreach (var item in PlayerControler.staticPlayer)
+                        {
+                            <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
+                        }
+                    </select>
+                </div>
+                <button @onclick="Add">Добавить</button>
             </div>
-            <button @onclick="Add">Добавить</button>
-        </div>
+        }
     }
     <section class="pozition-conteneer">
         @foreach (var item in list)
@@ -89,19 +92,28 @@
 </body>
 
 @code {
+
     Data.Model.Event eventModelupdate = new();
-    bool update = true, add;
+    bool update = true, add, addPlayer = EventControler.nowEvent.DataFinish >= DateTime.Now && Data.Helper.CheckDeleteButton();
     string[] result = new string[5];
     int FIDEID;
     List<Data.Model.Player> list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
 
-
     private void OnUpdate() => update = !update;
-    private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
+    private void OnClickNavigation(string str)
+    {
+        if ("/tourList" == str)
+        {
+            if (list.Count < 2) return;
+        }
+        NavigationManager.NavigateTo(str);
+    }
+
     private void OnAdd() => add = !add;
 
     private void Add()
     {
+        if (list.Where(p => p.PlayerID == FIDEID).FirstOrDefault() != default(Data.Model.Player)) return;
         EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
         list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
     }
