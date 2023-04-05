@@ -1,0 +1,152 @@
+﻿@page "/eventPage"
+@layout MainLayout
+@using ChessTourBuilderApp.Data.HelpClasses
+@using Data.Controler
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <div class="nav-item">
+            <button class="icon" @onclick="@(()=>OnClickNavigation("/navMenu"))"></button>
+            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/eventList"))">Назад</button>
+        </div>
+        <h1 class="top-row-text text" href="">@(Helper.FI())</h1>
+    </div>
+    <div class="top-row-conteneer">
+        <div class="nav-item">
+            <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))" class="top-row-text text">Результаты</button>
+            <button @onclick="@(()=>OnClickNavigation("/tourList"))" class="top-row-text text">Туры</button>
+            @if (Helper.CheckDeleteButton())
+            {
+                <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
+                <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+            }
+        </div>
+        <div>
+            <p class="error-text">@result[0]</p>
+            <input class="top-row-text text" disabled="@update" @bind-value="eventModelupdate.Name" placeholder="@EventControler.nowEvent.Name" />
+        </div>
+    </div>
+    <div class="info-conteneer">
+        <section class="image-conteneer info-item1">
+            <div class="image"></div>
+        </section>
+        <section class="info-item2">
+            <div>
+                <p class="error-text">@result[1]</p>
+                <input @bind-value="eventModelupdate.PrizeFund" type="number" placeholder="Призовой фонд: @EventControler.nowEvent.PrizeFund p." disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[4]</p>
+                <input @bind-value="eventModelupdate.LocationEvent" placeholder="Место: @EventControler.nowEvent.LocationEvent" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[2]</p>
+                <input @bind-value="eventModelupdate.DataStart" type="datetime" placeholder="Начало: @EventControler.nowEvent.DataStart" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[3]</p>
+                <input @bind-value="eventModelupdate.DataFinish" type="datetime" placeholder="Окончание: @EventControler.nowEvent.DataFinish" disabled="@update" />
+            </div>
+            <input placeholder="Стутус: @EventControler.nowEvent.StatusID" disabled />
+        </section>
+    </div>
+    <div style="display:flex;">
+        @if (!update)
+        {
+            <div style="display:flex;">
+                <p>Публичный</p>
+                <input @bind-value="@EventControler.nowEvent.IsPublic" type="checkbox" />
+            </div>
+            <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
+        }
+    </div>
+    @if (addPlayer)
+    {
+        <button class="top-row-text text" @onclick="OnAdd">Добавить игрока</button>
+        @if (add)
+        {
+            <div class="element">
+                <div>
+                    <p>@result[1]</p>
+                    <select @bind="FIDEID" placeholder="Белыми">
+                        @foreach (var item in PlayerControler.staticPlayer)
+                        {
+                            <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
+                        }
+                    </select>
+                </div>
+                <button @onclick="Add">Добавить</button>
+            </div>
+        }
+    }
+    <section class="pozition-conteneer">
+        @foreach (var item in list)
+        {
+            <div class="element">
+                <div class="image-player"></div>
+                <h4 class="text">@(item.FirstName + " " + item.MiddleName)</h4>
+            </div>
+        }
+    </section>
+</body>
+
+@code {
+
+    Data.Model.Event eventModelupdate = new();
+    bool update = true, add, addPlayer = EventControler.nowEvent.DataFinish >= DateTime.Now && Helper.CheckDeleteButton();
+    string[] result = new string[5];
+    int FIDEID;
+    List<Data.Model.Player> list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
+
+    private void OnUpdate() => update = !update;
+    private void OnClickNavigation(string str)
+    {
+        if ("/tourList" == str)
+        {
+            if (list.Count < 2) return;
+        }
+        NavigationManager.NavigateTo(str);
+    }
+
+    private void OnAdd() => add = !add;
+
+    private void Add()
+    {
+        if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player)) return;
+        EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
+        list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
+    }
+
+    private void OnUpdateButton()
+    {
+        eventModelupdate.EventID = EventControler.nowEvent.EventID;
+        eventModelupdate.IsPublic = EventControler.nowEvent.IsPublic;
+        eventModelupdate.OrganizerID = EventControler.nowEvent.OrganizerID;
+        eventModelupdate.StatusID = EventControler.nowEvent.StatusID;
+
+        if (eventModelupdate.Name == null) eventModelupdate.Name = EventControler.nowEvent.Name;
+        if (eventModelupdate.LocationEvent == null) eventModelupdate.LocationEvent = EventControler.nowEvent.LocationEvent;
+        if (eventModelupdate.DataStart == null) eventModelupdate.DataStart = EventControler.nowEvent.DataStart;
+        if (eventModelupdate.DataFinish == null) eventModelupdate.DataFinish = EventControler.nowEvent.DataFinish;
+        if (eventModelupdate.PrizeFund == null) eventModelupdate.PrizeFund = EventControler.nowEvent.PrizeFund;
+
+        Array.Clear(result);
+
+        if (!Helper.CheckEvent(eventModelupdate, ref result)) return;
+        if (!EventControler.Update(eventModelupdate)) return;
+
+        update = false;
+        EventControler.nowEvent = eventModelupdate;
+        EventControler ev = new();
+        eventModelupdate = new();
+    }
+
+    private void OnDelete()
+    {
+        if (!EventControler.Delete(EventControler.nowEvent)) return;
+        EventControler ev = new();
+        OnClickNavigation("/eventList");
+    }
+}

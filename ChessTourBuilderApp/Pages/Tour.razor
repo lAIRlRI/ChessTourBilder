@@ -1,0 +1,115 @@
+﻿@page "/tour"
+@layout MainLayout
+@using ChessTourBuilderApp.Data.HelpClasses
+@using Data.Controler
+@inject NavigationManager NavigationManager
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <div class="nav-item">
+            <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
+            <button class="top-row-text text" @onclick="@(()=>OnClickNavigate("/tourList"))">Назад</button>
+        </div>
+        <h1 class="top-row-text text"> @(Helper.FI())</h1>
+    </div>
+    <section class="main-conteneer-block">
+        <input class="input-main" placeholder="Поиск" type="text">
+    </section>
+    <div class="top-row-conteneer">
+        <h1 class="title-text">Партии</h1>
+        @if (Helper.CheckDeleteButton())
+        {
+            <button class="top-row-text text" @onclick="@(()=>TourControler.Delete(TourControler.nowTour.TourID))">Удалить</button>
+            <button class="top-row-text text" @onclick="AddClick">@addstr</button>
+            <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+
+        }
+        <input class="title-text" @bind-value="resultTour" placeholder="@Data.Controler.TourControler.nowTour.NameTour" />
+    </div>
+    @if (add)
+    {
+        <div class="element">
+            <div>
+                <p>@result[0]</p>
+                <input @bind-value="model.DateStart" type="datetime" placeholder="Дата начала" />
+            </div>
+            <div>
+                <p>@result[1]</p>
+                <select @bind="@model.whitePlayer.PlayerID" placeholder="Белыми">
+                    <option value="0">Белыми</option>
+                    @foreach (var item in list)
+                    {
+                        <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
+                    }
+                </select>
+                <p>@result[2]</p>
+                <select @bind="@model.blackPlayer.PlayerID" placeholder="Черными">
+                    <option value="0">Черными</option>
+                    @foreach (var item in list)
+                    {
+                        <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
+                    }
+                </select>
+            </div>
+            <button @onclick="Add">Добавить</button>
+        </div>
+    }
+    <section class="pozition-conteneer">
+        @foreach (var item in models)
+        {
+            <div @onclick="@(() => OnClickNavigateEvent(item))" class="element">
+                <div class="text-pozition">Белыми: @item.whitePlayer.player.FirstName</div>
+                <div class="text-pozition">Черными: @item.blackPlayer.player.FirstName</div>
+                <div class="text-pozition">Время: @item.DateStart</div>
+                <div class="text-pozition">Результат: @item.whitePlayer.Result @item.blackPlayer.Result</div>
+            </div>
+        }
+    </section>
+</body>
+
+@code {
+    List<Data.Model.Consignment> models = ConsignmentControler.GetDataSet().Where(p => p.TourID == TourControler.nowTour.TourID).ToList();
+    static string addstr = "Добавить", resultTour;
+    string[] result = new string[3];
+    Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };
+    bool update = true;
+    bool add = false;
+    List<Data.Model.Player> list = PlayerControler.Get().Where(p => EventPlayerControler.Get().Where(q => q.EventID == EventControler.nowEvent.EventID).Select(w => w.PlayerID).Contains(p.FIDEID.GetValueOrDefault())).ToList();
+
+
+    private void OnUpdate() => update = !update;
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    private void Add()
+    {
+        Array.Clear(result);
+        if (!Helper.CheckConsignment(model, ref result)) return;
+        model.StatusID = 1;
+        model.TourID = Data.Controler.TourControler.nowTour.TourID;
+        if (Data.Controler.ConsignmentControler.Insert(model))
+        {
+            model = Data.Controler.ConsignmentControler.GetLast();
+            OnClickNavigateEvent(model);
+        }
+    }
+
+    private void AddClick()
+    {
+        add = !add;
+        addstr = add ? "Закрыть" : "Добавить";
+    }
+
+    private void OnUpdateButton()
+    {
+        if (string.IsNullOrWhiteSpace(resultTour)) resultTour = TourControler.nowTour.NameTour;
+        TourControler.nowTour.NameTour = resultTour;
+        if (!TourControler.Update(TourControler.nowTour)) return;
+        update = false;
+    }
+
+    private void OnClickNavigateEvent(Data.Model.Consignment ev)
+    {
+        Data.Controler.ConsignmentControler.nowConsignment = ev;
+        NavigationManager.NavigateTo("/game");
+    }
+}

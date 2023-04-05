@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<div class="">
+    <div class="">
+        @Body
+    </div>
+</div>
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        if (!Data.DataBases.DataBase.ChangeConnection())
+        {
+            NavigationManager.NavigateTo("/setting");
+        }
+    }
+}

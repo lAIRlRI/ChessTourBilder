@@ -1,0 +1,121 @@
+﻿@page "/setting"
+@layout MainLayout
+@using ChessTourBuilderApp.Data.DataBases
+@using ChessTourBuilderApp.Data.HelpClasses
+@using Microsoft.Data.SqlClient;
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <section class="left-conteneer">
+        <h1 class="top-row-text text text-color-right" href="">Настройки</h1>
+        <div class="form">
+            <div>
+                <p class="text-color-right error-text">@result[0]</p>
+                <input @bind-value="values[0]" placeholder="IP" type="text">
+            </div>
+            <div>
+                <p class="text-color-right error-text">@result[1]</p>
+                <input @bind-value="values[1]" placeholder="DBName" type="text">
+            </div>
+            <div>
+                <p class="text-color-right error-text">@result[2]</p>
+                <input @bind-value="values[2]" placeholder="User Name" type="text">
+            </div>
+            <div>
+                <p class="text-color-right error-text">@result[3]</p>
+                <input @bind-value="values[3]" placeholder="User Password" type="text">
+            </div>
+        </div>
+        <p>@DBChangeText</p>
+        @if (ExpBD)
+        {
+            <button @onclick="(()=>OnCreateDB())">Создать БД</button>
+        }
+        @if (ExpTable)
+        {
+            <button @onclick="(()=>OnCreateTable(values[1]))">Создать Таблицы</button>
+        }
+        <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
+    </section>
+</body>
+
+@code {
+    string[] result = new string[4], values = new string[4];
+
+    string DBChangeResult;
+    string DBChangeText;
+
+    bool ExpBD, ExpTable;
+
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    private void OnCreateDB()
+    {
+        DBChangeText = "Ждите, создвём бд \n";
+        try
+        {
+            string str = $"create database {values[1]} ";
+            DataBase.temp = new SqlConnection($"Data Source = {values[0]}; " +
+                          $"Initial Catalog = master; " +
+                          $"User ID = {values[2]};" +
+                          $"Password = {values[3]};" +
+                          $"Trusted_Connection = true;" +
+                          $"TrustServerCertificate = true;" +
+                          $"Encrypt = false;" +
+                          $"Integrated Security = true;");
+            DataBase.ConnChangeTemp(str);
+            DBChangeText += "бд созданно \n";
+            OnCreateTable(values[1]);
+        }
+        catch
+        {
+            DBChangeText = "Не удалось создать бд";
+        }
+    }
+
+    private void Cheker()
+    {
+        ExpBD = ExpTable = false;
+
+        Array.Clear(result);
+
+        if (!Helper.CheckDB(values, ref result)) return;
+
+        DBChangeText = "Ждите";
+
+        DBChangeResult = DataBase.NewConnection(values);
+
+        switch (DBChangeResult)
+        {
+            case "ok":
+                OnClickNavigate("/");
+                break;
+            case "NoDB":
+                DBChangeText = "Не удалось подключиться к базе данных";
+                ExpBD = true;
+                break;
+            case "NoTable":
+                DBChangeText = "В бвзе отсутствуют необходимые таблицы";
+                ExpTable = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void OnCreateTable(string str)
+    {
+        try
+        {
+            DBChangeText += "Ждите, создвём таблицы \n ";
+            DataBase.ConnChangeTemp($"use {str} " + DataBase.GetTables());
+            Cheker();
+        }
+        catch(Exception e)
+        {
+            DBChangeText = "Не удалось создать таблицы";
+            throw e;
+        }
+    }
+}

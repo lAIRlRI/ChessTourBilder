@@ -1,0 +1,113 @@
+﻿@page "/player"
+@layout MainLayout
+@using ChessTourBuilderApp.Data.HelpClasses
+@using Data.Controler
+@using System.Data
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <div class="nav-item">
+            <button class="icon" @onclick="@(()=>OnClickNavigation("/navMenu"))"></button>
+            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/playerList"))">Назад</button>
+        </div>
+        <h1 class="top-row-text text">@(Helper.FI())</h1>
+    </div>
+    <div class="nav-item">
+        @if (OrganizerControler.nowOrganizer.Administrator != -1)
+        {
+            <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
+            <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+        }
+    </div>
+    <div class="info-conteneer">
+        <section class="image-conteneer info-item1">
+            <div class="image"></div>
+        </section>
+        <section class="info-item2">
+            <div>
+                <p class="error-text">@result[0]</p>
+                <input @bind-value="playerModel.FIDEID" type="number" placeholder="FIDEID: @PlayerControler.nowPlayer.FIDEID" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[1]</p>
+                <input @bind-value="playerModel.FirstName" placeholder="Имя: @PlayerControler.nowPlayer.FirstName" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[2]</p>
+                <input @bind-value="playerModel.MiddleName" placeholder="Фамилия: @PlayerControler.nowPlayer.MiddleName" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[3]</p>
+                <input @bind-value="playerModel.LastName" placeholder="Отчество: @PlayerControler.nowPlayer.LastName" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[4]</p>
+                <input @bind-value="playerModel.Birthday" type="datetime" placeholder="День рождения: @PlayerControler.nowPlayer.Birthday" disabled="@update" />
+            </div>
+
+            <div>
+                <p class="error-text">@result[5]</p>
+                <input @bind-value="playerModel.ELORating" type="number" step="0.1" placeholder="Рейтинг: @PlayerControler.nowPlayer.ELORating" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[6]</p>
+                <input @bind-value="playerModel.Contry" placehol der="Страна: @playerModel.Contry" disabled="@update" />
+            </div>
+        </section>
+    </div>
+    @if (!update)
+    {
+        <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
+    }
+    <section class="pozition-conteneer">
+        @foreach (DataRow item in ds.Tables[0].Rows)
+        {
+            <div class="element">
+                <h3 class="text">@item["Name"].ToString()</h3>
+                <h4 class="text">@item["TopPlece"].ToString()</h4>
+            </div>
+        }
+    </section>
+</body>
+
+@code {
+    Data.Model.Player playerModel = new();
+    bool update = true;
+    string[] result = new string[7];
+    DataSet ds = Data.DataBases.DataBase.ConnDataSet("select Name, TopPlece from Event e " +
+                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}");
+
+    private void OnUpdate() => update = !update;
+    private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
+
+    private void OnUpdateButton()
+    {
+        if (playerModel.FIDEID == null) playerModel.FIDEID = PlayerControler.nowPlayer.FIDEID;
+        if (playerModel.FirstName == null) playerModel.FirstName = PlayerControler.nowPlayer.FirstName;
+        if (playerModel.MiddleName == null) playerModel.MiddleName = PlayerControler.nowPlayer.MiddleName;
+        if (playerModel.LastName == null) playerModel.LastName = PlayerControler.nowPlayer.LastName;
+        if (playerModel.Birthday == null) playerModel.Birthday = PlayerControler.nowPlayer.Birthday;
+        if (playerModel.ELORating == null) playerModel.ELORating = PlayerControler.nowPlayer.ELORating;
+        if (playerModel.Contry == null) playerModel.Contry = PlayerControler.nowPlayer.Contry;
+
+        Array.Clear(result);
+
+        if (!Helper.CheckPlayer(playerModel, ref result)) return;
+        if (!PlayerControler.Update(playerModel, PlayerControler.nowPlayer.FIDEID)) return;
+
+        update = false;
+        PlayerControler.nowPlayer = playerModel;
+        PlayerControler ev = new();
+        playerModel = new();
+    }
+
+    private void OnDelete()
+    {
+        if (!PlayerControler.Delete(PlayerControler.nowPlayer.FIDEID)) return;
+        PlayerControler ev = new();
+        OnClickNavigation("/eventList");
+    }
+
+}

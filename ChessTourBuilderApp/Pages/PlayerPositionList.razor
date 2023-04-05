@@ -1,0 +1,47 @@
+﻿@page "/playerPositionList"
+@layout MainLayout
+@using System.Data
+@using ChessTourBuilderApp.Data.DataBases
+@inject NavigationManager NavigationManager
+
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
+        <h1 class="top-row-text text" href="">@(Data.HelpClasses.Helper.FI())</h1>
+    </div>
+    <section class="main-conteneer-block">
+        <input class="input-main" placeholder="Поиск" type="text">
+    </section>
+    <section>
+        <div class="color-first pozition-conteneer">
+            <div class="text-pozition">Позиция</div>
+            <div class="input-main text-aling text-pozition">Игрок</div>
+            <div class="input-main text-aling text-pozition">Очки</div>
+        </div>
+        @foreach (DataRow item in ds.Tables[0].Rows)
+        {
+            <div class="color-second pozition-conteneer">
+                <div class="text-pozition">@i</div>
+                <div class="input-main text-aling text-pozition">@item["Fi"].ToString()</div>
+                <div class="input-main text-aling text-pozition">@item["Points"].ToString()</div>
+            </div>
+            i++;
+        }
+    </section>
+</body>
+
+@code {
+    DataSet ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
+            DataBase.ConnDataSet(";with playerSum as" +
+            $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
+            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc")
+        :
+            DataBase.ConnDataSet(";with playerSum as" +
+            $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
+            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc");
+
+    int i = 1;
+
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+}

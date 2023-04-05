@@ -1,0 +1,206 @@
+﻿@page "/gameMove"
+@using Data.Controler
+@using Data.ChessClasses
+@layout MainLayout
+@inject NavigationManager NavigationManager
+
+
+<section class="main-conteneer">
+    <p class="top-row-text text">@str</p>
+    <div style="display: flex; flex-wrap: wrap;">
+        <div>
+            <select disabled="@dis" @bind="index">
+                <option selected value="">Выберете фигуру</option>
+                @foreach (var item in chessGame.GetFigure(IsWhile))
+                {
+                    <option value="@item.ID">@item.Name@item.Pozition.cell</option>
+                }
+            </select>
+        </div>
+        <div>
+            <select disabled="@dis" @bind="move">
+                <option selected value="">Выберете ход</option>
+                @if (index != null)
+                {
+                    foreach (var item in chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index).GetCells(chessGame.Figures))
+                    {
+                        <option value="@item.cell">@item.cell</option>
+                    }
+                }
+            </select>
+        </div>
+        @if (rpt)
+        {
+            <div>
+                <select @bind="newFigure">
+                    <option selected value="">Выберете фигуру</option>
+                    <option value="Q">Ферзь</option>
+                    <option value="N">Конь</option>
+                    <option value="B">Слон</option>
+                    <option value="R">Ладья</option>
+                </select>
+            </div>
+        }
+
+    </div>
+    @if (chessGame.IsGameContinues)
+    {
+        <div>
+            <button @onclick="SetMove" class="text">Сделать ход</button>
+            <button @onclick="SwapEnd" class="text">Завершить партию</button>
+            <button @onclick="DeleteMove" class="text">Удалить ход</button>
+            <button @onclick="Surrender" class="text">Сдаться</button>
+        </div>
+        @if (End)
+        {
+            <select @bind="result">
+                <option value="">Выберете результат</option>
+                <option value="1">Белые</option>
+                <option value="0">Чёрные</option>
+                <option value="2">Ничья</option>
+            </select>
+            <button @onclick="EndGame" class="text">Подвердить</button>
+        }
+    }
+    else
+    {
+        <div>Белые @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
+        <button @onclick="Exit" class="text">Выйти</button>
+    }
+
+    <div>
+        @foreach (var item in chessGame.Move)
+        {
+            @(item + "; ")
+        }
+    </div>
+    <section>
+        @for (var i = 8; i > 0; i--)
+        {
+            <div style="display: flex;">
+                @for (int j = 1; j < 9; j++)
+                {
+                    <div style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid black">
+                        @if (CheckFigure(i, j) != default(Figure))
+                        {
+                            <p style="color: @ColorFigure(figureView.IsWhile)">@figureView.Name@figureView.Pozition.cell</p>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </section>
+</section>
+
+@code {
+    List<Cell> cells = new List<Cell>();
+    ChessGame chessGame = new(ConsignmentControler.nowConsignment);
+    bool IsWhile = true, End = false, del = false, rpt = false, dis = false;
+    string move, str = "Белые", stage = "ok", newFigure;
+    int? index = null;
+    double? result;
+    Figure figure = new Pawn("A8", true, -1);
+    Figure figureView;
+
+    private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
+    private void SwapEnd() => End = !End;
+
+    private string ColorFigure(bool IsWhile)
+    {
+        if (IsWhile) return "white";
+        return "black";
+    }
+
+    private Figure CheckFigure(int i, int j)
+    {
+        figureView = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
+        return figureView;
+    }
+
+    private void DeleteMove()
+    {
+        if (!del) return;
+        IsWhile = !IsWhile;
+        index = null;
+        Swap();
+        del = false;
+        chessGame.DeleteLastMove(IsWhile);
+    }
+
+    private bool SwitchStageGet()
+    {
+        switch (stage)
+        {
+            case "ok":
+                return true;
+            case "rpt":
+                if (newFigure == null) return false;
+                chessGame.InsertFigure(move, newFigure, IsWhile);
+                dis = false;
+                rpt = false;
+                stage = "ok";
+                return false;
+            case "end":
+                if (IsWhile) chessGame.EndGame(1);
+                else chessGame.EndGame(0);
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private void SwitchStageSet()
+    {
+        switch (stage)
+        {
+            case "ok":
+                IsWhile = !IsWhile;
+                index = null;
+                del = true;
+                Swap();
+                break;
+            case "no":
+                stage = "ok";
+                break;
+            case "rpt":
+                dis = true;
+                rpt = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SetMove()
+    {
+        if (index == null) return;
+        if (move == null) return;
+        if (SwitchStageGet())
+            stage = chessGame.SetFigure(chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index), move);
+        SwitchStageSet();
+    }
+
+    private void RPT()
+    {
+        dis = true;
+        rpt = true;
+    }
+
+    private void EndGame()
+    {
+        if (result == null) return;
+        chessGame.EndGame(result);
+    }
+
+    private void Exit()
+    {
+        Data.DataBases.DataBaseFullConn.CloseCon();
+        NavigationManager.NavigateTo("/game");
+    }
+
+    private void Surrender()
+    {
+        if (IsWhile) chessGame.EndGame(0);
+        else chessGame.EndGame(1);
+    }
+}
