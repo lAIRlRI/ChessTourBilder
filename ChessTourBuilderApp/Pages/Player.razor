@@ -76,7 +76,7 @@
     Data.Model.Player playerModel = new();
     bool update = true;
     string[] result = new string[7];
-    DataSet ds = Data.DataBases.DataBase.ConnDataSet("select Name, TopPlece from Event e " +
+    DataSet ds = Data.HelpClasses.StaticResouses.dataBase.ConnDataSet("select Name, TopPlece from Event e " +
                             $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}");
 
     private void OnUpdate() => update = !update;

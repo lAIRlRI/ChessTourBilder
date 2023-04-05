@@ -147,6 +147,4 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return bools.All(p => p == null);
         }
     }
-
 }
-

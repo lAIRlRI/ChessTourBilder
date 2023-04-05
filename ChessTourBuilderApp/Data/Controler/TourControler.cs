@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -30,45 +31,45 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Tour model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange("INSERT INTO [dbo].[Tour]([EventID],[NameTour])" +
+            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Tour]([EventID],[NameTour])" +
                                                           "VALUES(@EventID,@NameTour)", list);
         }
 
         public static bool Update(Tour model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange($"UPDATE [dbo].[Tour] " +
+            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Tour] " +
                 $"SET [EventID] = @EventID" +
                 $",[NameTour] = @NameTour" +
                 $" WHERE ID = {model.TourID}", list);
         }
 
-        public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[Tour] WHERE TourID = {id}");
+        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Tour] WHERE TourID = {id}");
 
         public static List<Tour> Get(string str)
         {
-            reader = DataBase.Conn(str);
+            reader = StaticResouses.dataBase.Conn(str);
             Reader();
             return models;
         }
 
         public static List<Tour> Get()
         {
-            reader = DataBase.Conn("SELECT * FROM Tour");
+            reader = StaticResouses.dataBase.Conn("SELECT * FROM Tour");
             Reader();
             return models;
         }
 
         public static Tour Get(int id)
         {
-            reader = DataBase.Conn($"SELECT * FROM Tour WHERE TourID = {id}");
+            reader = StaticResouses.dataBase.Conn($"SELECT * FROM Tour WHERE TourID = {id}");
             Reader();
             return models[0];
         }
 
         public static Tour GetLast()
         {
-            reader = DataBase.Conn("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)");
+            reader = StaticResouses.dataBase.Conn("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)");
             Reader();
             return models[0];
         }
@@ -88,7 +89,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
             }
             reader.Close();
-            DataBase.CloseCon();
+            StaticResouses.dataBase.CloseCon();
         }
     }
 }

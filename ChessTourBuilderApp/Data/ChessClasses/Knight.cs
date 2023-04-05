@@ -18,8 +18,6 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return move.cell;
         }
 
-
-
         public override List<Cell> GetCells(Figure[] figures)
         {
             List<Cell> cells = new();

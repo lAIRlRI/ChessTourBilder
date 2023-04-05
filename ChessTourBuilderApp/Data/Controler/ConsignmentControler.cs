@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -35,7 +36,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Consignment model)
         {
             SqlParameterSet(model);
-            if (!DataBase.ConnChange("INSERT INTO [dbo].[Consignment](" +
+            if (!StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Consignment](" +
                                                                 "[TourID]," +
                                                                 "[StatusID]," +
                                                                 "[DateStart])" +
@@ -59,7 +60,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Consignment model)
         {
             SqlParameterSet(model);
-            if (!DataBase.ConnChange($"UPDATE [dbo].[Consignment] " +
+            if (!StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Consignment] " +
                 $"SET [TourID ] = @TourID" +
                 $",[StatusID] = @StatusID" +
                 $",[DateStart] = @DateStart" +
@@ -70,19 +71,19 @@ namespace ChessTourBuilderApp.Data.Controler
             return true;
         }
 
-        public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[Consignment] WHERE ConsignmentID = {id}");
+        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Consignment] WHERE ConsignmentID = {id}");
 
         public static List<Consignment> Get(string str)
         {
-            reader = DataBase.Conn(str);
-            Reader();
+            DataSet ds = StaticResouses.dataBase.ConnDataSet(str);
+            DataSeter(ds);
             ConsignmentPlayerGet();
             return models;
         }
 
         public static Consignment GetLast()
         {
-            DataSet ds = DataBase.ConnDataSet("SELECT * FROM Consignment where ConsignmentID = (select max(ConsignmentID) from Consignment)");
+            DataSet ds = StaticResouses.dataBase.ConnDataSet("SELECT * FROM Consignment where ConsignmentID = (select max(ConsignmentID) from Consignment)");
             DataSeter(ds);
             ConsignmentPlayerGet();
             return models[0];
@@ -90,15 +91,15 @@ namespace ChessTourBuilderApp.Data.Controler
 
         public static List<Consignment> Get()
         {
-            reader = DataBase.Conn("SELECT * FROM Consignment");
-            Reader();
+            DataSet ds = StaticResouses.dataBase.ConnDataSet("SELECT * FROM Consignment");
+            DataSeter(ds);
             ConsignmentPlayerGet();
             return models;
         }
 
         public static List<Consignment> GetDataSet()
         {
-            DataSet ds = DataBase.ConnDataSet("SELECT * FROM Consignment");
+            DataSet ds = StaticResouses.dataBase.ConnDataSet("SELECT * FROM Consignment");
             DataSeter(ds);
             ConsignmentPlayerGet();
             return models;
@@ -121,32 +122,6 @@ namespace ChessTourBuilderApp.Data.Controler
                     item.blackPlayer = consignmentPlayers[0];
                 }
             }
-        }
-
-        private static void Reader()
-        {
-            models = new List<Consignment>();
-            while (reader.Read())
-            {
-                if (reader.IsDBNull(0))
-                {
-                    reader.Close();
-                    DataBase.CloseCon();
-                    return;
-                }
-                models.Add(
-                    new Consignment()
-                    {
-                        ConsignmentID = Convert.ToInt32(reader["ConsignmentID"]),
-                        TourID = Convert.ToInt32(reader["TourID"]),
-                        StatusID = Convert.ToInt32(reader["StatusID"]),
-                        DateStart = Convert.ToDateTime(reader["DateStart"]),
-                        GameMove = reader["GameMove"].ToString(),
-                    }
-                );
-            }
-            reader.Close();
-            DataBase.CloseCon();
         }
 
         private static void DataSeter(DataSet set)

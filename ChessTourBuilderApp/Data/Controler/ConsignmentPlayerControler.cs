@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -34,7 +35,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(ConsignmentPlayer model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange("INSERT INTO [dbo].[ConsignmentPlayer](" +
+            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[ConsignmentPlayer](" +
                                                                 "[ConsignmentID]," +
                                                                 "[PlayerID]," +
                                                                 "[IsWhile]," +
@@ -49,7 +50,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(ConsignmentPlayer model)
         {
             SqlParameterSet(model);
-            if (!DataBase.ConnChange($"UPDATE [dbo].[ConsignmentPlayer] " +
+            if (!StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[ConsignmentPlayer] " +
                 $"SET [ConsignmentID] = @ConsignmentID" +
                 $",[PlayerID] = @PlayerID" +
                 $",[IsWhile] = @IsWhile" +
@@ -60,11 +61,11 @@ namespace ChessTourBuilderApp.Data.Controler
 
         }
 
-        public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[ConsignmentPlayer] WHERE ConsignmentPlayerID = {id}");
+        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[ConsignmentPlayer] WHERE ConsignmentPlayerID = {id}");
 
         public static List<ConsignmentPlayer> Get(string str)
         {
-            DataSet ds = DataBase.ConnDataSet(str);
+            DataSet ds = StaticResouses.dataBase.ConnDataSet(str);
             DataSeter(ds);
             ConsignmentPlayerPlayerGet();
             return models;
@@ -72,7 +73,7 @@ namespace ChessTourBuilderApp.Data.Controler
 
         public static List<ConsignmentPlayer> Get()
         {
-            reader = DataBase.Conn("select * from ConsignmentPlayer");
+            reader = StaticResouses.dataBase.Conn("select * from ConsignmentPlayer");
             Reader();
             ConsignmentPlayerPlayerGet();
             return models;
@@ -94,7 +95,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 if (reader.IsDBNull(0))
                 {
                     reader.Close();
-                    DataBase.CloseCon();
+                    StaticResouses.dataBase.CloseCon();
                     return;
                 }
                 models.Add(
@@ -110,7 +111,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
             }
             reader.Close();
-            DataBase.CloseCon();
+            StaticResouses.dataBase.CloseCon();
         }
 
         private static void DataSeter(DataSet set)

@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using ChessTourBuilderApp.Data.DataBases.Interfeses;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.DataBases
 {
-    internal class DataBase
+    internal class DataBase : IDataBase
     {
         static string sqlcon;
         static string paths;
@@ -18,13 +19,13 @@ namespace ChessTourBuilderApp.Data.DataBases
         static SqlDataReader reader;
         public static SqlConnection temp;
 
-        public static string GetTables() 
+        public string GetTables() 
         {
             string pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
             return File.ReadAllText(pathsSQL);
         }
 
-        public static SqlDataReader Conn(string str)
+        public SqlDataReader Conn(string str)
         {
             try
             {
@@ -38,7 +39,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static DataSet ConnDataSet(string str)
+        public DataSet ConnDataSet(string str)
         {
             try
             {
@@ -55,7 +56,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static bool ConnChangeTemp(string str)
+        public bool ConnChangeTemp(string str)
         {
             try
             {
@@ -71,7 +72,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static bool ConnChange(string str)
+        public bool ConnChange(string str)
         {
             try
             {
@@ -86,7 +87,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static bool ConnChange(string str, List<SqlParameter> list)
+        public bool ConnChange(string str, List<SqlParameter> list)
         {
             try
             {
@@ -101,13 +102,13 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        private static void OpenConn(string str)
+        public void OpenConn(string str)
         {
             sqlConnection.Open();
             sqlCommand = new SqlCommand(str, sqlConnection);
         }
 
-        private static void OpenConn(string str, List<SqlParameter> list)
+        public void OpenConn(string str, List<SqlParameter> list)
         {
             sqlConnection.Open();
             sqlCommand = new SqlCommand(str, sqlConnection);
@@ -117,13 +118,18 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static void CloseCon()
+        public void OpenConn()
+        {
+            sqlConnection.Open();
+        }
+
+        public void CloseCon()
         {
             sqlCommand.Parameters.Clear();
             sqlConnection.Close();
         }
 
-        public static bool ChangeConnection()
+        public bool ChangeConnection()
         {
             try
             {
@@ -147,7 +153,6 @@ namespace ChessTourBuilderApp.Data.DataBases
                 bool result = sqlCommand.ExecuteNonQuery() > 0;
                 sqlConnection.Close();
 
-                DataBaseFullConn dataBaseFullConn = new(lines);
                 return true;
             }
             catch
@@ -156,7 +161,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static string NewConnection(string[] values)
+        public string NewConnection(string[] values)
         {
             SqlCommand sqlCommand;
 
@@ -202,9 +207,66 @@ namespace ChessTourBuilderApp.Data.DataBases
                 w.WriteLine(values[3]);
             }
 
-            DataBaseFullConn dataBaseFullConn = new(values);
-
             return "ok";
+        }
+
+        public bool ConnChangeFull(string str, List<SqlParameter> list)
+        {
+            try
+            {
+                SqlCommand sqlCommand = new(str, sqlConnection);
+                foreach (var item in list) sqlCommand.Parameters.Add(item);
+                bool result = sqlCommand.ExecuteNonQuery() > 0;
+                sqlCommand.Parameters.Clear();
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public SqlDataReader ConnFull(string str)
+        {
+            try
+            {
+                SqlCommand sqlCommand = new SqlCommand(str, sqlConnection);
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                return reader;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public DataSet ConnDataSetFull(string str)
+        {
+            try
+            {
+                SqlDataAdapter adapter = new(str, sqlConnection);
+                DataSet ds = new();
+                adapter.Fill(ds);
+                return ds;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public bool ConnChangeFull(string str)
+        {
+            try
+            {
+                SqlCommand sqlCommand = new(str, sqlConnection);
+                bool result = sqlCommand.ExecuteNonQuery() > 0;
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

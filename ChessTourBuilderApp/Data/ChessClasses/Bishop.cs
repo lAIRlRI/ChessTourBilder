@@ -117,6 +117,5 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             return true;
         }
-
     }
 }

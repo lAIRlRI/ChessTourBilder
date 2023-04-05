@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -14,7 +15,6 @@ namespace ChessTourBuilderApp.Data.Controler
         public static Player nowPlayer;
         static List<Player> players;
         static SqlDataReader reader;
-        public static List<Player> staticPlayer;
         static List<SqlParameter> list = new()
                                         {
                                             new SqlParameter() {ParameterName = "@FIDEID" },
@@ -38,12 +38,10 @@ namespace ChessTourBuilderApp.Data.Controler
             list[6].Value = model.Contry;
         }
 
-        public PlayerControler() => staticPlayer = Get();
-
         public static bool Insert(Player model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange("INSERT INTO [dbo].[Player](" +
+            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Player](" +
                                                                 "[FIDEID]," +
                                                                 "[FirstName]," +
                                                                 "[MiddleName]," +
@@ -64,7 +62,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Player model, int? FIDEID)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange($"UPDATE [dbo].[Player] " +
+            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Player] " +
                 $"SET [FIDEID] = @FIDEID" +
                 $",[FirstName] = @FirstName" +
                 $",[MiddleName] = @MiddleName" +
@@ -75,18 +73,18 @@ namespace ChessTourBuilderApp.Data.Controler
                 $" WHERE FIDEID = {(int)FIDEID}", list);
         }
 
-        public static bool Delete(int? id) => DataBase.ConnChange($"DELETE FROM [dbo].[Player] WHERE FIDEID = {(int)id}");
+        public static bool Delete(int? id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Player] WHERE FIDEID = {(int)id}");
 
         public static List<Player> Get(string str)
         {
-            reader = DataBase.Conn(str);
+            reader = StaticResouses.dataBase.Conn(str);
             Reader();
             return players;
         }
 
         public static List<Player> Get()
         {
-            reader = DataBase.Conn("SELECT * FROM Player");
+            reader = StaticResouses.dataBase.Conn("SELECT * FROM Player");
             Reader();
             return players;
         }
@@ -110,7 +108,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
             }
             reader.Close();
-            DataBase.CloseCon();
+            StaticResouses.dataBase.CloseCon();
         }
 
     }

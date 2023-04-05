@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -36,7 +37,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Organizer model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange("INSERT INTO [dbo].[Organizer](" +
+            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Organizer](" +
                                                                 "[FirstName]," +
                                                                 "[MiddleName]," +
                                                                 "[LastName]," +
@@ -53,7 +54,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Organizer model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange($"UPDATE [dbo].[Organizer] " +
+            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Organizer] " +
                 $"SET [FirstName] = @FirstName" +
                 $",[MiddleName] = @MiddleName" +
                 $",[LastName] = @LastName" +
@@ -62,18 +63,18 @@ namespace ChessTourBuilderApp.Data.Controler
                 $" WHERE OrganizerID = {model.OrganizerID}", list);
         }
 
-        public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[Organizer] WHERE OrganizerID = {id}");
+        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Organizer] WHERE OrganizerID = {id}");
 
         public static List<Organizer> Get(string str)
         {
-            reader = DataBase.Conn(str);
+            reader = StaticResouses.dataBase.Conn(str);
             Reader();
             return models;
         }
 
         public static List<Organizer> Get()
         {
-            reader = DataBase.Conn("select o.*, a.AdministratorID from Organizer o " +
+            reader = StaticResouses.dataBase.Conn("select o.*, a.AdministratorID from Organizer o " +
                                                                   "left join Administrator a on o.OrganizerID = a.OrganizerID");
             Reader();
             return models;
@@ -87,7 +88,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 if (reader.IsDBNull(0))
                 {
                     reader.Close();
-                    DataBase.CloseCon();
+                    StaticResouses.dataBase.CloseCon();
                     return;
                 }
                 models.Add(
@@ -106,7 +107,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
             }
             reader.Close();
-            DataBase.CloseCon();
+            StaticResouses.dataBase.CloseCon();
         }
     }
 }

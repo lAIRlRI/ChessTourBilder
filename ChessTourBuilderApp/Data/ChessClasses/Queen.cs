@@ -31,6 +31,5 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             return (rook.GetCells(figures).Concat(bishop.GetCells(figures))).ToList();
         }
-
     }
 }

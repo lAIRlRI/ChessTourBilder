@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -31,39 +32,39 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(EventPlayer model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange("INSERT INTO [dbo].[EventPlayer]([EventID],[PlayerID],[TopPlece])" +
+            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[EventPlayer]([EventID],[PlayerID],[TopPlece])" +
                                                           "VALUES(@EventID,@PlayerID,@TopPlece)", list);
         }
 
         public static bool Update(EventPlayer model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange($"UPDATE [dbo].[EventPlayer] " +
+            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[EventPlayer] " +
                 $"SET [EventID] = @EventID" +
                 $",[PlayerID] = @PlayerID" +
                 $",[TopPlece] = @TopPlece" +
                 $" WHERE ID = {model.EventPlayerID}", list);
         }
 
-        public static bool Delete(int id) => DataBase.ConnChange($"DELETE FROM [dbo].[EventPlayer] WHERE EventPlayerID = {id}");
+        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[EventPlayer] WHERE EventPlayerID = {id}");
 
         public static List<EventPlayer> Get(string str)
         {
-            reader = DataBase.Conn(str);
+            reader = StaticResouses.dataBase.Conn(str);
             Reader();
             return events;
         }
 
         public static List<EventPlayer> Get()
         {
-            reader = DataBase.Conn("SELECT * FROM EventPlayer");
+            reader = StaticResouses.dataBase.Conn("SELECT * FROM EventPlayer");
             Reader();
             return events;
         }
 
         public static EventPlayer Get(int id)
         {
-            reader = DataBase.Conn($"SELECT * FROM EventPlayer WHERE EventPlayerID = {id}");
+            reader = StaticResouses.dataBase.Conn($"SELECT * FROM EventPlayer WHERE EventPlayerID = {id}");
             Reader();
             return events[0];
         }
@@ -85,7 +86,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
             }
             reader.Close();
-            DataBase.CloseCon();
+            StaticResouses.dataBase.CloseCon();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -88,7 +89,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {result.Item2}" +
                 $" WHERE ID = {NotGameFigure.ID}";
-                DataBaseFullConn.ConnChange(str);
+                StaticResouses.dataBase.ConnChangeFull(str);
 
                 insertMove = Name + "x" + move;
             }
@@ -100,7 +101,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {result.Item2}" +
                 $" WHERE ID = {ID}";
-                DataBaseFullConn.ConnChange(str);
+                StaticResouses.dataBase.ConnChangeFull(str);
 
                 result.Item1 = "rpt";
 
@@ -121,7 +122,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET Pozition = '{move}'," +
                 $"IsMoving = 1 " +
                 $" WHERE ID = {ID}";
-            DataBaseFullConn.ConnChange(str);
+            StaticResouses.dataBase.ConnChangeFull(str);
 
             result.Item1 = insertMove;
 
@@ -135,10 +136,9 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             int vectorE = IsWhile ? 5 : 4;
             int vectorN = IsWhile ? 7 : 2;
 
-
             if (move[1].ToString() != vectorY.ToString()) return null;
 
-            DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move, Pozition from {tableMove} " +
+            DataSet dataSet = StaticResouses.dataBase.ConnDataSetFull($"select Move, Pozition from {tableMove} " +
                "where ID in " +
                $"(select top 1 ID from {tableMove} order by ID desc)");
 
@@ -156,10 +156,9 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             $"SET InGame = 0," +
             $" EatID = {oreder}" +
             $" WHERE ID = {figure.ID}";
-            DataBaseFullConn.ConnChange(str);
+            StaticResouses.dataBase.ConnChangeFull(str);
 
             return Name + "x" + move;
         }
-
     }
 }

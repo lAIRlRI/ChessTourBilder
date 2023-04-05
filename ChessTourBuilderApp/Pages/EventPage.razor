@@ -71,7 +71,7 @@
                 <div>
                     <p>@result[1]</p>
                     <select @bind="FIDEID" placeholder="Белыми">
-                        @foreach (var item in PlayerControler.staticPlayer)
+                        @foreach (var item in PlayerControler.Get())
                         {
                             <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
                         }
@@ -121,10 +121,10 @@
 
     private void OnUpdateButton()
     {
-        eventModelupdate.EventID = EventControler.nowEvent.EventID;
-        eventModelupdate.IsPublic = EventControler.nowEvent.IsPublic;
-        eventModelupdate.OrganizerID = EventControler.nowEvent.OrganizerID;
-        eventModelupdate.StatusID = EventControler.nowEvent.StatusID;
+        //eventModelupdate.EventID = EventControler.nowEvent.EventID;
+        //eventModelupdate.IsPublic = EventControler.nowEvent.IsPublic;
+        //eventModelupdate.OrganizerID = EventControler.nowEvent.OrganizerID;
+        //eventModelupdate.StatusID = EventControler.nowEvent.StatusID;
 
         if (eventModelupdate.Name == null) eventModelupdate.Name = EventControler.nowEvent.Name;
         if (eventModelupdate.LocationEvent == null) eventModelupdate.LocationEvent = EventControler.nowEvent.LocationEvent;

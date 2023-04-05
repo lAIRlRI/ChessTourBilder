@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
@@ -14,7 +15,6 @@ namespace ChessTourBuilderApp.Data.Controler
         public static Event nowEvent = new();
         static List<Event> events;
         static SqlDataReader reader;
-        public static List<Event> staticEvent;
         static List<SqlParameter> list = new()
                                         {
                                             new SqlParameter() {ParameterName = "@Name" },
@@ -42,12 +42,10 @@ namespace ChessTourBuilderApp.Data.Controler
             list[8].Value = model.IsPublic;
         }
 
-        public EventControler() => staticEvent = Get();
-
         public static bool Insert(Event model)
         {
             SqlParameterSet(model);
-            DataBase.ConnChange("INSERT INTO [dbo].[Event](" +
+            StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Event](" +
                                                                 "[Name]," +
                                                                 "[PrizeFund]," +
                                                                 "[DataStart]," +
@@ -67,7 +65,7 @@ namespace ChessTourBuilderApp.Data.Controler
                                                                 $"@LocationEvent," +
                                                                 $"@TypeEvent," +
                                                                 $"@IsPublic)", list);
-            DataBase.ConnChange($"create table {GetLast().GetTableName()} (" +
+            StaticResouses.dataBase.ConnChange($"create table {GetLast().GetTableName()} (" +
                                                        "EventID int not null," +
                                                        "PlayerID int not null," +
                                                        "Result float not null," +
@@ -78,7 +76,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Event model)
         {
             SqlParameterSet(model);
-            return DataBase.ConnChange($"UPDATE [dbo].[Event] " +
+            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Event] " +
                 "SET[Name] = @Name" +
                 ",[PrizeFund] = @PrizeFund" +
                 ",[DataStart] = @DataStart" +
@@ -93,33 +91,33 @@ namespace ChessTourBuilderApp.Data.Controler
 
         public static bool Delete(Event model)
         {
-            return DataBase.ConnChange($"DELETE FROM [dbo].[Event] WHERE EventID = {model.EventID}");
+            return StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Event] WHERE EventID = {model.EventID}");
         }
 
         public static List<Event> Get(string str)
         {
-            reader = DataBase.Conn(str);
+            reader = StaticResouses.dataBase.Conn(str);
             Reader();
             return events;
         }
 
         public static List<Event> Get()
         {
-            reader = DataBase.Conn("SELECT * FROM Event");
+            reader = StaticResouses.dataBase.Conn("SELECT * FROM Event");
             Reader();
             return events;
         }
 
         public static Event GetLast()
         {
-            reader = DataBase.Conn("SELECT * FROM Event where EventID = (select max(EventID) from Event)");
+            reader = StaticResouses.dataBase.Conn("SELECT * FROM Event where EventID = (select max(EventID) from Event)");
             Reader();
             return events[0];
         }
 
         public static Event Get(int id)
         {
-            reader = DataBase.Conn($"SELECT * FROM Event WHERE EventID = {id}");
+            reader = StaticResouses.dataBase.Conn($"SELECT * FROM Event WHERE EventID = {id}");
             Reader();
             return events[0];
         }
@@ -146,7 +144,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
             }
             reader.Close();
-            DataBase.CloseCon();
+            StaticResouses.dataBase.CloseCon();
         }
 
     }

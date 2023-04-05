@@ -64,7 +64,7 @@
                           $"TrustServerCertificate = true;" +
                           $"Encrypt = false;" +
                           $"Integrated Security = true;");
-            DataBase.ConnChangeTemp(str);
+            StaticResouses.dataBase.ConnChangeTemp(str);
             DBChangeText += "бд созданно \n";
             OnCreateTable(values[1]);
         }
@@ -84,7 +84,7 @@
 
         DBChangeText = "Ждите";
 
-        DBChangeResult = DataBase.NewConnection(values);
+        DBChangeResult = StaticResouses.dataBase.NewConnection(values);
 
         switch (DBChangeResult)
         {
@@ -109,7 +109,7 @@
         try
         {
             DBChangeText += "Ждите, создвём таблицы \n ";
-            DataBase.ConnChangeTemp($"use {str} " + DataBase.GetTables());
+            StaticResouses.dataBase.ConnChangeTemp($"use {str} " + StaticResouses.dataBase.GetTables());
             Cheker();
         }
         catch(Exception e)
