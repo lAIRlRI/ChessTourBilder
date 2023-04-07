@@ -1,5 +1,7 @@
-﻿using ChessTourBuilderApp.Data.DataBases.Interfeses;
+﻿using ChessTourBuilderApp.Data.HelpClasses;
 using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,126 +12,61 @@ using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.DataBases
 {
-    internal class DataBase : IDataBase
+    internal class DataBase
     {
-        static string sqlcon;
         static string paths;
-        static SqlConnection sqlConnection;
-        static SqlCommand sqlCommand;
-        static SqlDataReader reader;
+        public static IDbConnection connection;
         public static SqlConnection temp;
+        public static bool serverOrLite = true;
+ 
+        public static List<IDbDataParameter> SetParameters(List<ParametrBD> parametrs)
+        {
+            List<IDbDataParameter> temp = new();
 
-        public string GetTables() 
+            if (serverOrLite)
+            {
+                foreach (var item in parametrs)
+                {
+                    SqlParameter sqlParameter = new()
+                    {
+                        ParameterName = item.ParameterName,
+                        Value = item.ParameterValue
+                    };
+                    temp.Add(sqlParameter);
+                }
+            }
+            else 
+            {
+                foreach (var item in parametrs)
+                {
+                    SqliteParameter sqlParameter = new()
+                    {
+                        ParameterName = item.ParameterName,
+                        Value = item.ParameterValue
+                    };
+                    temp.Add(sqlParameter);
+                }
+            }
+            return temp;
+        }
+
+        public static string GetTables()
         {
             string pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
             return File.ReadAllText(pathsSQL);
         }
 
-        public SqlDataReader Conn(string str)
+        public static void OpenConn()
         {
-            try
-            {
-                OpenConn(str);
-                reader = sqlCommand.ExecuteReader();
-                return reader;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            connection.Open();
         }
 
-        public DataSet ConnDataSet(string str)
+        public static void CloseCon()
         {
-            try
-            {
-                sqlConnection.Open();
-                SqlDataAdapter adapter = new(str, sqlConnection);
-                DataSet ds = new();
-                adapter.Fill(ds);
-                CloseCon();
-                return ds;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            connection.Close();
         }
 
-        public bool ConnChangeTemp(string str)
-        {
-            try
-            {
-                if (temp.State == ConnectionState.Closed) temp.Open();
-                sqlCommand = new SqlCommand(str, temp);
-                sqlCommand.ExecuteNonQuery();
-                temp.Close();
-                return true;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public bool ConnChange(string str)
-        {
-            try
-            {
-                OpenConn(str);
-                bool result = sqlCommand.ExecuteNonQuery() > 0;
-                CloseCon();
-                return result;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public bool ConnChange(string str, List<SqlParameter> list)
-        {
-            try
-            {
-                OpenConn(str, list);
-                bool result = sqlCommand.ExecuteNonQuery() > 0;
-                CloseCon();
-                return result;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public void OpenConn(string str)
-        {
-            sqlConnection.Open();
-            sqlCommand = new SqlCommand(str, sqlConnection);
-        }
-
-        public void OpenConn(string str, List<SqlParameter> list)
-        {
-            sqlConnection.Open();
-            sqlCommand = new SqlCommand(str, sqlConnection);
-            foreach (var item in list)
-            {
-                sqlCommand.Parameters.Add(item);
-            }
-        }
-
-        public void OpenConn()
-        {
-            sqlConnection.Open();
-        }
-
-        public void CloseCon()
-        {
-            sqlCommand.Parameters.Clear();
-            sqlConnection.Close();
-        }
-
-        public bool ChangeConnection()
+        public static bool ChangeConnection()
         {
             try
             {
@@ -138,7 +75,7 @@ namespace ChessTourBuilderApp.Data.DataBases
 
                 if (lines.Length != 4) return false;
 
-                sqlcon = $"Data Source = {lines[0]}; " +
+                string sqlcon = $"Data Source = {lines[0]}; " +
                                       $"Initial Catalog = {lines[1]}; " +
                                       $"User ID = {lines[2]};" +
                                       $"Password = {lines[3]};" +
@@ -146,12 +83,13 @@ namespace ChessTourBuilderApp.Data.DataBases
                                       $"TrustServerCertificate = true;" +
                                       $"Encrypt = false;" +
                                       $"Integrated Security = true;";
-                sqlConnection = new SqlConnection(sqlcon);
+                connection = new SqlConnection(sqlcon);
 
-                sqlConnection.Open();
-                SqlCommand sqlCommand = new("select 1 from Organizer", sqlConnection);
-                bool result = sqlCommand.ExecuteNonQuery() > 0;
-                sqlConnection.Close();
+                connection.Open();
+                using var sqlCommand = connection.CreateCommand();
+                sqlCommand.CommandText = "select 1 from Organizer";
+                sqlCommand.ExecuteNonQuery();
+                connection.Close();
 
                 return true;
             }
@@ -161,7 +99,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public string NewConnection(string[] values)
+        public static string NewConnection(string[] values)
         {
             SqlCommand sqlCommand;
 
@@ -197,7 +135,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 return "NoTable";
             }
 
-            sqlConnection = temp;
+            connection = temp;
 
             using (StreamWriter w = new(paths))
             {
@@ -210,58 +148,79 @@ namespace ChessTourBuilderApp.Data.DataBases
             return "ok";
         }
 
-        public bool ConnChangeFull(string str, List<SqlParameter> list)
+        public static List<T> Read<T>(string query, Func<IDataReader, T> mapper)
         {
-            try
+            List<T> result = new();
+            connection.Open();
+            using (var command = connection.CreateCommand())
             {
-                SqlCommand sqlCommand = new(str, sqlConnection);
-                foreach (var item in list) sqlCommand.Parameters.Add(item);
-                bool result = sqlCommand.ExecuteNonQuery() > 0;
-                sqlCommand.Parameters.Clear();
-                return result;
+                command.CommandText = query;
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    result.Add(mapper(reader));
+                }
             }
-            catch (Exception e)
+            connection.Close();
+            return result;
+        }
+
+        public static List<T> ReadFull<T>(string query, Func<IDataReader, T> mapper)
+        {
+            List<T> result = new();
+            if (connection.State == ConnectionState.Closed) connection.Open();
+            using (var command = connection.CreateCommand())
             {
-                throw e;
+                command.CommandText = query;
+
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    result.Add(mapper(reader));
+                }
+            }
+            return result;
+        }
+
+        public static bool Execute(string query, params IDbDataParameter[] parameters)
+        {
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = query;
+            AddParameters(command, parameters);
+            bool result = command.ExecuteNonQuery() > 0;
+            connection.Close();
+            return result;
+        }
+
+        public static bool ExecuteFull(string query, params IDbDataParameter[] parameters)
+        {
+            if (connection.State == ConnectionState.Closed) connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = query;
+            AddParameters(command, parameters);
+            return command.ExecuteNonQuery() > 0;
+        }
+
+        private static void AddParameters(IDbCommand command, IDbDataParameter[] parameters)
+        {
+            if (parameters == null && parameters.Length == 0) return;
+            foreach (var param in parameters)
+            {
+                command.Parameters.Add(param);
             }
         }
 
-        public SqlDataReader ConnFull(string str)
+        public static bool ConnChangeTemp(string str)
         {
             try
             {
-                SqlCommand sqlCommand = new SqlCommand(str, sqlConnection);
-                SqlDataReader reader = sqlCommand.ExecuteReader();
-                return reader;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public DataSet ConnDataSetFull(string str)
-        {
-            try
-            {
-                SqlDataAdapter adapter = new(str, sqlConnection);
-                DataSet ds = new();
-                adapter.Fill(ds);
-                return ds;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public bool ConnChangeFull(string str)
-        {
-            try
-            {
-                SqlCommand sqlCommand = new(str, sqlConnection);
-                bool result = sqlCommand.ExecuteNonQuery() > 0;
-                return result;
+                if (temp.State == ConnectionState.Closed) temp.Open();
+                SqlCommand sqlCommand = new(str, temp);
+                sqlCommand.ExecuteNonQuery();
+                temp.Close();
+                return true;
             }
             catch (Exception e)
             {

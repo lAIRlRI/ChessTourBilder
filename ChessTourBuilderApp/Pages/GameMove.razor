@@ -1,4 +1,5 @@
 ﻿@page "/gameMove"
+@using ChessTourBuilderApp.Data.DataBases
 @using Data.Controler
 @using Data.ChessClasses
 @layout MainLayout
@@ -194,7 +195,7 @@
 
     private void Exit()
     {
-        Data.HelpClasses.StaticResouses.dataBase.CloseCon();
+        DataBase.CloseCon();
         NavigationManager.NavigateTo("/game");
     }
 

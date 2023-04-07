@@ -4,6 +4,7 @@ using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,35 +14,41 @@ namespace ChessTourBuilderApp.Data.Controler
     internal class PlayerControler
     {
         public static Player nowPlayer;
-        static List<Player> players;
-        static SqlDataReader reader;
-        static List<SqlParameter> list = new()
-                                        {
-                                            new SqlParameter() {ParameterName = "@FIDEID" },
-                                            new SqlParameter() {ParameterName = "@FirstName" },
-                                            new SqlParameter() {ParameterName = "@MiddleName" },
-                                            new SqlParameter() {ParameterName = "@LastName" },
-                                            new SqlParameter() {ParameterName = "@Birthday" },
-                                            new SqlParameter() {ParameterName = "@ELORating" },
-                                            new SqlParameter() {ParameterName = "@Contry" }
-                                        };
-
+        static List<Player> models;
+        private static List<IDbDataParameter> list;
+        public static readonly Func<IDataReader, Player> mapper = r => new Player()
+        {
+            FIDEID = Convert.ToInt32(r["FIDEID"]),
+            FirstName = r["FirstName"].ToString(),
+            MiddleName = r["MiddleName"].ToString(),
+            LastName = r["LastName"].ToString(),
+            Birthday = Convert.ToDateTime(r["Birthday"]),
+            ELORating = Convert.ToDouble(r["ELORating"]),
+            Contry = r["Contry"].ToString()
+        };
 
         private static void SqlParameterSet(Player model)
         {
-            list[0].Value = model.FIDEID;
-            list[1].Value = model.FirstName;
-            list[2].Value = model.MiddleName;
-            list[3].Value = model.LastName == null ? DBNull.Value : model.LastName;
-            list[4].Value = model.Birthday;
-            list[5].Value = model.ELORating;
-            list[6].Value = model.Contry;
+
+            list = DataBase.SetParameters
+                 (
+                     new List<ParametrBD>()
+                     {
+                        new ParametrBD("@FIDEID" ,model.FIDEID),
+                        new ParametrBD("@FirstName" ,model.FirstName),
+                        new ParametrBD("@MiddleName",model.MiddleName),
+                        new ParametrBD("@LastName",model.LastName == null ? DBNull.Value : model.LastName),
+                        new ParametrBD("@Birthday" ,model.Birthday),
+                        new ParametrBD("@ELORating",model.ELORating),
+                        new ParametrBD("@Contry",model.Contry)
+                     }
+                 );
         }
 
         public static bool Insert(Player model)
         {
             SqlParameterSet(model);
-            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Player](" +
+            return DataBase.Execute("INSERT INTO [dbo].[Player](" +
                                                                 "[FIDEID]," +
                                                                 "[FirstName]," +
                                                                 "[MiddleName]," +
@@ -56,13 +63,13 @@ namespace ChessTourBuilderApp.Data.Controler
                                                                 $"@LastName," +
                                                                 $"@Birthday," +
                                                                 $"@ELORating," +
-                                                                $"@Contry)", list);
+                                                                $"@Contry)", list.ToArray());
         }
 
         public static bool Update(Player model, int? FIDEID)
         {
             SqlParameterSet(model);
-            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Player] " +
+            return DataBase.Execute($"UPDATE [dbo].[Player] " +
                 $"SET [FIDEID] = @FIDEID" +
                 $",[FirstName] = @FirstName" +
                 $",[MiddleName] = @MiddleName" +
@@ -70,46 +77,21 @@ namespace ChessTourBuilderApp.Data.Controler
                 $",[Birthday] = @Birthday" +
                 $",[ELORating] = @ELORating" +
                 $",[Contry] = @Contry" +
-                $" WHERE FIDEID = {(int)FIDEID}", list);
+                $" WHERE FIDEID = {(int)FIDEID}", list.ToArray());
         }
 
-        public static bool Delete(int? id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Player] WHERE FIDEID = {(int)id}");
+        public static bool Delete(int? id) => DataBase.Execute($"DELETE FROM [dbo].[Player] WHERE FIDEID = {(int)id}");
 
         public static List<Player> Get(string str)
         {
-            reader = StaticResouses.dataBase.Conn(str);
-            Reader();
-            return players;
+            models = DataBase.Read(str, mapper);
+            return models;
         }
 
         public static List<Player> Get()
         {
-            reader = StaticResouses.dataBase.Conn("SELECT * FROM Player");
-            Reader();
-            return players;
+            models = DataBase.Read("SELECT * FROM Player", mapper);
+            return models;
         }
-
-        private static void Reader()
-        {
-            players = new List<Player>();
-            while (reader.Read())
-            {
-                players.Add(
-                    new Player()
-                    {
-                        FIDEID = Convert.ToInt32(reader["FIDEID"]),
-                        FirstName = reader["FirstName"].ToString(),
-                        MiddleName = reader["MiddleName"].ToString(),
-                        LastName = reader["LastName"].ToString(),
-                        Birthday = Convert.ToDateTime(reader["Birthday"]),
-                        ELORating = Convert.ToDouble(reader["ELORating"]),
-                        Contry = reader["Contry"].ToString()
-                    }
-                );
-            }
-            reader.Close();
-            StaticResouses.dataBase.CloseCon();
-        }
-
     }
 }

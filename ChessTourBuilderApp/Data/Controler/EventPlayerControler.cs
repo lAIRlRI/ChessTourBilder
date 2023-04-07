@@ -4,6 +4,7 @@ using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,80 +14,64 @@ namespace ChessTourBuilderApp.Data.Controler
     internal class EventPlayerControler
     {
         public static EventPlayer nowEventPlayer = new();
-        static List<EventPlayer> events;
-        static SqlDataReader reader;
-        static List<SqlParameter> list = new()
-                                        {
-                                            new SqlParameter() {ParameterName = "@EventID" },
-                                            new SqlParameter() {ParameterName = "@PlayerID" },
-                                            new SqlParameter() {ParameterName = "@TopPlece" }
-                                        };
+        static List<EventPlayer> models;
+        private static List<IDbDataParameter> list;
+        private static readonly Func<IDataReader, EventPlayer> mapper = r => new EventPlayer()
+        {
+            EventPlayerID = Convert.ToInt32(r["EventPlayerID"]),
+            PlayerID = Convert.ToInt32(r["PlayerID"]),
+            EventID = Convert.ToInt32(r["EventID"]),
+            TopPlece = r.IsDBNull(r.GetOrdinal("TopPlece")) ? null : Convert.ToInt32(r["TopPlece"])
+        };
 
         private static void SqlParameterSet(EventPlayer model)
         {
-            list[0].Value = model.EventID;
-            list[1].Value = model.PlayerID;
-            list[2].Value = model.TopPlece == null ? DBNull.Value : model.TopPlece;
+            list = DataBase.SetParameters
+                 (
+                     new List<ParametrBD>()
+                     {
+                        new ParametrBD("@EventID", model.EventID),
+                        new ParametrBD("@PlayerID",model.PlayerID),
+                        new ParametrBD("@TopPlece", model.TopPlece == null ? DBNull.Value : model.TopPlece)
+                     }
+                 );
         }
 
         public static bool Insert(EventPlayer model)
         {
             SqlParameterSet(model);
-            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[EventPlayer]([EventID],[PlayerID],[TopPlece])" +
-                                                          "VALUES(@EventID,@PlayerID,@TopPlece)", list);
+            return DataBase.Execute("INSERT INTO [dbo].[EventPlayer]([EventID],[PlayerID],[TopPlece])" +
+                                                          "VALUES(@EventID,@PlayerID,@TopPlece)", list.ToArray());
         }
 
         public static bool Update(EventPlayer model)
         {
             SqlParameterSet(model);
-            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[EventPlayer] " +
+            return DataBase.Execute($"UPDATE [dbo].[EventPlayer] " +
                 $"SET [EventID] = @EventID" +
                 $",[PlayerID] = @PlayerID" +
                 $",[TopPlece] = @TopPlece" +
-                $" WHERE ID = {model.EventPlayerID}", list);
+                $" WHERE ID = {model.EventPlayerID}", list.ToArray());
         }
 
-        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[EventPlayer] WHERE EventPlayerID = {id}");
+        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM [dbo].[EventPlayer] WHERE EventPlayerID = {id}");
 
         public static List<EventPlayer> Get(string str)
         {
-            reader = StaticResouses.dataBase.Conn(str);
-            Reader();
-            return events;
+            models = DataBase.Read(str, mapper);
+            return models;
         }
 
         public static List<EventPlayer> Get()
         {
-            reader = StaticResouses.dataBase.Conn("SELECT * FROM EventPlayer");
-            Reader();
-            return events;
+            models = DataBase.Read("SELECT * FROM EventPlayer", mapper);
+            return models;
         }
 
         public static EventPlayer Get(int id)
         {
-            reader = StaticResouses.dataBase.Conn($"SELECT * FROM EventPlayer WHERE EventPlayerID = {id}");
-            Reader();
-            return events[0];
-        }
-
-        private static void Reader()
-        {
-            events = new List<EventPlayer>();
-            while (reader.Read())
-            {
-                events.Add(
-                    new EventPlayer()
-                    {
-                        EventPlayerID = Convert.ToInt32(reader["EventPlayerID"]),
-                        PlayerID = Convert.ToInt32(reader["PlayerID"]),
-                        EventID = Convert.ToInt32(reader["EventID"]),
-                        TopPlece = reader.IsDBNull(reader.GetOrdinal("TopPlece")) ?
-                                                                null : Convert.ToInt32(reader["TopPlece"])
-                    }
-                );
-            }
-            reader.Close();
-            StaticResouses.dataBase.CloseCon();
+            models = DataBase.Read($"SELECT * FROM EventPlayer WHERE EventPlayerID = {id}", mapper);
+            return models[0];
         }
     }
 }

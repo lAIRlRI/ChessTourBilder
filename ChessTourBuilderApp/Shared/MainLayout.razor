@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using ChessTourBuilderApp.Data.DataBases
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 
 <div class="">
@@ -11,7 +12,7 @@
 {
     protected override void OnInitialized()
     {
-        if (!Data.HelpClasses.StaticResouses.dataBase.ChangeConnection())
+        if (!DataBase.ChangeConnection())
         {
             NavigationManager.NavigateTo("/setting");
         }

@@ -4,6 +4,7 @@ using ChessTourBuilderApp.Data.Model;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,82 +15,67 @@ namespace ChessTourBuilderApp.Data.Controler
     {
         public static Tour nowTour = new();
         static List<Tour> models;
-        static SqlDataReader reader;
-        static List<SqlParameter> list = new()
-                                        {
-                                            new SqlParameter() {ParameterName = "@EventID" },
-                                            new SqlParameter() {ParameterName = "@NameTour" }
-                                        };
+        private static List<IDbDataParameter> list;
+        private static readonly Func<IDataReader, Tour> mapper = r => new Tour()
+        {
+            TourID = Convert.ToInt32(r["TourID"]),
+            NameTour = r["NameTour"].ToString(),
+            EventID = Convert.ToInt32(r["EventID"])
+        };
 
 
         private static void SqlParameterSet(Tour model)
         {
-            list[0].Value = model.EventID;
-            list[1].Value = model.NameTour;
+            list = DataBase.SetParameters
+                (
+                    new List<ParametrBD>()
+                    {
+                        new ParametrBD("@EventID",model.EventID),
+                        new ParametrBD("@NameTour",model.NameTour)
+                    }
+                );
         }
 
         public static bool Insert(Tour model)
         {
             SqlParameterSet(model);
-            return StaticResouses.dataBase.ConnChange("INSERT INTO [dbo].[Tour]([EventID],[NameTour])" +
-                                                          "VALUES(@EventID,@NameTour)", list);
+            return DataBase.Execute("INSERT INTO [dbo].[Tour]([EventID],[NameTour])" +
+                                                          "VALUES(@EventID,@NameTour)", list.ToArray());
         }
 
         public static bool Update(Tour model)
         {
             SqlParameterSet(model);
-            return StaticResouses.dataBase.ConnChange($"UPDATE [dbo].[Tour] " +
+            return DataBase.Execute($"UPDATE [dbo].[Tour] " +
                 $"SET [EventID] = @EventID" +
                 $",[NameTour] = @NameTour" +
-                $" WHERE ID = {model.TourID}", list);
+                $" WHERE ID = {model.TourID}", list.ToArray());
         }
 
-        public static bool Delete(int id) => StaticResouses.dataBase.ConnChange($"DELETE FROM [dbo].[Tour] WHERE TourID = {id}");
+        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM [dbo].[Tour] WHERE TourID = {id}");
 
         public static List<Tour> Get(string str)
         {
-            reader = StaticResouses.dataBase.Conn(str);
-            Reader();
+            models = DataBase.Read(str, mapper);
             return models;
         }
 
         public static List<Tour> Get()
         {
-            reader = StaticResouses.dataBase.Conn("SELECT * FROM Tour");
-            Reader();
+            models = DataBase.Read("SELECT * FROM Tour", mapper);
             return models;
         }
 
         public static Tour Get(int id)
         {
-            reader = StaticResouses.dataBase.Conn($"SELECT * FROM Tour WHERE TourID = {id}");
-            Reader();
+            models = DataBase.Read($"SELECT * FROM Tour WHERE TourID = {id}", mapper);
             return models[0];
         }
 
         public static Tour GetLast()
         {
-            reader = StaticResouses.dataBase.Conn("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)");
-            Reader();
+            models = DataBase.Read("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)", mapper);
             return models[0];
-        }
-
-        private static void Reader()
-        {
-            models = new List<Tour>();
-            while (reader.Read())
-            {
-                models.Add(
-                    new Tour()
-                    {
-                        TourID = Convert.ToInt32(reader["TourID"]),
-                        NameTour = reader["NameTour"].ToString(),
-                        EventID = Convert.ToInt32(reader["EventID"])
-                    }
-                );
-            }
-            reader.Close();
-            StaticResouses.dataBase.CloseCon();
         }
     }
 }

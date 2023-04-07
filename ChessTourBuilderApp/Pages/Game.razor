@@ -12,18 +12,6 @@
         <h1 class="top-row-text text" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <div class="info-conteneer">
-        <section class="image-conteneer info-item1">
-            <div class="element-player">
-                <div class="image"></div>
-                <div class="text text-aling">@whiteP</div>
-            </div>
-        </section>
-        <section class="image-conteneer info-item2">
-            <div class="element-player">
-                <div class="image"></div>
-                <div class="text text-aling">@blackP</div>
-            </div>
-        </section>
         <section class="info-item3">
             <h3 class="text">Белыми: @whiteP</h3>
             <h3 class="text">Черными: @blackP</h3>
@@ -36,7 +24,7 @@
             <h3 class="text">@ConsignmentControler.nowConsignment.GameMove</h3>
         </div>
     </section>
-    <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Назад</button>
+    <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
 </body>
 
 @code {

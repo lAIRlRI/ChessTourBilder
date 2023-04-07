@@ -68,7 +68,7 @@
 </body>
 
 @code {
-    List<Data.Model.Consignment> models = ConsignmentControler.GetDataSet().Where(p => p.TourID == TourControler.nowTour.TourID).ToList();
+    List<Data.Model.Consignment> models = ConsignmentControler.Get().Where(p => p.TourID == TourControler.nowTour.TourID).ToList();
     static string addstr = "Добавить", resultTour;
     string[] result = new string[3];
     Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };

@@ -23,9 +23,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 GetCellsHorizontal();
 
                 if (cellsHorizontal.FirstOrDefault(p => p.cell == move.cell) != default(Cell))
-                {
                     if (ChangePozition(move, cellsHorizontal, figures)) return move.cell;
-                }
             }
 
             if (Pozition.X - Math.Abs(Pozition.Y - 9) == move.X - Math.Abs(move.Y - 9))
@@ -33,9 +31,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 GetCellsVertical();
 
                 if (cellsVertical.FirstOrDefault(p => p.cell == move.cell) != default(Cell))
-                {
                     if (ChangePozition(move, cellsVertical, figures)) return move.cell;
-                }
             }
 
             return null;
@@ -63,10 +59,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return cellsTrue;
         }
 
-        public void GetCellsHorizontal()
-        {
-            cellsHorizontal = GetCellsHV(Pozition);
-        }
+        public void GetCellsHorizontal() => cellsHorizontal = GetCellsHV(Pozition);
 
         private static List<Cell> GetCellsHV(Cell cell)
         {

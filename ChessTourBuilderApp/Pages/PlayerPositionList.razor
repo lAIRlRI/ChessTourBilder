@@ -19,12 +19,12 @@
             <div class="input-main text-aling text-pozition">Игрок</div>
             <div class="input-main text-aling text-pozition">Очки</div>
         </div>
-        @foreach (DataRow item in ds.Tables[0].Rows)
+        @foreach (var item in ds)
         {
             <div class="color-second pozition-conteneer">
                 <div class="text-pozition">@i</div>
-                <div class="input-main text-aling text-pozition">@item["Fi"].ToString()</div>
-                <div class="input-main text-aling text-pozition">@item["Points"].ToString()</div>
+                <div class="input-main text-aling text-pozition">@item.Fi</div>
+                <div class="input-main text-aling text-pozition">@item.Points</div>
             </div>
             i++;
         }
@@ -32,16 +32,29 @@
 </body>
 
 @code {
-    DataSet ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
-            Data.HelpClasses.StaticResouses.dataBase.ConnDataSet(";with playerSum as" +
+    List<ResultSheme> ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
+            DataBase.Read(";with playerSum as" +
             $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
-            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc")
+            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc", ResultSheme.mapper)
         :
-            Data.HelpClasses.StaticResouses.dataBase.ConnDataSet(";with playerSum as" +
+            DataBase.Read(";with playerSum as" +
             $"(select PlayerID, Sum(Result) as Points from {Data.Controler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
-            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc");
+            "select Concat(FirstName, '', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc", ResultSheme.mapper);
 
     int i = 1;
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    public class ResultSheme
+    {
+        public static readonly Func<IDataReader, ResultSheme> mapper = r => new ResultSheme()
+            {
+                PlayerID = r["PlayerID"].ToString(),
+                Points = r["Points"].ToString(),
+                Fi = r["Fi"].ToString(),
+            };
+        public string PlayerID { get; set; }
+        public string Points { get; set; }
+        public string Fi { get; set; }
+    }
 }

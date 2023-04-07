@@ -43,12 +43,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 str = $"UPDATE {tableFigures} " +
                       $"SET Pozition = 'C{Pozition.Y}'" +
                       $" WHERE ID = {ID}";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 str = $"UPDATE {tableFigures} " +
                       $"SET Pozition = 'D{Pozition.Y}'" +
                       $" WHERE Figure = 'R' and Pozition = 'A{Pozition.Y}'";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 return realMove;
             }
@@ -58,12 +58,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 str = $"UPDATE {tableFigures} " +
                       $"SET Pozition = 'G{Pozition.Y}'" +
                       $" WHERE ID = {ID}";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 str = $"UPDATE {tableFigures} " +
                       $"SET Pozition = 'F{Pozition.Y}'" +
                       $" WHERE Figure = 'R' and Pozition = 'H{Pozition.Y}'";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 return realMove;
             }
@@ -79,7 +79,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {orderCaptures}" +
                 $" WHERE ID = {NotGameFigure.ID}";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
                 insertMove = Name + "x" + move;
 
             }
@@ -87,7 +87,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             str = $"UPDATE {tableFigures} " +
                 $"SET Pozition = '{move}'" +
                 $" WHERE ID = {ID}";
-            StaticResouses.dataBase.ConnChangeFull(str);
+            DataBase.ExecuteFull(str);
 
             return insertMove;
         }
@@ -107,13 +107,13 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                       $"SET Pozition = 'C{Pozition.Y}'," +
                       $"IsMoving = 1" +
                       $" WHERE ID = {ID}";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 str = $"UPDATE {tableFigures} " +
                 $"SET Pozition = 'D{Pozition.Y}'," +
                       $"IsMoving = 1" +
                       $" WHERE Figure = 'R' and Pozition = 'A{Pozition.Y}'";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
                 result.Item1 = "O-O-O";
                 return result;
             }
@@ -124,13 +124,13 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                       $"SET Pozition = 'G{Pozition.Y}'," +
                       $"IsMoving = 1" +
                       $" WHERE ID = {ID}";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 str = $"UPDATE {tableFigures} " +
                 $"SET Pozition = 'F{Pozition.Y}'," +
                       $"IsMoving = 1" +
                       $" WHERE Figure = 'R' and Pozition = 'H{Pozition.Y}'";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
 
                 result.Item1 = "O-O";
                 return result;
@@ -146,7 +146,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {result.Item2}" +
                 $" WHERE ID = {NotGameFigure.ID}";
-                StaticResouses.dataBase.ConnChangeFull(str);
+                DataBase.ExecuteFull(str);
                 insertMove = Name + "x" + move;
             }
 
@@ -154,7 +154,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET Pozition = '{move}'," +
                 $"IsMoving = 1" +
                 $" WHERE ID = {ID}";
-            StaticResouses.dataBase.ConnChangeFull(str);
+            DataBase.ExecuteFull(str);
             result.Item1 = insertMove;
             return result;
         }
