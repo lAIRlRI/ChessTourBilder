@@ -44,10 +44,10 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Consignment model)
         {
             SqlParameterSet(model);
-            if (!DataBase.Execute("INSERT INTO [dbo].[Consignment](" +
-                                                                "[TourID]," +
-                                                                "[StatusID]," +
-                                                                "[DateStart])" +
+            if (!DataBase.Execute("INSERT INTO Consignment(" +
+                                                                "TourID," +
+                                                                "StatusID," +
+                                                                "DateStart)" +
                                                           "VALUES(" +
                                                                 $"@TourID," +
                                                                 $"@StatusID," +
@@ -68,18 +68,18 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Consignment model)
         {
             SqlParameterSet(model);
-            if (!DataBase.Execute($"UPDATE [dbo].[Consignment] " +
-                $"SET [TourID ] = @TourID" +
-                $",[StatusID] = @StatusID" +
-                $",[DateStart] = @DateStart" +
-                $",[GameMove] = @GameMove" +
+            if (!DataBase.Execute($"UPDATE Consignment " +
+                $"SET TourID = @TourID" +
+                $",StatusID = @StatusID" +
+                $",DateStart = @DateStart" +
+                $",GameMove = @GameMove" +
                 $" WHERE ConsignmentID = {model.ConsignmentID}", list.ToArray())) return false;
             if (!ConsignmentPlayerControler.Update(model.blackPlayer)) return false;
             if (!ConsignmentPlayerControler.Update(model.whitePlayer)) return false;
             return true;
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM [dbo].[Consignment] WHERE ConsignmentID = {id}");
+        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM Consignment WHERE ConsignmentID = {id}");
 
         public static List<Consignment> Get(string str)
         {

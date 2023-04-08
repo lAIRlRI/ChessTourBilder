@@ -15,8 +15,10 @@ namespace ChessTourBuilderApp.Data.DataBases
     internal class DataBase
     {
         static string paths;
+        static string flag;
         public static IDbConnection connection;
         public static SqlConnection temp;
+        public static SqliteConnection tempLite;
         public static bool serverOrLite = true;
  
         public static List<IDbDataParameter> SetParameters(List<ParametrBD> parametrs)
@@ -50,9 +52,21 @@ namespace ChessTourBuilderApp.Data.DataBases
             return temp;
         }
 
+        public static string GetFlag()
+        {
+            flag = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\FlagBD.txt");
+            return File.ReadAllText(flag);
+        }
+
         public static string GetTables()
         {
             string pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
+            return File.ReadAllText(pathsSQL);
+        }
+
+        public static string GetTablesLite()
+        {
+            string pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БДLite.txt");
             return File.ReadAllText(pathsSQL);
         }
 
@@ -70,7 +84,7 @@ namespace ChessTourBuilderApp.Data.DataBases
         {
             try
             {
-                paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases.txt");
+                paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
                 string[] lines = File.ReadAllLines(paths);
 
                 if (lines.Length != 4) return false;
@@ -91,6 +105,30 @@ namespace ChessTourBuilderApp.Data.DataBases
                 sqlCommand.ExecuteNonQuery();
                 connection.Close();
 
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool ChangeConnectionLite()
+        {
+            try
+            {
+                string pathsLite = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db");
+                string lines = File.ReadAllText(pathsLite);
+
+                if (lines == null) return false;
+
+                connection = new SqliteConnection("DataSource = " + pathsLite + ";Mode = ReadWrite;");
+
+                connection.Open();
+                using var sqlCommand = connection.CreateCommand();
+                sqlCommand.CommandText = "select 1 from Organizer";
+                sqlCommand.ExecuteNonQuery();
+                connection.Close();
                 return true;
             }
             catch
@@ -147,6 +185,36 @@ namespace ChessTourBuilderApp.Data.DataBases
 
             return "ok";
         }
+
+        public static string NewConnectionLite()
+        {
+            SqliteCommand sqlCommand;
+
+            try
+            {
+                tempLite = new SqliteConnection("DataSource = "+ Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db"));
+                tempLite.Open();
+                sqlCommand = new SqliteCommand(GetTablesLite(), tempLite);
+                sqlCommand.ExecuteNonQuery();
+                tempLite.Close();
+            }
+            catch(Exception e)
+            {
+                throw e;
+                //return e.Message;
+            }
+
+            connection = tempLite;
+
+            using (StreamWriter w = new(flag))
+            {
+                w.WriteLine("0");
+            }
+
+            serverOrLite = false;
+            return "ok";
+        }
+
 
         public static List<T> Read<T>(string query, Func<IDataReader, T> mapper)
         {

@@ -12,9 +12,15 @@
 {
     protected override void OnInitialized()
     {
-        if (!DataBase.ChangeConnection())
+        string flag = DataBase.GetFlag();
+        if (flag == "1")
         {
-            NavigationManager.NavigateTo("/setting");
+            if (!DataBase.ChangeConnection()) NavigationManager.NavigateTo("/setting");
+        }
+        else 
+        {
+            if (!DataBase.ChangeConnectionLite()) NavigationManager.NavigateTo("/setting");
+            DataBase.serverOrLite = false;
         }
     }
 }

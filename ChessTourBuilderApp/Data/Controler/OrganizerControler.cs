@@ -46,12 +46,12 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Organizer model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute("INSERT INTO [dbo].[Organizer](" +
-                                                                "[FirstName]," +
-                                                                "[MiddleName]," +
-                                                                "[LastName]," +
-                                                                "[Login]," +
-                                                                "[Password])" +
+            return DataBase.Execute("INSERT INTO Organizer(" +
+                                                                "FirstName," +
+                                                                "MiddleName," +
+                                                                "LastName," +
+                                                                "Login," +
+                                                                "Password)" +
                                                           "VALUES(" +
                                                                 $"@FirstName," +
                                                                 $"@MiddleName," +
@@ -63,16 +63,16 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Organizer model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE [dbo].[Organizer] " +
-                $"SET [FirstName] = @FirstName" +
-                $",[MiddleName] = @MiddleName" +
-                $",[LastName] = @LastName" +
-                $",[Login] = @Login" +
-                $",[Password] = @Password" +
+            return DataBase.Execute($"UPDATE Organizer " +
+                $"SET FirstName = @FirstName" +
+                $",MiddleName = @MiddleName" +
+                $",LastName = @LastName" +
+                $",Login = @Login" +
+                $",Password = @Password" +
                 $" WHERE OrganizerID = {model.OrganizerID}", list.ToArray());
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM [dbo].[Organizer] WHERE OrganizerID = {id}");
+        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM Organizer WHERE OrganizerID = {id}");
 
         public static List<Organizer> Get(string str)
         {

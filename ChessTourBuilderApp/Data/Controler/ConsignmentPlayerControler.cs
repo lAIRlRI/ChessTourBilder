@@ -43,11 +43,11 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(ConsignmentPlayer model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute("INSERT INTO [dbo].[ConsignmentPlayer](" +
-                                                                "[ConsignmentID]," +
-                                                                "[PlayerID]," +
-                                                                "[IsWhile]," +
-                                                                "[Result])" +
+            return DataBase.Execute("INSERT INTO ConsignmentPlayer(" +
+                                                                "ConsignmentID," +
+                                                                "PlayerID," +
+                                                                "IsWhile," +
+                                                                "Result)" +
                                                           "VALUES(" +
                                                                 $"@ConsignmentID," +
                                                                 $"@PlayerID," +
@@ -58,18 +58,18 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(ConsignmentPlayer model)
         {
             SqlParameterSet(model);
-            if (!DataBase.Execute($"UPDATE [dbo].[ConsignmentPlayer] " +
-                $"SET [ConsignmentID] = @ConsignmentID" +
-                $",[PlayerID] = @PlayerID" +
-                $",[IsWhile] = @IsWhile" +
-                $",[Result] = @Result" +
+            if (!DataBase.Execute($"UPDATE ConsignmentPlayer " +
+                $"SET ConsignmentID = @ConsignmentID" +
+                $",PlayerID = @PlayerID" +
+                $",IsWhile = @IsWhile" +
+                $",Result = @Result" +
                 $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list.ToArray())) return false;
             if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
             return true;
 
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM [dbo].[ConsignmentPlayer] WHERE ConsignmentPlayerID = {id}");
+        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM ConsignmentPlayer WHERE ConsignmentPlayerID = {id}");
 
         public static List<ConsignmentPlayer> Get(string str)
         {

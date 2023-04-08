@@ -40,21 +40,21 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(EventPlayer model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute("INSERT INTO [dbo].[EventPlayer]([EventID],[PlayerID],[TopPlece])" +
+            return DataBase.Execute("INSERT INTO EventPlayer (EventID,PlayerID,TopPlece)" +
                                                           "VALUES(@EventID,@PlayerID,@TopPlece)", list.ToArray());
         }
 
         public static bool Update(EventPlayer model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE [dbo].[EventPlayer] " +
-                $"SET [EventID] = @EventID" +
-                $",[PlayerID] = @PlayerID" +
-                $",[TopPlece] = @TopPlece" +
+            return DataBase.Execute($"UPDATE EventPlayer " +
+                $"SET EventID = @EventID" +
+                $",PlayerID = @PlayerID" +
+                $",TopPlece = @TopPlece" +
                 $" WHERE ID = {model.EventPlayerID}", list.ToArray());
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM [dbo].[EventPlayer] WHERE EventPlayerID = {id}");
+        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM EventPlayer WHERE EventPlayerID = {id}");
 
         public static List<EventPlayer> Get(string str)
         {

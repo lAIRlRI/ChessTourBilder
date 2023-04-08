@@ -159,7 +159,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 "InGame bit not null default 1," +
                 "IsMoving bit not null default 0," +
                 "EatID int not null default 0)" +
-                $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
+                $" INSERT INTO {tableFigures} (Figure,Pozition,IsWhile)" +
                 $"values ('','A2', 1)," +
                 $"('','B2', 1)," +
                 $"('','C2', 1)," +

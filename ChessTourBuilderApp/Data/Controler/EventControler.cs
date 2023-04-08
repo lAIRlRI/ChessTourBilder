@@ -52,16 +52,16 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Event model)
         {
             SqlParameterSet(model);
-            DataBase.Execute("INSERT INTO [dbo].[Event](" +
-                                                                "[Name]," +
-                                                                "[PrizeFund]," +
-                                                                "[DataStart]," +
-                                                                "[DataFinish]," +
-                                                                "[StatusID]," +
-                                                                "[OrganizerID]," +
-                                                                "[LocationEvent]," +
-                                                                "[TypeEvent]," +
-                                                                "[IsPublic])" +
+            DataBase.Execute("INSERT INTO Event(" +
+                                                                "Name," +
+                                                                "PrizeFund," +
+                                                                "DataStart," +
+                                                                "DataFinish," +
+                                                                "StatusID," +
+                                                                "OrganizerID," +
+                                                                "LocationEvent," +
+                                                                "TypeEvent," +
+                                                                "IsPublic)" +
                                                           "VALUES(" +
                                                                 $"@Name," +
                                                                 $"@PrizeFund," +
@@ -83,22 +83,22 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Event model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE [dbo].[Event] " +
-                "SET[Name] = @Name" +
-                ",[PrizeFund] = @PrizeFund" +
-                ",[DataStart] = @DataStart" +
-                ",[DataFinish] = @DataFinish" +
-                ",[StatusID] = @StatusID" +
-                ",[OrganizerID] = @OrganizerID" +
-                ",[IsPublic] = @IsPublic" +
-                ",[LocationEvent] = @LocationEvent" +
-                ",[TypeEvent] = @TypeEvent" +
-                " WHERE EventID = {model.EventID}", list.ToArray());
+            return DataBase.Execute($"UPDATE Event " +
+                "SET Name = @Name" +
+                ",PrizeFund = @PrizeFund" +
+                ",DataStart = @DataStart" +
+                ",DataFinish = @DataFinish" +
+                ",StatusID = @StatusID" +
+                ",OrganizerID = @OrganizerID" +
+                ",IsPublic = @IsPublic" +
+                ",LocationEvent = @LocationEvent" +
+                ",TypeEvent = @TypeEvent" +
+                $" WHERE EventID = {model.EventID}", list.ToArray());
         }
 
         public static bool Delete(Event model)
         {
-            return DataBase.Execute($"DELETE FROM [dbo].[Event] WHERE EventID = {model.EventID}");
+            return DataBase.Execute($"DELETE FROM Event WHERE EventID = {model.EventID}");
         }
 
         public static List<Event> Get(string str)

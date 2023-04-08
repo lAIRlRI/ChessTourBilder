@@ -48,14 +48,14 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Insert(Player model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute("INSERT INTO [dbo].[Player](" +
-                                                                "[FIDEID]," +
-                                                                "[FirstName]," +
-                                                                "[MiddleName]," +
-                                                                "[LastName]," +
-                                                                "[Birthday]," +
-                                                                "[ELORating]," +
-                                                                "[Contry])" +
+            return DataBase.Execute("INSERT INTO Player(" +
+                                                                "FIDEID," +
+                                                                "FirstName," +
+                                                                "MiddleName," +
+                                                                "LastName," +
+                                                                "Birthday," +
+                                                                "ELORating," +
+                                                                "Contry)" +
                                                           "VALUES(" +
                                                                 $"@FIDEID," +
                                                                 $"@FirstName," +
@@ -69,18 +69,18 @@ namespace ChessTourBuilderApp.Data.Controler
         public static bool Update(Player model, int? FIDEID)
         {
             SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE [dbo].[Player] " +
-                $"SET [FIDEID] = @FIDEID" +
-                $",[FirstName] = @FirstName" +
-                $",[MiddleName] = @MiddleName" +
-                $",[LastName] = @LastName" +
-                $",[Birthday] = @Birthday" +
-                $",[ELORating] = @ELORating" +
-                $",[Contry] = @Contry" +
+            return DataBase.Execute($"UPDATE Player " +
+                $"SET FIDEID = @FIDEID" +
+                $",FirstName = @FirstName" +
+                $",MiddleName = @MiddleName" +
+                $",LastName = @LastName" +
+                $",Birthday = @Birthday" +
+                $",ELORating = @ELORating" +
+                $",Contry = @Contry" +
                 $" WHERE FIDEID = {(int)FIDEID}", list.ToArray());
         }
 
-        public static bool Delete(int? id) => DataBase.Execute($"DELETE FROM [dbo].[Player] WHERE FIDEID = {(int)id}");
+        public static bool Delete(int? id) => DataBase.Execute($"DELETE FROM Player WHERE FIDEID = {(int)id}");
 
         public static List<Player> Get(string str)
         {
