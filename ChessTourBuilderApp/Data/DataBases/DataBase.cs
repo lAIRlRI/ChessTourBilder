@@ -200,8 +200,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
             catch(Exception e)
             {
-                throw e;
-                //return e.Message;
+                return e.Message;
             }
 
             connection = tempLite;

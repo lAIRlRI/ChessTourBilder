@@ -57,7 +57,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in cells)
             {
-                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile) == default(Figure))
+                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile && p.InGame == true) == default(Figure))
                 {
                     cellsTrue.Add(item);
                 }
@@ -138,9 +138,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (move[1].ToString() != vectorY.ToString()) return null;
 
-            List<TableFiguresScheme> dataSet = DataBase.ReadFull($"select Move, Pozition from {tableMove} " +
-               "where ID in " +
-               $"(select top 1 ID from {tableMove} order by ID desc)", TableFiguresScheme.mapper);
+            List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetTableMove(tableMove), TableFiguresScheme.mapper);
 
             string moveChange = dataSet[0].Move.ToString();
             string pozitionChange = dataSet[0].Pozition.ToString();

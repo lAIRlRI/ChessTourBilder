@@ -9,5 +9,6 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 {
     internal class StaticResouses
     {
+        public static IDBQ dBQ;
     }
 }

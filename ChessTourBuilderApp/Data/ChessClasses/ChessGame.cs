@@ -29,15 +29,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             DataBase.OpenConn();
             this.consignment = consignment;
-            DataBase.ExecuteFull($"create table {tableMove} (" +
-                "ID int identity(1,1) not null," +
-                "PlayerID int not null," +
-                "Move nvarchar(10) not null," +
-                "Pozition nvarchar(10) not null," +
-                "ConsignmentID int not null," +
-                "TourID int not null," +
-                "LastMove bit not null default 0," +
-                "Winner bit not null default 0)");
+            DataBase.ExecuteFull(StaticResouses.dBQ.GetTableMove(tableMove));
 
             DataBase.ExecuteFull($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
             CreateChessTable();
@@ -57,7 +49,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 switch (item.Name)
                 {
                     case "":
-                        Figures[i] = new Pawn(item.Pozition, item.IsWhile,item.ID)
+                        Figures[i] = new Pawn(item.Pozition, item.IsWhile, item.ID)
                         {
                             InGame = item.InGame,
                             IsMoving = item.IsMoving
@@ -151,55 +143,47 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         private void CreateChessTable()
         {
-            string str = $"create table {tableFigures}(" +
-                "ID int identity(1,1) not null," +
-                "Figure nvarchar(1) not null," +
-                "Pozition nvarchar(2) not null," +
-                "IsWhile bit not null," +
-                "InGame bit not null default 1," +
-                "IsMoving bit not null default 0," +
-                "EatID int not null default 0)" +
-                $" INSERT INTO {tableFigures} (Figure,Pozition,IsWhile)" +
-                $"values ('','A2', 1)," +
-                $"('','B2', 1)," +
-                $"('','C2', 1)," +
-                $"('','D2', 1)," +
-                $"('','E2', 1)," +
-                $"('','F2', 1)," +
-                $"('','G2', 1)," +
-                $"('','H2', 1)," +
-                $"('','A7', 0)," +
-                $"('','B7', 0)," +
-                $"('','C7', 0)," +
-                $"('','D7', 0)," +
-                $"('','E7', 0)," +
-                $"('','F7', 0)," +
-                $"('','G7', 0)," +
-                $"('','H7', 0)," +
-                $"('K','E1', 1)," +
-                $"('K','E8', 0)," +
-                $"('Q','D1', 1)," +
-                $"('Q','D8', 0)," +
-                $"('B','C1', 1)," +
-                $"('B','C8', 0)," +
-                $"('B','F1', 1)," +
-                $"('B','F8', 0)," +
-                $"('N','G1', 1)," +
-                $"('N','G8', 0)," +
-                $"('N','B1', 1)," +
-                $"('N','B8', 0)," +
-                $"('R','H1', 1)," +
-                $"('R','H8', 0)," +
-                $"('R','A1', 1)," +
-                $"('R','A8', 0)";
+            string str = StaticResouses.dBQ.GetTableFigures(tableFigures);
+            DataBase.ExecuteFull(str);
+            str = $"INSERT INTO {tableFigures} (Figure,Pozition,IsWhile)" +
+                "values ('','A2', 1)," +
+                "('','B2', 1)," +
+                "('','C2', 1)," +
+                "('','D2', 1)," +
+                "('','E2', 1)," +
+                "('','F2', 1)," +
+                "('','G2', 1)," +
+                "('','H2', 1)," +
+                "('','A7', 0)," +
+                "('','B7', 0)," +
+                "('','C7', 0)," +
+                "('','D7', 0)," +
+                "('','E7', 0)," +
+                "('','F7', 0)," +
+                "('','G7', 0)," +
+                "('','H7', 0)," +
+                "('K','E1', 1)," +
+                "('K','E8', 0)," +
+                "('Q','D1', 1)," +
+                "('Q','D8', 0)," +
+                "('B','C1', 1)," +
+                "('B','C8', 0)," +
+                "('B','F1', 1)," +
+                "('B','F8', 0)," +
+                "('N','G1', 1)," +
+                "('N','G8', 0)," +
+                "('N','B1', 1)," +
+                "('N','B8', 0)," +
+                "('R','H1', 1)," +
+                "('R','H8', 0)," +
+                "('R','A1', 1)," +
+                "('R','A8', 0)";
             DataBase.ExecuteFull(str);
         }
 
         public void EndGame(double? result)
         {
-            string str = $"update {tableMove} set " +
-                $"LastMove = 1 " +
-                $"where ID in (select top 1 ID from {tableMove} order by ID desc)";
+            string str = StaticResouses.dBQ.GetLastMove(tableMove);
             DataBase.ExecuteFull(str);
 
             if (result == 2)
@@ -223,9 +207,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     consignment.blackPlayer.Result = 1;
                 }
 
-                str = $" update {tableMove} set " +
-                    $"Winner = 1 " +
-                    $"where ID in (select top 1 ID from {tableMove} where PlayerID = {ID} order by ID desc)";
+                str = StaticResouses.dBQ.GetWinner(tableMove, ID);
 
             }
             DataBase.ExecuteFull(str);
@@ -273,13 +255,10 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public void DeleteLastMove(bool IsWhile)
         {
-            List<TableFiguresScheme> dataSet = DataBase.ReadFull($"select Move, Pozition from {tableMove} " +
-                "where ID in " +
-                $"(select top 1 ID from {tableMove} order by ID desc)", TableFiguresScheme.mapper);
+            List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetMovePozition(tableMove), TableFiguresScheme.mapper);
             string move = dataSet[0].Move.ToString();
 
-            DataBase.ExecuteFull($"Delete from {tableMove} where ID in " +
-                                           $"(select top 1 ID from {tableMove} order by ID desc)");
+            DataBase.ExecuteFull(StaticResouses.dBQ.DeleteTableMove(tableMove));
 
             string str = $"UPDATE {tableFigures} " +
                $"SET Pozition = '{lastPozition.cell}'" +
@@ -328,7 +307,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
 
-            char temp = figure.FirstOrDefault(p => p == move[move.Length - 1]);
+            char temp = figure.FirstOrDefault(p => p == move[^1]);
 
             if (temp != default(char))
             {
@@ -337,8 +316,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                $" WHERE ID = {lastIDFigure}";
                 DataBase.ExecuteFull(str);
 
-                str = $"Delete from {tableFigures} " +
-                     $" WHERE ID in (select top 1 ID from {tableFigures} order by ID desc)";
+                str = StaticResouses.dBQ.GetTableFigures(tableFigures);
                 DataBase.ExecuteFull(str);
             }
 

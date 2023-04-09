@@ -97,7 +97,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (!string.IsNullOrWhiteSpace(player.LastName))
                 if (regex.IsMatch(player.LastName))
-                    bools[2] = "Поле может содержать только буквы";
+                    bools[3] = "Поле может содержать только буквы";
 
             if (player.Birthday == null)
                 bools[4] = Text();
@@ -105,9 +105,9 @@ namespace ChessTourBuilderApp.Data.HelpClasses
                 bools[4] = "не может больше меньше сегоднящней";
 
             if (player.ELORating == null)
-                bools[3] = Text();
+                bools[5] = Text();
             else if (player.ELORating < 0)
-                bools[3] = "ЕLO не может быть меньше 0";
+                bools[5] = "ЕLO не может быть меньше 0";
 
             if (string.IsNullOrWhiteSpace(player.Contry))
                 bools[6] = Text();

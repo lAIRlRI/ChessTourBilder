@@ -16,11 +16,13 @@
         if (flag == "1")
         {
             if (!DataBase.ChangeConnection()) NavigationManager.NavigateTo("/setting");
+            Data.HelpClasses.StaticResouses.dBQ = new ServerQ();
         }
         else 
         {
             if (!DataBase.ChangeConnectionLite()) NavigationManager.NavigateTo("/setting");
             DataBase.serverOrLite = false;
+            Data.HelpClasses.StaticResouses.dBQ = new LiteQ();
         }
     }
 }

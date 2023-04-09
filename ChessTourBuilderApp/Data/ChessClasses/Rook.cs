@@ -82,7 +82,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             Cell[] cellsDiapozon;
 
-            if (figures.FirstOrDefault(p => p.Pozition.cell == move.cell && p.IsWhile == IsWhile) != default(Figure)) return false;
+            if (figures.FirstOrDefault(p => p.Pozition.cell == move.cell && p.IsWhile == IsWhile && p.InGame == true) != default(Figure)) return false;
 
             if (move < Pozition)
             {
