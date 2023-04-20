@@ -1,6 +1,9 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
+using ChessTourBuilderApp.Data.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,14 +12,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 {
     internal abstract class Figure
     {
-
         public abstract string Name { get; }
         public Cell Pozition { get; set; }
         public bool IsWhile { get; set; }
         public int ID { get; }
         public bool InGame { get; set; } = true;
         public bool IsMoving { get; set; } = false;
-
 
         public Figure(string pozition, bool isWhile, int id)
         {
@@ -48,7 +49,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {orderCaptures}" +
                 $" WHERE ID = {NotGameFigure.ID}";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
                 insertMove = Name + "x" + move;
 
             }
@@ -56,7 +57,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             str = $"UPDATE {tableFigures} " +
                 $"SET Pozition = '{move}'" +
                 $" WHERE ID = {ID}";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
 
             return insertMove;
         }
@@ -81,7 +82,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {result.Item2}" +
                 $" WHERE ID = {NotGameFigure.ID}";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
                 insertMove = Name + "x" + move;
             }
 
@@ -89,7 +90,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET Pozition = '{move}'," +
                 $"IsMoving = 1" +
                 $" WHERE ID = {ID}";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
 
             result.Item1 = insertMove;
 

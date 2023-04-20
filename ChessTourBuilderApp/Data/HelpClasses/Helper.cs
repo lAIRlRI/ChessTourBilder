@@ -12,7 +12,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 {
     internal class Helper
     {
-        static Regex regex = new("[^а-яА-Яa-zA-Z]");
+        private static readonly Regex regex = new("[^а-яА-Яa-zA-Z]");
 
         public static Hashtable StringToInt = new(new Dictionary<char, int>()
             {
@@ -30,7 +30,6 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static string[] IntToString = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
         private static string Text() => $"Поле не должно быть пустым";
-        private static string Text(string str) => $"Поле {str} не должно быть пустым";
         public static string FI() => OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName;
         public static bool CheckDeleteButton() => OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
 
@@ -52,12 +51,11 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (string.IsNullOrWhiteSpace(organizer.Login))
                 bools[3] = Text();
-            else if (OrganizerControler.Get().Where(p => p.Login == organizer.Login).FirstOrDefault() != default(Organizer))
+            else if (OrganizerControler.Get().FirstOrDefault(p => p.Login == organizer.Login) != default(Organizer))
                 bools[3] = "Пользователь уже существует";
 
             if (string.IsNullOrWhiteSpace(organizer.Password))
                 bools[4] = Text();
-
 
             return bools.All(p => p == null);
         }
@@ -84,20 +82,32 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             if (player.FIDEID.ToString().Length != 7)
                 bools[0] = "FIDEID должен состоять из 7 цифр";
 
-            if (PlayerControler.Get().Where(p => p.FIDEID == player.FIDEID).FirstOrDefault() != default(Player))
+            if (PlayerControler.Get().FirstOrDefault(p => p.FIDEID == player.FIDEID) != default(Player))
                 bools[0] = "Игрок уже существует";
 
             if (string.IsNullOrWhiteSpace(player.FirstName))
                 bools[1] = Text();
+            else if (regex.IsMatch(player.FirstName))
+                bools[1] = "Поле может содержать только буквы";
 
             if (string.IsNullOrWhiteSpace(player.MiddleName))
                 bools[2] = Text();
+            else if (regex.IsMatch(player.MiddleName))
+                bools[2] = "Поле может содержать только буквы";
 
-            if (player.Birthday == default(DateTime))
+            if (!string.IsNullOrWhiteSpace(player.LastName))
+                if (regex.IsMatch(player.LastName))
+                    bools[3] = "Поле может содержать только буквы";
+
+            if (player.Birthday == null)
                 bools[4] = Text();
+            else if (player.Birthday > DateTime.Now)
+                bools[4] = "не может больше меньше сегоднящней";
 
-            if (player.ELORating < 0)
-                bools[3] = "ЕLO не может быть меньше 0";
+            if (player.ELORating == null)
+                bools[5] = Text();
+            else if (player.ELORating < 0)
+                bools[5] = "ЕLO не может быть меньше 0";
 
             if (string.IsNullOrWhiteSpace(player.Contry))
                 bools[6] = Text();
@@ -128,25 +138,24 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             if (string.IsNullOrWhiteSpace(@event.Name))
                 bools[0] = Text();
 
-            if (@event.PrizeFund <= 0)
-                bools[1] = "Призовой фонд должен быть больше 0";
+            if (@event.PrizeFund == null) bools[1] = Text();
+            else if (@event.PrizeFund <= 0)
+                        bools[1] = "Призовой фонд должен быть больше 0";
 
             if (string.IsNullOrWhiteSpace(@event.LocationEvent))
-                bools[2] = Text();
-
-            if (@event.DataStart == default(DateTime))
-                bools[3] = Text();
-            else if (@event.DataStart < DateTime.Now)
-                bools[3] = "не может быть меньше сегоднящней";
-
-            if (@event.DataFinish == default(DateTime))
                 bools[4] = Text();
+
+            if (@event.DataStart == null)
+                bools[2] = Text();
+            else if (@event.DataStart < DateTime.Now)
+                bools[2] = "не может быть меньше сегоднящней";
+
+            if (@event.DataFinish == null)
+                bools[3] = Text();
             else if (@event.DataFinish < @event.DataStart)
-                bools[4] = "не может быть меньше чем Дата начала";
+                bools[3] = "не может быть меньше чем Дата начала";
 
             return bools.All(p => p == null);
         }
     }
-
 }
-

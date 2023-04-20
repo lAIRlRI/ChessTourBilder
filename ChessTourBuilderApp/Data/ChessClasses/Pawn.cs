@@ -1,4 +1,5 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -56,7 +57,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in cells)
             {
-                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile) == default(Figure))
+                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile && p.InGame == true) == default(Figure))
                 {
                     cellsTrue.Add(item);
                 }
@@ -88,7 +89,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {result.Item2}" +
                 $" WHERE ID = {NotGameFigure.ID}";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
 
                 insertMove = Name + "x" + move;
             }
@@ -100,7 +101,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET InGame = 0," +
                 $" EatID = {result.Item2}" +
                 $" WHERE ID = {ID}";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
 
                 result.Item1 = "rpt";
 
@@ -121,7 +122,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"SET Pozition = '{move}'," +
                 $"IsMoving = 1 " +
                 $" WHERE ID = {ID}";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
 
             result.Item1 = insertMove;
 
@@ -135,15 +136,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             int vectorE = IsWhile ? 5 : 4;
             int vectorN = IsWhile ? 7 : 2;
 
-
             if (move[1].ToString() != vectorY.ToString()) return null;
 
-            DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move, Pozition from {tableMove} " +
-               "where ID in " +
-               $"(select top 1 ID from {tableMove} order by ID desc)");
+            List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetTableMove(tableMove), TableFiguresScheme.mapper);
 
-            string moveChange = dataSet.Tables[0].Rows[0][0].ToString();
-            string pozitionChange = dataSet.Tables[0].Rows[0][1].ToString();
+            string moveChange = dataSet[0].Move.ToString();
+            string pozitionChange = dataSet[0].Pozition.ToString();
 
             if (moveChange != $"{move[0]}{vectorE}") return null;
             if (pozitionChange != $"{move[0]}{vectorN}") return null;
@@ -156,10 +154,9 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             $"SET InGame = 0," +
             $" EatID = {oreder}" +
             $" WHERE ID = {figure.ID}";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
 
             return Name + "x" + move;
         }
-
     }
 }

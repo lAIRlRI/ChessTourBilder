@@ -18,8 +18,6 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return move.cell;
         }
 
-
-
         public override List<Cell> GetCells(Figure[] figures)
         {
             List<Cell> cells = new();
@@ -55,11 +53,10 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in cells)
             {
-                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile) == default(Figure)) cellsTrue.Add(item);
+                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.IsWhile == IsWhile && p.InGame == true) == default(Figure)) cellsTrue.Add(item);
             }
 
             return cellsTrue;
         }
-
     }
 }

@@ -1,0 +1,107 @@
+CREATE TABLE Status(
+    StatusID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL
+);
+CREATE TABLE Player(
+    FIDEID INTEGER PRIMARY KEY,
+    FirstName TEXT NOT NULL,
+    MiddleName TEXT NOT NULL,
+    LastName TEXT,
+    Birthday TEXT NOT NULL,
+    ELORating REAL NOT NULL,
+    Contry TEXT NOT NULL,
+    Image BLOB
+);
+CREATE TABLE EventPlayer(
+    EventPlayerID INTEGER PRIMARY KEY AUTOINCREMENT,
+    EventID INTEGER NOT NULL,
+    PlayerID INTEGER NOT NULL,
+    TopPlece INTEGER
+);
+CREATE TABLE Event(
+    EventID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL,
+    PrizeFund INTEGER NOT NULL,
+    LocationEvent TEXT NOT NULL,
+    DataStart TEXT NOT NULL,
+    DataFinish TEXT NOT NULL,
+    StatusID INTEGER NOT NULL,
+    OrganizerID INTEGER NOT NULL,
+    IsPublic INTEGER NOT NULL,
+    TypeEvent INTEGER NOT NULL,
+    Image BLOB
+);
+CREATE TABLE Tour(
+    TourID INTEGER PRIMARY KEY AUTOINCREMENT,
+    NameTour TEXT NOT NULL,
+    EventID INTEGER NOT NULL
+);
+CREATE TABLE Consignment(
+    ConsignmentID INTEGER PRIMARY KEY AUTOINCREMENT,
+    DateStart TEXT NOT NULL,
+    TourID INTEGER NOT NULL,
+    StatusID INTEGER NOT NULL,
+    GameMove TEXT,
+    TableName TEXT
+);
+CREATE TABLE ConsignmentPlayer(
+    ConsignmentPlayerID INTEGER PRIMARY KEY AUTOINCREMENT,
+    ConsignmentID INTEGER NOT NULL,
+    PlayerID INTEGER NOT NULL,
+    IsWhile INTEGER NOT NULL,
+    Result REAL
+);  
+CREATE TABLE Organizer(
+    OrganizerID INTEGER PRIMARY KEY AUTOINCREMENT,
+    FirstName TEXT NOT NULL,
+    MiddleName TEXT NOT NULL,
+    LastName TEXT,
+    Login TEXT NOT NULL,
+    Password TEXT NOT NULL,
+    Image BLOB
+);
+CREATE TABLE Administrator(
+    AdministratorID INTEGER PRIMARY KEY AUTOINCREMENT,
+    OrganizerID INTEGER NOT NULL
+);
+    
+INSERT INTO Status (Name) VALUES ('Завершился'),('Не начался'),('Продолжается');
+
+CREATE INDEX idx_player_FIDEID ON Player (FIDEID);
+CREATE INDEX idx_eventplayer_EventID ON EventPlayer (EventID);
+CREATE INDEX idx_eventplayer_PlayerID ON EventPlayer (PlayerID);
+CREATE INDEX idx_event_StatusID ON Event (StatusID);
+CREATE INDEX idx_event_OrganizerID ON Event (OrganizerID);
+CREATE INDEX idx_consignment_TourID ON Consignment (TourID);
+CREATE INDEX idx_consignment_StatusID ON Consignment (StatusID);
+CREATE INDEX idx_consignmentplayer_ConsignmentID ON ConsignmentPlayer (ConsignmentID);
+CREATE INDEX idx_consignmentplayer_PlayerID ON ConsignmentPlayer (PlayerID);
+CREATE INDEX idx_administrator_OrganizerID ON Administrator (OrganizerID);
+
+PRAGMA foreign_keys=ON;
+
+CREATE TRIGGER delete_player
+BEFORE DELETE ON Player
+BEGIN
+    DELETE FROM EventPlayer WHERE PlayerID = OLD.FIDEID;
+    DELETE FROM ConsignmentPlayer WHERE PlayerID = OLD.FIDEID;
+END;
+
+CREATE TRIGGER delete_event
+BEFORE DELETE ON Event
+BEGIN
+    DELETE FROM EventPlayer WHERE EventID = OLD.EventID;
+    DELETE FROM Consignment WHERE TourID IN (SELECT TourID FROM Tour WHERE EventID = OLD.EventID);
+END;
+
+CREATE TRIGGER delete_tour
+BEFORE DELETE ON Tour
+BEGIN
+    DELETE FROM Consignment WHERE TourID = OLD.TourID;
+END;
+
+CREATE TRIGGER delete_сonsignment 
+BEFORE DELETE ON Consignment
+BEGIN
+    DELETE FROM ConsignmentPlayer WHERE ConsignmentID = OLD.ConsignmentID;
+END;

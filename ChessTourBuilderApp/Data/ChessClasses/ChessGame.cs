@@ -1,5 +1,6 @@
 ﻿using ChessTourBuilderApp.Data.Controler;
 using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using System;
 using System.Collections.Generic;
@@ -26,19 +27,11 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public ChessGame(Consignment consignment)
         {
-            DataBaseFullConn.OpenConn();
+            DataBase.OpenConn();
             this.consignment = consignment;
-            DataBaseFullConn.ConnChange($"create table {tableMove} (" +
-                "ID int identity(1,1) not null," +
-                "PlayerID int not null," +
-                "Move nvarchar(10) not null," +
-                "Pozition nvarchar(10) not null," +
-                "ConsignmentID int not null," +
-                "TourID int not null," +
-                "LastMove bit not null default 0," +
-                "Winner bit not null default 0)");
+            DataBase.ExecuteFull(StaticResouses.dBQ.GetTableMove(tableMove));
 
-            DataBaseFullConn.ConnChange($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
+            DataBase.ExecuteFull($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
             CreateChessTable();
 
             GetFigures();
@@ -46,55 +39,55 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         private void GetFigures()
         {
-            var table = DataBaseFullConn.ConnDataSet($"select * from {tableFigures}");
+            var table = DataBase.ReadFull($"select * from {tableFigures}", FigureScheme.mapper);
             int i = 0;
-            Figures = new Figure[table.Tables[0].Rows.Count];
+            Figures = new Figure[table.Count];
 
-            foreach (DataRow item in table.Tables[0].Rows)
+            foreach (var item in table)
             {
                 //хештаблицы???; избавиться от object
-                switch (item["Figure"])
+                switch (item.Name)
                 {
                     case "":
-                        Figures[i] = new Pawn(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
+                        Figures[i] = new Pawn(item.Pozition, item.IsWhile, item.ID)
                         {
-                            InGame = Convert.ToBoolean(item["InGame"]),
-                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                            InGame = item.InGame,
+                            IsMoving = item.IsMoving
                         };
                         break;
                     case "K":
-                        Figures[i] = new King(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
+                        Figures[i] = new King(item.Pozition, item.IsWhile, item.ID)
                         {
-                            InGame = Convert.ToBoolean(item["InGame"]),
-                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                            InGame = item.InGame,
+                            IsMoving = item.IsMoving
                         };
                         break;
                     case "Q":
-                        Figures[i] = new Queen(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
+                        Figures[i] = new Queen(item.Pozition, item.IsWhile, item.ID)
                         {
-                            InGame = Convert.ToBoolean(item["InGame"]),
-                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                            InGame = item.InGame,
+                            IsMoving = item.IsMoving
                         };
                         break;
                     case "B":
-                        Figures[i] = new Bishop(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
+                        Figures[i] = new Bishop(item.Pozition, item.IsWhile, item.ID)
                         {
-                            InGame = Convert.ToBoolean(item["InGame"]),
-                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                            InGame = item.InGame,
+                            IsMoving = item.IsMoving
                         };
                         break;
                     case "N":
-                        Figures[i] = new Knight(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
+                        Figures[i] = new Knight(item.Pozition, item.IsWhile, item.ID)
                         {
-                            InGame = Convert.ToBoolean(item["InGame"]),
-                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                            InGame = item.InGame,
+                            IsMoving = item.IsMoving
                         };
                         break;
                     case "R":
-                        Figures[i] = new Rook(item["Pozition"].ToString(), Convert.ToBoolean(item["IsWhile"]), Convert.ToInt32(item["ID"]))
+                        Figures[i] = new Rook(item.Pozition, item.IsWhile, item.ID)
                         {
-                            InGame = Convert.ToBoolean(item["InGame"]),
-                            IsMoving = Convert.ToBoolean(item["IsMoving"])
+                            InGame = item.InGame,
+                            IsMoving = item.IsMoving
                         };
                         break;
                 }
@@ -119,7 +112,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID, Pozition)" +
                         $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID},'{figure.Pozition.cell}')";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
 
             lastPozition = figure.Pozition;
             lastIDFigure = figure.ID;
@@ -136,73 +129,62 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             int b = IsWhile ? 1 : 0;
             string str = $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
                 $"values ('{name}','{pozition}',{b})";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
             int ID = IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
                         $" values ({ID},'{pozition + name}',{consignment.ConsignmentID},{consignment.TourID})";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
             GetFigures();
             Move.Add(pozition + name);
             return true;
         }
 
-        public Figure[] GetFigure(bool IsWhile)
-        {
-            return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
-        }
+        public Figure[] GetFigure(bool IsWhile) => Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
 
         private void CreateChessTable()
         {
-            string str = $"create table {tableFigures}(" +
-                "ID int identity(1,1) not null," +
-                "Figure nvarchar(1) not null," +
-                "Pozition nvarchar(2) not null," +
-                "IsWhile bit not null," +
-                "InGame bit not null default 1," +
-                "IsMoving bit not null default 0," +
-                "EatID int not null default 0)" +
-                $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
-                $"values ('','A2', 1)," +
-                $"('','B2', 1)," +
-                $"('','C2', 1)," +
-                $"('','D2', 1)," +
-                $"('','E2', 1)," +
-                $"('','F2', 1)," +
-                $"('','G2', 1)," +
-                $"('','H2', 1)," +
-                $"('','A7', 0)," +
-                $"('','B7', 0)," +
-                $"('','C7', 0)," +
-                $"('','D7', 0)," +
-                $"('','E7', 0)," +
-                $"('','F7', 0)," +
-                $"('','G7', 0)," +
-                $"('','H7', 0)," +
-                $"('K','E1', 1)," +
-                $"('K','E8', 0)," +
-                $"('Q','D1', 1)," +
-                $"('Q','D8', 0)," +
-                $"('B','C1', 1)," +
-                $"('B','C8', 0)," +
-                $"('B','F1', 1)," +
-                $"('B','F8', 0)," +
-                $"('N','G1', 1)," +
-                $"('N','G8', 0)," +
-                $"('N','B1', 1)," +
-                $"('N','B8', 0)," +
-                $"('R','H1', 1)," +
-                $"('R','H8', 0)," +
-                $"('R','A1', 1)," +
-                $"('R','A8', 0)";
-            DataBaseFullConn.ConnChange(str);
+            string str = StaticResouses.dBQ.GetTableFigures(tableFigures);
+            DataBase.ExecuteFull(str);
+            str = $"INSERT INTO {tableFigures} (Figure,Pozition,IsWhile)" +
+                "values ('','A2', 1)," +
+                "('','B2', 1)," +
+                "('','C2', 1)," +
+                "('','D2', 1)," +
+                "('','E2', 1)," +
+                "('','F2', 1)," +
+                "('','G2', 1)," +
+                "('','H2', 1)," +
+                "('','A7', 0)," +
+                "('','B7', 0)," +
+                "('','C7', 0)," +
+                "('','D7', 0)," +
+                "('','E7', 0)," +
+                "('','F7', 0)," +
+                "('','G7', 0)," +
+                "('','H7', 0)," +
+                "('K','E1', 1)," +
+                "('K','E8', 0)," +
+                "('Q','D1', 1)," +
+                "('Q','D8', 0)," +
+                "('B','C1', 1)," +
+                "('B','C8', 0)," +
+                "('B','F1', 1)," +
+                "('B','F8', 0)," +
+                "('N','G1', 1)," +
+                "('N','G8', 0)," +
+                "('N','B1', 1)," +
+                "('N','B8', 0)," +
+                "('R','H1', 1)," +
+                "('R','H8', 0)," +
+                "('R','A1', 1)," +
+                "('R','A8', 0)";
+            DataBase.ExecuteFull(str);
         }
 
         public void EndGame(double? result)
         {
-            string str = $"update {tableMove} set " +
-                $"LastMove = 1 " +
-                $"where ID in (select top 1 ID from {tableMove} order by ID desc)";
-            DataBaseFullConn.ConnChange(str);
+            string str = StaticResouses.dBQ.GetLastMove(tableMove);
+            DataBase.ExecuteFull(str);
 
             if (result == 2)
             {
@@ -225,12 +207,11 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     consignment.blackPlayer.Result = 1;
                 }
 
-                str = $" update {tableMove} set " +
-                    $"Winner = 1 " +
-                    $"where ID in (select top 1 ID from {tableMove} where PlayerID = {ID} order by ID desc)";
+                str = StaticResouses.dBQ.GetWinner(tableMove, ID);
 
             }
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
+            DataBase.CloseCon();
 
             consignment.whitePlayer.player.ELORating = ELO((double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.Result);
             consignment.blackPlayer.player.ELORating = ELO((double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.Result);
@@ -243,16 +224,16 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (result != 2)
             {
-                DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
+                DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                    $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},{consignment.whitePlayer.Result},{consignment.ConsignmentID})");
-                DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
+                DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                     $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},{consignment.blackPlayer.Result},{consignment.ConsignmentID})");
                 return;
             }
 
-            DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
+            DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                 $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},0.5,{consignment.ConsignmentID})");
-            DataBaseFullConn.ConnChange($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
+            DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                 $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},0.5,{consignment.ConsignmentID})");
         }
 
@@ -274,25 +255,22 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public void DeleteLastMove(bool IsWhile)
         {
-            DataSet dataSet = DataBaseFullConn.ConnDataSet($"select Move from {tableMove} " +
-                "where ID in " +
-                $"(select top 1 ID from {tableMove} order by ID desc)");
-            string move = dataSet.Tables[0].Rows[0][0].ToString();
+            List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetMovePozition(tableMove), TableFiguresScheme.mapper);
+            string move = dataSet[0].Move.ToString();
 
-            DataBaseFullConn.ConnChange($"Delete from {tableMove} where ID in " +
-                                           $"(select top 1 ID from {tableMove} order by ID desc)");
+            DataBase.ExecuteFull(StaticResouses.dBQ.DeleteTableMove(tableMove));
 
             string str = $"UPDATE {tableFigures} " +
                $"SET Pozition = '{lastPozition.cell}'" +
                $" WHERE ID = {lastIDFigure}";
-            DataBaseFullConn.ConnChange(str);
+            DataBase.ExecuteFull(str);
 
             if (move[1] == 'x' || move[0] == 'x')
             {
                 str = $"UPDATE {tableFigures} " +
                 $"SET InGame = 1" +
                 $" WHERE EatID = {orderCaptures}";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
             }
 
             int pozition = IsWhile ? 1 : 8;
@@ -303,13 +281,13 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                      $"SET Pozition = 'E{pozition}'," +
                      $"IsMoving = 0" +
                      $" WHERE Pozition = 'C{pozition}'";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
 
                 str = $"UPDATE {tableFigures} " +
                      $"SET Pozition = 'A{pozition}'," +
                      $"IsMoving = 0" +
                      $" WHERE Pozition = 'D{pozition}'";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
             }
 
             if (move == "O-O")
@@ -318,29 +296,28 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                      $"SET Pozition = 'E{pozition}'," +
                      $"IsMoving = 0" +
                      $" WHERE Pozition = 'G{pozition}'";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
 
                 str = $"UPDATE {tableFigures} " +
                      $"SET Pozition = 'H{pozition}'," +
                      $"IsMoving = 0" +
                      $" WHERE Pozition = 'F{pozition}'";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
             }
 
             char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
 
-            char temp = figure.FirstOrDefault(p => p == move[move.Length - 1]);
+            char temp = figure.FirstOrDefault(p => p == move[^1]);
 
             if (temp != default(char))
             {
                 str = $"UPDATE {tableFigures} " +
                $"SET Pozition = '{lastPozition.cell}'" +
                $" WHERE ID = {lastIDFigure}";
-                DataBaseFullConn.ConnChange(str);
+                DataBase.ExecuteFull(str);
 
-                str = $"Delete from {tableFigures} " +
-                     $" WHERE ID in (select top 1 ID from {tableFigures} order by ID desc)";
-                DataBaseFullConn.ConnChange(str);
+                str = StaticResouses.dBQ.GetTableFigures(tableFigures);
+                DataBase.ExecuteFull(str);
             }
 
             Move.RemoveAt(Move.Count - 1);
@@ -349,4 +326,3 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         }
     }
 }
-

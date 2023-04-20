@@ -1,5 +1,6 @@
 ﻿@page "/player"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @using System.Data
@@ -62,11 +63,11 @@
         <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
     }
     <section class="pozition-conteneer">
-        @foreach (DataRow item in ds.Tables[0].Rows)
+        @foreach (var item in ds)
         {
             <div class="element">
-                <h3 class="text">@item["Name"].ToString()</h3>
-                <h4 class="text">@item["TopPlece"].ToString()</h4>
+                <h3>class="text">@item.Name</h3>
+                <h4> class="text">@item.TopPlece</h4>
             </div>
         }
     </section>
@@ -76,8 +77,8 @@
     Data.Model.Player playerModel = new();
     bool update = true;
     string[] result = new string[7];
-    DataSet ds = Data.DataBases.DataBase.ConnDataSet("select Name, TopPlece from Event e " +
-                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}");
+    List<TourPozition> ds = DataBase.Read("select Name, TopPlece from Event e " +
+                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}", TourPozition.mapper);
 
     private void OnUpdate() => update = !update;
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
@@ -110,4 +111,14 @@
         OnClickNavigation("/eventList");
     }
 
+    public class TourPozition
+    {
+        public static readonly Func<IDataReader, TourPozition> mapper = r => new TourPozition()
+            {
+                Name = r["Name"].ToString(),
+                TopPlece = Convert.ToInt32(r["TopPlece"])
+            };
+        public string Name { get; set; }
+        public int TopPlece { get; set; }
+    }
 }

@@ -27,20 +27,10 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             cell = GetString(x, y);
         }
 
-        public static bool operator <(Cell x, Cell y)
-        {
-            return x.X < y.X || x.Y < y.Y;
-        }
+        public static bool operator <(Cell x, Cell y) => x.X < y.X || x.Y < y.Y;
 
-        public static bool operator >(Cell x, Cell y)
-        {
-            return x.X > y.X || x.Y > y.Y;
-        }
+        public static bool operator >(Cell x, Cell y) => x.X > y.X || x.Y > y.Y;
 
-        public static string GetString(int x, int y)
-        {
-            return Helper.IntToString[x - 1] + y;
-        }
-
+        public static string GetString(int x, int y) => Helper.IntToString[x - 1] + y;
     }
 }

@@ -1,4 +1,5 @@
 ﻿@page "/gameMove"
+@using ChessTourBuilderApp.Data.DataBases
 @using Data.Controler
 @using Data.ChessClasses
 @layout MainLayout
@@ -157,6 +158,7 @@
                 IsWhile = !IsWhile;
                 index = null;
                 del = true;
+                move = null;
                 Swap();
                 break;
             case "no":
@@ -194,7 +196,7 @@
 
     private void Exit()
     {
-        Data.DataBases.DataBaseFullConn.CloseCon();
+        DataBase.CloseCon();
         NavigationManager.NavigateTo("/game");
     }
 

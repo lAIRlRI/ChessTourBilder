@@ -28,6 +28,7 @@
             </div>
         </div>
         <p>@DBChangeText</p>
+        <p>@expentionMassege</p>
         @if (ExpBD)
         {
             <button @onclick="(()=>OnCreateDB())">Создать БД</button>
@@ -37,14 +38,15 @@
             <button @onclick="(()=>OnCreateTable(values[1]))">Создать Таблицы</button>
         }
         <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
+
+        <button @onclick="(()=>ChekerLite())">Создать БД локально</button>
     </section>
 </body>
 
 @code {
     string[] result = new string[4], values = new string[4];
 
-    string DBChangeResult;
-    string DBChangeText;
+    string DBChangeResult, DBChangeText, expentionMassege;
 
     bool ExpBD, ExpTable;
 
@@ -68,11 +70,13 @@
             DBChangeText += "бд созданно \n";
             OnCreateTable(values[1]);
         }
-        catch
+        catch (Exception e)
         {
             DBChangeText = "Не удалось создать бд";
+            expentionMassege = e.Message;
         }
     }
+
 
     private void Cheker()
     {
@@ -112,10 +116,26 @@
             DataBase.ConnChangeTemp($"use {str} " + DataBase.GetTables());
             Cheker();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             DBChangeText = "Не удалось создать таблицы";
-            throw e;
+            expentionMassege = e.Message;
         }
     }
+
+    private void ChekerLite()
+    {
+        DBChangeResult = DataBase.NewConnectionLite();
+
+        switch (DBChangeResult)
+        {
+            case "ok":
+                OnClickNavigate("/");
+                break;
+            default:
+                expentionMassege = DBChangeResult;
+                break;
+        }
+    }
+
 }
