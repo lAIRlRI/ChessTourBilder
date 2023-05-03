@@ -41,14 +41,40 @@
 
         <button @onclick="(()=>ChekerLite())">Создать БД локально</button>
     </section>
+    <section>
+        @if (CreateAdmin)
+        {
+
+            <div class="form">
+                <div>
+                <p class="text-color-right error-text">@result[0]</p>
+                    <input @bind-value="adminvalues[0]" placeholder="Имя" type="text">
+                </div>
+                <div>
+                    <p class="text-color-right error-text">@result[1]</p>
+                    <input @bind-value="adminvalues[1]" placeholder="Фамилия" type="text">
+                </div>
+                <div>
+                    <p class="text-color-right error-text">@result[2]</p>
+                    <input @bind-value="adminvalues[2]" placeholder="User Name" type="text">
+                </div>
+                <div>
+                    <p class="text-color-right error-text">@result[3]</p>
+                    <input @bind-value="adminvalues[3]" placeholder="User Password" type="text">
+                </div>
+            </div>
+
+            <button @onclick="(()=>OnCreateAdmin())">Создать Админа</button>
+        }
+    </section>
 </body>
 
 @code {
-    string[] result = new string[4], values = new string[4];
+    string[] result = new string[4], values = new string[4], adminvalues = new string[5];
 
     string DBChangeResult, DBChangeText, expentionMassege;
 
-    bool ExpBD, ExpTable;
+    bool ExpBD, ExpTable, CreateAdmin;
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
@@ -114,6 +140,22 @@
         {
             DBChangeText += "Ждите, создвём таблицы \n ";
             DataBase.ConnChangeTemp($"use {str} " + DataBase.GetTables());
+            CreateAdmin = true;
+        }
+        catch (Exception e)
+        {
+            DBChangeText = "Не удалось создать таблицы";
+            expentionMassege = e.Message;
+        }
+    }
+
+    private void OnCreateAdmin()
+    {
+        try
+        {
+            if (!Helper.CheckDB(adminvalues, ref result)) return;
+            Data.Controler.OrganizerControler.Insert(new Data.Model.Organizer() { FirstName = adminvalues[0], MiddleName = adminvalues[1], Login = adminvalues[3], Password= adminvalues[4]});
+            DataBase.Execute("INSERT INTO Administrator ([OrganizerID]) VALUES (1)");
             Cheker();
         }
         catch (Exception e)
@@ -137,5 +179,4 @@
                 break;
         }
     }
-
 }
