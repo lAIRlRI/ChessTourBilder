@@ -16,5 +16,6 @@ namespace ChessTourBuilderApp.Data.DataBases
         string DeleteTableMove(string table);
         string GetResultСircle();
         string GetResult();
+        bool UpdateStatus();
     }
 }

@@ -17,7 +17,7 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Партии</h1>
-        @if (Helper.CheckDeleteButton())
+        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1)
         {
             <button class="top-row-text text" @onclick="@(()=>TourControler.Delete(TourControler.nowTour.TourID))">Удалить</button>
             <button class="top-row-text text" @onclick="AddClick">@addstr</button>

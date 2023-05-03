@@ -218,6 +218,8 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             consignment.GameMove = string.Join(';', Move);
 
+            consignment.StatusID = 1;
+
             ConsignmentControler.Update(consignment);
 
             IsGameContinues = false;
@@ -235,6 +237,8 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},0.5,{consignment.ConsignmentID})");
             DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
                 $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},0.5,{consignment.ConsignmentID})");
+
+
         }
 
         private static double ELO(double mPlayer, double sPlayer, double result)

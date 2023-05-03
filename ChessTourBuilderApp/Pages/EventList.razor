@@ -1,4 +1,5 @@
 ﻿@page "/eventList"
+@using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Model
 @using Data.Controler
 @using System.Text.RegularExpressions
@@ -61,6 +62,7 @@
                 <div class="text-pozition">Дата проведения: @item.DataStart-@item.DataFinish</div>
                 <div class="text-pozition">Место проведения: @item.LocationEvent</div>
                 <div class="text-pozition">Призовой фонд: @item.PrizeFund р.</div>
+                <div class="text-pozition">Cтвтус: @Helper.status[item.StatusID-1]</div>
             </div>
         }
     </section>

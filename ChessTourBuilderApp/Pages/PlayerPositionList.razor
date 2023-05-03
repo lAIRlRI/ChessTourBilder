@@ -2,6 +2,7 @@
 @layout MainLayout
 @using System.Data
 @using ChessTourBuilderApp.Data.DataBases
+@using System.Text.RegularExpressions
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
@@ -10,7 +11,7 @@
         <h1 class="top-row-text text" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <section class="main-conteneer-block">
-        <input class="input-main" placeholder="Поиск" type="text">
+        <input @bind-value="like" class="input-main" placeholder="Поиск" type="text">
     </section>
     <section>
         <div class="color-first pozition-conteneer">
@@ -18,10 +19,10 @@
             <div class="input-main text-aling text-pozition">Игрок</div>
             <div class="input-main text-aling text-pozition">Очки</div>
         </div>
-        @foreach (var item in ds)
+        @foreach (var item in ds.Where(p => Regex.IsMatch(p.Fi, like + @"(\w*)", RegexOptions.IgnoreCase)))
         {
             <div class="color-second pozition-conteneer">
-                <div class="text-pozition">@i</div>
+                <div class="text-pozition">@item.Pozition</div>
                 <div class="input-main text-aling text-pozition">@item.Fi</div>
                 <div class="input-main text-aling text-pozition">@item.Points</div>
             </div>
@@ -31,23 +32,36 @@
 </body>
 
 @code {
-    List<ResultSheme> ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
+    List<ResultSheme> ds = Initializa();
+
+    int i = 1;
+    string like;
+
+    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+
+    private static List<ResultSheme> Initializa()
+    {
+        List<ResultSheme> ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
             DataBase.Read(Data.HelpClasses.StaticResouses.dBQ.GetResult(), ResultSheme.mapper)
         :
             DataBase.Read(Data.HelpClasses.StaticResouses.dBQ.GetResultСircle(), ResultSheme.mapper);
 
-    int i = 1;
+        for (int i = 0; i < ds.Count; i++)
+        {
+            ds[i].Pozition = i + 1;
+        }
 
-    private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
+        return ds;
+    }
 
     public class ResultSheme
     {
         public static readonly Func<IDataReader, ResultSheme> mapper = r => new ResultSheme()
-            {
-                Points = r["Points"].ToString(),
-                Fi = r["Fi"].ToString(),
-            };
-
+        {
+            Points = r["Points"].ToString(),
+            Fi = r["Fi"].ToString(),
+        };
+        public int Pozition { get; set; }
         public string Points { get; set; }
         public string Fi { get; set; }
     }

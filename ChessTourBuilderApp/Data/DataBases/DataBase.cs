@@ -15,6 +15,7 @@ namespace ChessTourBuilderApp.Data.DataBases
     internal class DataBase
     {
         static string paths;
+        static string pathsSQL;
         static string flag;
         public static IDbConnection connection;
         public static SqlConnection temp;
@@ -60,13 +61,13 @@ namespace ChessTourBuilderApp.Data.DataBases
 
         public static string GetTables()
         {
-            string pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
+            pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
             return File.ReadAllText(pathsSQL);
         }
 
         public static string GetTablesLite()
         {
-            string pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БДLite.txt");
+            pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БДLite.txt");
             return File.ReadAllText(pathsSQL);
         }
 
@@ -105,6 +106,13 @@ namespace ChessTourBuilderApp.Data.DataBases
                 sqlCommand.ExecuteNonQuery();
                 connection.Close();
 
+                using (StreamWriter w = new(flag))
+                {
+                    w.WriteLine("1");
+                }
+                serverOrLite = true;
+                StaticResouses.dBQ = new ServerQ();
+
                 return true;
             }
             catch
@@ -129,6 +137,14 @@ namespace ChessTourBuilderApp.Data.DataBases
                 sqlCommand.CommandText = "select 1 from Organizer";
                 sqlCommand.ExecuteNonQuery();
                 connection.Close();
+
+                using (StreamWriter w = new(flag))
+                {
+                    w.WriteLine("0");
+                }
+                serverOrLite = false;
+                StaticResouses.dBQ = new LiteQ();
+
                 return true;
             }
             catch
@@ -175,6 +191,8 @@ namespace ChessTourBuilderApp.Data.DataBases
 
             connection = temp;
 
+            paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
+
             using (StreamWriter w = new(paths))
             {
                 w.WriteLine(values[0]);
@@ -182,6 +200,13 @@ namespace ChessTourBuilderApp.Data.DataBases
                 w.WriteLine(values[2]);
                 w.WriteLine(values[3]);
             }
+
+            using (StreamWriter w = new(flag))
+            {
+                w.WriteLine("1");
+            }
+            serverOrLite = true;
+            StaticResouses.dBQ = new ServerQ();
 
             return "ok";
         }
@@ -209,8 +234,9 @@ namespace ChessTourBuilderApp.Data.DataBases
             {
                 w.WriteLine("0");
             }
-
             serverOrLite = false;
+            StaticResouses.dBQ = new LiteQ();
+
             return "ok";
         }
 
