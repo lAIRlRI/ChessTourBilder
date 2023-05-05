@@ -17,12 +17,11 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Партии</h1>
-        @if (Helper.CheckDeleteButton())
+        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1)
         {
-            <button class="top-row-text text" @onclick="@(()=>TourControler.Delete(TourControler.nowTour.TourID))">Удалить</button>
+            <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="AddClick">@addstr</button>
             <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
-
         }
         <input class="title-text" @bind-value="resultTour" placeholder="@Data.Controler.TourControler.nowTour.NameTour" />
     </div>
@@ -111,5 +110,11 @@
     {
         Data.Controler.ConsignmentControler.nowConsignment = ev;
         NavigationManager.NavigateTo("/game");
+    }
+
+    private void OnDelete()
+    {
+        TourControler.Delete(TourControler.nowTour.TourID);
+        OnClickNavigate("/tourList");
     }
 }

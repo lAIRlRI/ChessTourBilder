@@ -79,5 +79,14 @@ namespace ChessTourBuilderApp.Data.DataBases
             $"(select PlayerID, Sum(Result) as Points from {Controler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
             "select Concat(FirstName, ' ', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc";
         }
+
+        public bool UpdateStatus()
+        {
+            DataBase.Execute("UPDATE Event SET StatusID = CASE " +
+                "WHEN DataStart > GETDATE() THEN 2 " +
+                "WHEN DataFinish >= GETDATE() AND DataStart <= GETDATE() THEN 3 " +
+                "ELSE 1 END;");
+            return true;
+        }
     }
 }

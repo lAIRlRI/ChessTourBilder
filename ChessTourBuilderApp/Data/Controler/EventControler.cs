@@ -77,13 +77,14 @@ namespace ChessTourBuilderApp.Data.Controler
                                                        "PlayerID int not null," +
                                                        "Result float not null," +
                                                        "ConsignmentID int not null)");
+            StaticResouses.dBQ.UpdateStatus();
             return true;
         }
 
         public static bool Update(Event model)
         {
             SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE Event " +
+             DataBase.Execute($"UPDATE Event " +
                 "SET Name = @Name" +
                 ",PrizeFund = @PrizeFund" +
                 ",DataStart = @DataStart" +
@@ -94,33 +95,45 @@ namespace ChessTourBuilderApp.Data.Controler
                 ",LocationEvent = @LocationEvent" +
                 ",TypeEvent = @TypeEvent" +
                 $" WHERE EventID = {model.EventID}", list.ToArray());
+
+            StaticResouses.dBQ.UpdateStatus();
+
+            return true;
         }
 
         public static bool Delete(Event model)
         {
-            return DataBase.Execute($"DELETE FROM Event WHERE EventID = {model.EventID}");
+            DataBase.Execute($"DELETE FROM Event WHERE EventID = {model.EventID}");
+
+            StaticResouses.dBQ.UpdateStatus();
+
+            return true;
         }
 
         public static List<Event> Get(string str)
         {
+            StaticResouses.dBQ.UpdateStatus();
             models = DataBase.Read(str, mapper);
             return models;
         }
 
         public static List<Event> Get()
         {
+            StaticResouses.dBQ.UpdateStatus();
             models = DataBase.Read("SELECT * FROM Event", mapper);
             return models;
         }
 
         public static Event GetLast()
         {
+            StaticResouses.dBQ.UpdateStatus();
             models = DataBase.Read("SELECT * FROM Event where EventID = (select max(EventID) from Event)", mapper);
             return models[0];
         }
 
         public static Event Get(int id)
         {
+            StaticResouses.dBQ.UpdateStatus();
             models = DataBase.Read($"SELECT * FROM Event WHERE EventID = {id}", mapper);
             return models[0];
         }

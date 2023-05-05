@@ -181,7 +181,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (count)
             {
-                rook = figures.FirstOrDefault(p => p.Pozition.Y == Convert.ToInt32(poz) && p.IsWhile == IsWhile && p.Pozition.X == Convert.ToInt32(8) && p.InGame == true);
+                rook = figures.FirstOrDefault(p => p.Pozition.Y == Convert.ToInt32(poz) && p.IsWhile == IsWhile && p.Pozition.X == 8 && p.InGame == true);
                 if (rook == null) return false;
                 if (rook.Name != "R") return false;
                 if (rook.IsMoving) return false;
@@ -189,7 +189,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             }
             else
             {
-                rook = figures.FirstOrDefault(p => p.Pozition.Y == Convert.ToInt32(poz) && p.IsWhile == IsWhile && p.Pozition.X == Convert.ToInt32(1) && p.InGame == true);
+                rook = figures.FirstOrDefault(p => p.Pozition.Y == Convert.ToInt32(poz) && p.IsWhile == IsWhile && p.Pozition.X == 1 && p.InGame == true);
                 if (rook == null) return false;
                 if (rook.Name != "R") return false;
                 if (rook.IsMoving) return false;

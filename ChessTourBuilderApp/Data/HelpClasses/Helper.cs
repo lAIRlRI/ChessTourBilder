@@ -27,6 +27,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             }
         );
 
+        public static string[] status = new string[3] { "Завершился", "Не начался", "Продолжается" };
+
         public static string[] IntToString = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
         private static string Text() => $"Поле не должно быть пустым";
@@ -121,6 +123,9 @@ namespace ChessTourBuilderApp.Data.HelpClasses
                 bools[0] = Text();
             else if (consignment.DateStart < DateTime.Now)
                 bools[0] = "Не может быть меньше сегоднящней";
+
+            if (EventControler.nowEvent.DataStart < consignment.DateStart && EventControler.nowEvent.DataFinish > consignment.DateStart)
+                bools[0] = "Партия должна проходить в рамках турнира";
 
             if (consignment.blackPlayer.PlayerID == 0)
                 bools[1] = "Игрок не выбран";

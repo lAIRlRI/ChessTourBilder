@@ -1,5 +1,6 @@
 ﻿@page "/tourList"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @using System.Text.RegularExpressions
 @inject NavigationManager NavigationManager
@@ -15,7 +16,11 @@
     </div>
     <div class="top-row-conteneer">
         <h1 class="top-row-text text">@(EventControler.nowEvent.Name)</h1>
-        <h1 class="top-row-text text" @onclick="AddClick">Добавить</h1>
+        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1)
+        {
+            <h1 class="top-row-text text" @onclick="AddClick">Добавить</h1>
+        }
+
     </div>
     @if (add)
     {
@@ -48,6 +53,12 @@
     string result = "";
     Data.Model.Tour model = new();
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        add = false;
+        addstr = "Добавить";
+    }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 

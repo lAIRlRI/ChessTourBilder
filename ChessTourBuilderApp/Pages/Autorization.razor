@@ -32,9 +32,8 @@
     void OnAvtorizate()
     {
         Data.Controler.OrganizerControler.nowOrganizer = Data.Controler.OrganizerControler.Get()
-                                                            .Where(p => p.Login == organizer.Login
-                                                                                    && p.Password == organizer.Password)
-                                                            .FirstOrDefault();
+                                                            .FirstOrDefault(p => p.Login == organizer.Login
+                                                                                    && p.Password == organizer.Password);
         if (Data.Controler.OrganizerControler.nowOrganizer == null)
         {
             style = true;

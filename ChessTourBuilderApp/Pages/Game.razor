@@ -1,5 +1,6 @@
 ﻿@page "/game"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @inject NavigationManager NavigationManager
 
@@ -17,6 +18,7 @@
             <h3 class="text">Черными: @blackP</h3>
             <h3 class="text">Время: @ConsignmentControler.nowConsignment.DateStart</h3>
             <h3 class="text">Результат: @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
+            <h3 class="text">Стутус: @Helper.status[EventControler.nowEvent.StatusID-1]</h3>
         </section>
     </div>
     <section class="pozition-conteneer">
@@ -24,7 +26,10 @@
             <h3 class="text">@ConsignmentControler.nowConsignment.GameMove</h3>
         </div>
     </section>
-    <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+    @if (ConsignmentControler.nowConsignment.StatusID == 2 && EventControler.nowEvent.StatusID != 1)
+    {
+        <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+    }
 </body>
 
 @code {
@@ -33,4 +38,3 @@
 
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
 }
-
