@@ -53,6 +53,12 @@
     string result = "";
     Data.Model.Tour model = new();
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        add = false;
+        addstr = "Добавить";
+    }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 

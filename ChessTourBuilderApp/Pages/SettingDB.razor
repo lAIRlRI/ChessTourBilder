@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-            <button @onclick="(()=>OnCreateAdmin())">Создать Админа</button>
+            <button @onclick="(()=>OnCreateAdmin(values[1]))">Создать Админа</button>
         }
     </section>
 </body>
@@ -138,9 +138,9 @@
     {
         try
         {
-            DBChangeText += "Ждите, создвём таблицы \n ";
             DataBase.ConnChangeTemp($"use {str} " + DataBase.GetTables());
             CreateAdmin = true;
+            DBChangeText += "\nЖдите, создвнны таблицы\n";
         }
         catch (Exception e)
         {
@@ -149,18 +149,27 @@
         }
     }
 
-    private void OnCreateAdmin()
+    private void OnCreateAdmin(string str)
     {
         try
         {
             if (!Helper.CheckDB(adminvalues, ref result)) return;
-            Data.Controler.OrganizerControler.Insert(new Data.Model.Organizer() { FirstName = adminvalues[0], MiddleName = adminvalues[1], Login = adminvalues[3], Password= adminvalues[4]});
-            DataBase.Execute("INSERT INTO Administrator ([OrganizerID]) VALUES (1)");
+            DataBase.ConnChangeTemp($" use {str}; INSERT INTO Organizer (" +
+                                                                "FirstName," +
+                                                                "MiddleName," +
+                                                                "Login," +
+                                                                "Password)" +
+                                                          "VALUES(" +
+                                                                $"'{adminvalues[0]}'," +
+                                                                $"'{adminvalues[1]}'," +
+                                                                $"'{adminvalues[2]}'," +
+                                                                $"'{adminvalues[3]}')");
+            DataBase.ConnChangeTemp($" use {str}; INSERT INTO Administrator ([OrganizerID]) VALUES (1)");
             Cheker();
         }
         catch (Exception e)
         {
-            DBChangeText = "Не удалось создать таблицы";
+            DBChangeText = "Не удалось создать Alvbyf";
             expentionMassege = e.Message;
         }
     }
