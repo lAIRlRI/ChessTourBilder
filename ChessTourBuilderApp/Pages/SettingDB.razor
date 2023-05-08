@@ -29,10 +29,7 @@
         </div>
         <p>@DBChangeText</p>
         <p>@expentionMassege</p>
-        @if (ExpBD)
-        {
-            <button @onclick="(()=>OnCreateDB())">Создать БД</button>
-        }
+        <button @onclick="(()=>OnCreateDB())">Создать БД</button>
         @if (ExpTable)
         {
             <button @onclick="(()=>OnCreateTable(values[1]))">Создать Таблицы</button>
@@ -44,7 +41,6 @@
     <section>
         @if (CreateAdmin)
         {
-
             <div class="form">
                 <div>
                 <p class="text-color-right error-text">@result[0]</p>
@@ -63,7 +59,6 @@
                     <input @bind-value="adminvalues[3]" placeholder="User Password" type="text">
                 </div>
             </div>
-
             <button @onclick="(()=>OnCreateAdmin(values[1]))">Создать Админа</button>
         }
     </section>
@@ -84,7 +79,7 @@
         try
         {
             string str = $"create database {values[1]} ";
-            DataBase.temp = new SqlConnection($"Data Source = {values[0]}; " +
+            DataBase.connection = new SqlConnection($"Data Source = {values[0]}; " +
                           $"Initial Catalog = master; " +
                           $"User ID = {values[2]};" +
                           $"Password = {values[3]};" +
@@ -93,7 +88,6 @@
                           $"Encrypt = false;" +
                           $"Integrated Security = true;");
             DataBase.ConnChangeTemp(str);
-            DBChangeText += "бд созданно \n";
             OnCreateTable(values[1]);
         }
         catch (Exception e)
@@ -103,7 +97,6 @@
         }
     }
 
-
     private void Cheker()
     {
         ExpBD = ExpTable = false;
@@ -111,8 +104,6 @@
         Array.Clear(result);
 
         if (!Helper.CheckDB(values, ref result)) return;
-
-        DBChangeText = "Ждите";
 
         DBChangeResult = DataBase.NewConnection(values);
 
@@ -126,7 +117,7 @@
                 ExpBD = true;
                 break;
             case "NoTable":
-                DBChangeText = "В бвзе отсутствуют необходимые таблицы";
+                DBChangeText = "В бaзе отсутствуют необходимые таблицы";
                 ExpTable = true;
                 break;
             default:
@@ -169,7 +160,7 @@
         }
         catch (Exception e)
         {
-            DBChangeText = "Не удалось создать Alvbyf";
+            DBChangeText = "Не удалось создать Админа";
             expentionMassege = e.Message;
         }
     }

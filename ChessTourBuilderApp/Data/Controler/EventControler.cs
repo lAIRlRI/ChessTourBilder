@@ -16,7 +16,7 @@ namespace ChessTourBuilderApp.Data.Controler
         public static Event nowEvent = new();
         static List<Event> models;
         static List<IDbDataParameter> list;
-        static Func<IDataReader, Event> mapper = r => new Event()
+        public static Func<IDataReader, Event> mapper = r => new Event()
             {
                 EventID = Convert.ToInt32(r["EventID"]),
                 Name = r["Name"].ToString(),

@@ -17,7 +17,7 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Партии</h1>
-        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1)
+        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
             <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="AddClick">@addstr</button>

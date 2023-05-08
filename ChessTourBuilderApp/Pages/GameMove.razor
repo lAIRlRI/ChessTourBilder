@@ -1,5 +1,6 @@
 ﻿@page "/gameMove"
 @using ChessTourBuilderApp.Data.DataBases
+@using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @using Data.ChessClasses
 @layout MainLayout
@@ -43,7 +44,7 @@
         }
 
     </div>
-    @if (chessGame.IsGameContinues)
+    @if (chessGame.IsGameContinues && StaticResouses.IsPlayer)
     {
         <div>
             <button @onclick="SetMove" class="text">Сделать ход</button>
@@ -93,7 +94,7 @@
 </section>
 
 @code {
-    List<Cell> cells = new List<Cell>();
+    List<Cell> cells = new();
     ChessGame chessGame = new(ConsignmentControler.nowConsignment);
     bool IsWhile = true, End = false, del = false, rpt = false, dis = false;
     string move, str = "Белые", stage = "ok", newFigure;

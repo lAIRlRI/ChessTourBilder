@@ -21,6 +21,10 @@
             <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
         }
+        @if (!StaticResouses.IsPlayer)
+        {
+            <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+        }
     </div>
     <div class="info-conteneer">
         <section class="image-conteneer info-item1">
@@ -54,7 +58,11 @@
             </div>
             <div>
                 <p class="error-text">@result[6]</p>
-                <input @bind-value="playerModel.Contry" placehol der="Страна: @playerModel.Contry" disabled="@update" />
+                <input @bind-value="playerModel.Contry" placeholder="Страна: @playerModel.Contry" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[7]</p>
+                <input @bind-value="playerModel.Passord" placeholder="Пароль: @playerModel.Contry" disabled="@update" />
             </div>
         </section>
     </div>
@@ -92,6 +100,7 @@
         if (playerModel.Birthday == null) playerModel.Birthday = PlayerControler.nowPlayer.Birthday;
         if (playerModel.ELORating == null) playerModel.ELORating = PlayerControler.nowPlayer.ELORating;
         if (playerModel.Contry == null) playerModel.Contry = PlayerControler.nowPlayer.Contry;
+        if (playerModel.Passord == null) playerModel.Passord = PlayerControler.nowPlayer.Passord;
 
         Array.Clear(result);
 

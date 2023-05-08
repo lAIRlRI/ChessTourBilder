@@ -17,7 +17,7 @@
         <div class="nav-item">
             <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))" class="top-row-text text">Результаты</button>
             <button @onclick="@(()=>OnClickNavigation("/tourList"))" class="top-row-text text">Туры</button>
-            @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1)
+            @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
             {
                 <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
                 <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
@@ -95,7 +95,7 @@
 @code {
 
     Data.Model.Event eventModelupdate = new();
-    bool update = true, add, addPlayer = EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton();
+    bool update = true, add, addPlayer = EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton() && !StaticResouses.IsPlayer;
     string[] result = new string[5];
     int FIDEID;
     List<Data.Model.Player> list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();

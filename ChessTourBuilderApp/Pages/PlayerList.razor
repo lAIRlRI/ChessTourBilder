@@ -16,7 +16,10 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Игроки</h1>
-        <h1 class="title-text" @onclick="AddClick">Добавить</h1>
+        @if(!StaticResouses.IsPlayer)
+        {
+            <h1 class="title-text" @onclick="AddClick">Добавить</h1>
+        }
     </div>
     @if (add)
     {

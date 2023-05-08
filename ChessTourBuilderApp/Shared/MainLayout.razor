@@ -13,7 +13,7 @@
     protected override void OnInitialized()
     {
         string flag = DataBase.GetFlag();
-        if (flag == "1")
+        if (Convert.ToInt32(flag) == 1)
         {
             if (!DataBase.ChangeConnection()) NavigationManager.NavigateTo("/setting");
             Data.HelpClasses.StaticResouses.dBQ = new ServerQ();

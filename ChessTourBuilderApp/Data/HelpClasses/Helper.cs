@@ -32,7 +32,14 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static string[] IntToString = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
         private static string Text() => $"Поле не должно быть пустым";
-        public static string FI() => OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName;
+        public static string FI() 
+        {
+            if (StaticResouses.IsPlayer) 
+            {
+                return PlayerControler.nowPlayer.FirstName + " " + PlayerControler.nowPlayer.LastName;
+            }
+            return OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName; 
+        }
         public static bool CheckDeleteButton() => OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
 
         public static bool CheckOrganizer(Organizer organizer, ref string[] bools)

@@ -26,7 +26,6 @@
                 <div class="input-main text-aling text-pozition">@item.Fi</div>
                 <div class="input-main text-aling text-pozition">@item.Points</div>
             </div>
-            i++;
         }
     </section>
 </body>
@@ -34,7 +33,6 @@
 @code {
     List<ResultSheme> ds = Initializa();
 
-    int i = 1;
     string like;
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);

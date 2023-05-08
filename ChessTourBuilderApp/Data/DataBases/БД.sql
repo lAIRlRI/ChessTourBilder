@@ -9,6 +9,7 @@ CREATE TABLE Player(
     FirstName NVARCHAR(50) NOT NULL,
     MiddleName NVARCHAR(50) NOT NULL,
     LastName NVARCHAR(50) NULL,
+    Passord NVARCHAR(100) NOT NULL,
     Birthday DATE NOT NULL,
     ELORating FLOAT NOT NULL,
     Contry NVARCHAR(50) NOT NULL,

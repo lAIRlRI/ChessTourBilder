@@ -22,6 +22,7 @@ namespace ChessTourBuilderApp.Data.Controler
             FirstName = r["FirstName"].ToString(),
             MiddleName = r["MiddleName"].ToString(),
             LastName = r["LastName"].ToString(),
+            Passord = r["Passord"].ToString(),
             Birthday = Convert.ToDateTime(r["Birthday"]),
             ELORating = Convert.ToDouble(r["ELORating"]),
             Contry = r["Contry"].ToString()
@@ -37,6 +38,7 @@ namespace ChessTourBuilderApp.Data.Controler
                         new ParametrBD("@FIDEID" ,model.FIDEID),
                         new ParametrBD("@FirstName" ,model.FirstName),
                         new ParametrBD("@MiddleName",model.MiddleName),
+                        new ParametrBD("@Passord",model.Passord),
                         new ParametrBD("@LastName",model.LastName == null ? DBNull.Value : model.LastName),
                         new ParametrBD("@Birthday" ,model.Birthday),
                         new ParametrBD("@ELORating",model.ELORating),
@@ -53,6 +55,7 @@ namespace ChessTourBuilderApp.Data.Controler
                                                                 "FirstName," +
                                                                 "MiddleName," +
                                                                 "LastName," +
+                                                                "Passord," +
                                                                 "Birthday," +
                                                                 "ELORating," +
                                                                 "Contry)" +
@@ -61,6 +64,7 @@ namespace ChessTourBuilderApp.Data.Controler
                                                                 $"@FirstName," +
                                                                 $"@MiddleName," +
                                                                 $"@LastName," +
+                                                                $"@Passord," +
                                                                 $"@Birthday," +
                                                                 $"@ELORating," +
                                                                 $"@Contry)", list.ToArray());
@@ -74,6 +78,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 $",FirstName = @FirstName" +
                 $",MiddleName = @MiddleName" +
                 $",LastName = @LastName" +
+                $",Passord = @Passord" +
                 $",Birthday = @Birthday" +
                 $",ELORating = @ELORating" +
                 $",Contry = @Contry" +
