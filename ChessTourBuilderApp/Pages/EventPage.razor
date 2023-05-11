@@ -114,6 +114,7 @@
 
     private void Add()
     {
+        if (FIDEID == 0) return;
         if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player)) return;
         EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
         list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
@@ -121,11 +122,6 @@
 
     private void OnUpdateButton()
     {
-        //eventModelupdate.EventID = EventControler.nowEvent.EventID;
-        //eventModelupdate.IsPublic = EventControler.nowEvent.IsPublic;
-        //eventModelupdate.OrganizerID = EventControler.nowEvent.OrganizerID;
-        //eventModelupdate.StatusID = EventControler.nowEvent.StatusID;
-
         if (eventModelupdate.Name == null) eventModelupdate.Name = EventControler.nowEvent.Name;
         if (eventModelupdate.LocationEvent == null) eventModelupdate.LocationEvent = EventControler.nowEvent.LocationEvent;
         if (eventModelupdate.DataStart == null) eventModelupdate.DataStart = EventControler.nowEvent.DataStart;

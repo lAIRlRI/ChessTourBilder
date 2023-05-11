@@ -49,6 +49,7 @@ namespace ChessTourBuilderApp.Data.Controler
 
         public static bool Insert(Player model)
         {
+            model.Passord = Helper.GeneratePassword(8);
             SqlParameterSet(model);
             return DataBase.Execute("INSERT INTO Player(" +
                                                                 "FIDEID," +
