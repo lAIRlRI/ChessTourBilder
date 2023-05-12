@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Newtonsoft.Json
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
@@ -16,11 +17,12 @@
             <input @bind-value="IsPlayer" type="checkbox" />
             <h4>Войти как игрок</h4>
         </div>
+        <p>@q</p>
         @if (style)
         {
             <h6 class="text alert">Неправильный логин или пароль</h6>
         }
-        <button class="text text-color-right border-none" @onclick="@OnAvtorizate">Войти</button>
+        <button disabled="@doit" @onclick="async ()=> await OnAvtorizate()">Войти</button>
         <button class="text text-color-right border-none" @onclick="@(()=>OnClickNavigate("/registration"))">Регистрация</button>
     </section>
 </body>
@@ -28,47 +30,23 @@
 @code
 {
     private Data.Model.Organizer organizer = new();
-    private bool style = false, IsPlayer = false;
-
+    private bool style = false, IsPlayer = false, doit = false;
+    string q;
 
     void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    void OnAvtorizate()
+    async Task OnAvtorizate()
     {
-        if (IsPlayer)
-        {
-            Data.Controler.PlayerControler.nowPlayer = Data.Controler.PlayerControler.Get()
-                                                                .FirstOrDefault(p => p.FIDEID.ToString() == organizer.Login
-                                                                                        && p.Passord == organizer.Password);
-            Data.Controler.OrganizerControler.nowOrganizer = new Data.Model.Organizer();
-        }
-        else 
-        {
-            Data.Controler.OrganizerControler.nowOrganizer = Data.Controler.OrganizerControler.Get()
-                                                                .FirstOrDefault(p => p.Login == organizer.Login
-                                                                                        && p.Password == organizer.Password);
-        }
+        doit = true;
+        q = await Data.Api.ApiControler.Post("Account/autorizate", new { Login = organizer.Login, Password = organizer.Password });
 
-        Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
-
-        if (IsPlayer)
+        if (q == "Nice")
         {
-            if (Data.Controler.PlayerControler.nowPlayer == null)
-            {
-                style = true;
-                return;
-            }
+            Data.Controler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+            Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
+            OnClickNavigate("/eventList");
         }
-        else 
-        {
-            if (Data.Controler.OrganizerControler.nowOrganizer == null)
-            {
-                style = true;
-                return;
-            }
-        }
-
-        Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
-        OnClickNavigate("/eventList");
+        else style = true;
+        doit = false;
     }
 }
