@@ -92,7 +92,7 @@
     private void OnUpdate() => update = !update;
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
 
-    private void OnUpdateButton()
+    private async void OnUpdateButton()
     {
 
         if (playerModel.FIDEID == null) playerModel.FIDEID = PlayerControler.nowPlayer.FIDEID;
@@ -106,8 +106,8 @@
 
         Array.Clear(result);
 
-        if (!Helper.CheckPlayerUp(playerModel, ref result, Fide)) return;
-        if (!PlayerControler.Update(playerModel, PlayerControler.nowPlayer.FIDEID)) return;
+        if (!await Helper.CheckPlayerUpAsync(playerModel, result, Fide)) return;
+        if (!await PlayerControler.Update(playerModel)) return;
 
         update = false;
         PlayerControler.nowPlayer = playerModel;
@@ -115,9 +115,9 @@
         playerModel = new();
     }
 
-    private void OnDelete()
+    private async void OnDelete()
     {
-        if (!PlayerControler.Delete(PlayerControler.nowPlayer.FIDEID)) return;
+        if (!await PlayerControler.Delete((int)PlayerControler.nowPlayer.FIDEID)) return;
         PlayerControler ev = new();
         OnClickNavigation("/eventList");
     }

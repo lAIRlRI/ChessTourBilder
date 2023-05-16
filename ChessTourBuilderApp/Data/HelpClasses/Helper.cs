@@ -64,7 +64,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
         public static bool CheckDeleteButton() => OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
 
-        public static bool CheckOrganizer(Organizer organizer, ref string[] bools)
+        public static async Task<bool> CheckOrganizer(Organizer organizer, string[] bools)
         {
             if (string.IsNullOrWhiteSpace(organizer.FirstName))
                 bools[0] = Text();
@@ -82,7 +82,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (string.IsNullOrWhiteSpace(organizer.Login))
                 bools[3] = Text();
-            else if (OrganizerControler.Get().FirstOrDefault(p => p.Login == organizer.Login) != default(Organizer))
+            else if (await OrganizerControler.GetLogin(organizer.Login))
                 bools[3] = "Пользователь уже существует";
 
             if (string.IsNullOrWhiteSpace(organizer.Password))
@@ -108,12 +108,12 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return bools.All(p => p == null);
         }
 
-        public static bool CheckPlayer(Player player, ref string[] bools)
+        public static async Task<bool> CheckPlayer(Player player, string[] bools)
         {
             if (player.FIDEID.ToString().Length != 7)
                 bools[0] = "FIDEID должен состоять из 7 цифр";
 
-            if (PlayerControler.Get().FirstOrDefault(p => p.FIDEID == player.FIDEID) != default(Player))
+            if (!await PlayerControler.GetLogin(player.FIDEID.ToString()))
                 bools[0] = "Игрок уже существует";
 
             if (string.IsNullOrWhiteSpace(player.FirstName))
@@ -148,14 +148,14 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return bools.All(p => p == null);
         }
 
-        public static bool CheckPlayerUp(Player player, ref string[] bools, int FIDEID)
+        public static async Task<bool> CheckPlayerUpAsync(Player player, string[] bools, int FIDEID)
         {
             if (FIDEID != player.FIDEID) 
             {
                 if (player.FIDEID.ToString().Length != 7)
                     bools[0] = "FIDEID должен состоять из 7 цифр";
 
-                if (PlayerControler.Get().FirstOrDefault(p => p.FIDEID == player.FIDEID) != default(Player))
+                if (!await PlayerControler.GetLogin(player.FIDEID.ToString()))
                     bools[0] = "Игрок уже существует";
             }
             

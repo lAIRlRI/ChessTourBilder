@@ -1,7 +1,6 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -64,7 +63,7 @@ namespace ChessTourBuilderApp.Data.Controler
                 $",IsWhile = @IsWhile" +
                 $",Result = @Result" +
                 $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list.ToArray())) return false;
-            if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
+            //if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
             return true;
 
         }
@@ -89,7 +88,7 @@ namespace ChessTourBuilderApp.Data.Controler
         {
             foreach (var item in models)
             {
-                item.player = PlayerControler.Get().Where(p => p.FIDEID == item.PlayerID).First();
+                //item.player = PlayerControler.Get().Where(p => p.FIDEID == item.PlayerID).First();
             }
         }
     }

@@ -1,7 +1,7 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,63 +15,37 @@ namespace ChessTourBuilderApp.Data.Controler
     {
         public static EventPlayer nowEventPlayer = new();
         static List<EventPlayer> models;
-        private static List<IDbDataParameter> list;
-        private static readonly Func<IDataReader, EventPlayer> mapper = r => new EventPlayer()
-        {
-            EventPlayerID = Convert.ToInt32(r["EventPlayerID"]),
-            PlayerID = Convert.ToInt32(r["PlayerID"]),
-            EventID = Convert.ToInt32(r["EventID"]),
-            TopPlece = r.IsDBNull(r.GetOrdinal("TopPlece")) ? null : Convert.ToInt32(r["TopPlece"])
-        };
 
-        private static void SqlParameterSet(EventPlayer model)
+        public static async Task<bool> Insert(EventPlayer model)
         {
-            list = DataBase.SetParameters
-                 (
-                     new List<ParametrBD>()
-                     {
-                        new ParametrBD("@EventID", model.EventID),
-                        new ParametrBD("@PlayerID",model.PlayerID),
-                        new ParametrBD("@TopPlece", model.TopPlece == null ? DBNull.Value : model.TopPlece)
-                     }
-                 );
+            string messege = await Api.ApiControler.Post($"EventPlayers/create", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Insert(EventPlayer model)
+        public static async Task<bool> Update(EventPlayer model)
         {
-            SqlParameterSet(model);
-            return DataBase.Execute("INSERT INTO EventPlayer (EventID,PlayerID,TopPlece)" +
-                                                          "VALUES(@EventID,@PlayerID,@TopPlece)", list.ToArray());
+            string messege = await Api.ApiControler.Put($"EventPlayers/edit", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Update(EventPlayer model)
+        public static async Task<bool> Delete(int id)
         {
-            SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE EventPlayer " +
-                $"SET EventID = @EventID" +
-                $",PlayerID = @PlayerID" +
-                $",TopPlece = @TopPlece" +
-                $" WHERE ID = {model.EventPlayerID}", list.ToArray());
+            string messege = await Api.ApiControler.Delete($"EventPlayers/delete?id={id}");
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM EventPlayer WHERE EventPlayerID = {id}");
-
-        public static List<EventPlayer> Get(string str)
+        public static async Task<List<EventPlayer>> GetAll()
         {
-            models = DataBase.Read(str, mapper);
+            models = JsonConvert.DeserializeObject<List<EventPlayer>>(await Api.ApiControler.Get("EventPlayers/get"));
             return models;
         }
 
-        public static List<EventPlayer> Get()
+        public static async Task<EventPlayer> GetById(int id)
         {
-            models = DataBase.Read("SELECT * FROM EventPlayer", mapper);
-            return models;
-        }
-
-        public static EventPlayer Get(int id)
-        {
-            models = DataBase.Read($"SELECT * FROM EventPlayer WHERE EventPlayerID = {id}", mapper);
-            return models[0];
+            return JsonConvert.DeserializeObject<EventPlayer>(await Api.ApiControler.Get($"EventPlayers/getById?id={id}"));
         }
     }
 }

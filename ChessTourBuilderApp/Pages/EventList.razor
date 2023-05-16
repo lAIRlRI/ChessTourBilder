@@ -72,38 +72,41 @@
 </body>
 
 @code {
-    List<Data.Model.Event> eventModels = Inizilize();
+    List<Data.Model.Event> eventModels;
     static string like = "", addstr = "Добавить";
     bool add =  false;
     string[] result = new string[5];
     Data.Model.Event eventModel = new();
 
-    private static List<Data.Model.Event> Inizilize()
+    protected override async Task OnInitializedAsync()
     {
-        if (StaticResouses.IsPlayer) 
+        add = false;
+        addstr = "Добавить";
+        await Inizaliz();
+    }
+
+    private async Task Inizaliz()
+    {
+        if (StaticResouses.IsPlayer)
         {
-            return Data.DataBases.DataBase.Read("select * from Event e " +
-                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}", EventControler.mapper);
+
         }
-        else return OrganizerControler.nowOrganizer.Administrator == -1
-                                        ? EventControler.Get()
-                                            .Where(p => p.OrganizerID == OrganizerControler.nowOrganizer.OrganizerID
-                                                || p.IsPublic == true).ToList() : EventControler.Get();
+        else eventModels = OrganizerControler.nowOrganizer.Administrator == -1 ? await EventControler.GetPublic() : await EventControler.GetAll();
     }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Add()
+    private async void Add()
     {
         Array.Clear(result);
         if (!Data.HelpClasses.Helper.CheckEvent(eventModel, ref result)) return;
         eventModel.OrganizerID = OrganizerControler.nowOrganizer.OrganizerID;
         eventModel.StatusID = 1;
-        if (EventControler.Insert(eventModel))
+        if (await EventControler.Insert(eventModel))
         {
             add = false;
             EventControler ev = new();
-            OnClickNavigateEvent(EventControler.GetLast());
+            OnClickNavigateEvent(await EventControler.GetLast());
         }
     }
 

@@ -1,5 +1,4 @@
 ﻿using ChessTourBuilderApp.Data.HelpClasses;
-using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using Microsoft.Maui.Controls;
 using System;
@@ -20,34 +19,19 @@ namespace ChessTourBuilderApp.Data.DataBases
         public static IDbConnection connection;
         public static SqliteConnection tempLite;
         public static bool serverOrLite = true;
- 
+
         public static List<IDbDataParameter> SetParameters(List<ParametrBD> parametrs)
         {
             List<IDbDataParameter> temp = new();
 
-            if (serverOrLite)
+            foreach (var item in parametrs)
             {
-                foreach (var item in parametrs)
+                SqliteParameter sqlParameter = new()
                 {
-                    SqlParameter sqlParameter = new()
-                    {
-                        ParameterName = item.ParameterName,
-                        Value = item.ParameterValue
-                    };
-                    temp.Add(sqlParameter);
-                }
-            }
-            else 
-            {
-                foreach (var item in parametrs)
-                {
-                    SqliteParameter sqlParameter = new()
-                    {
-                        ParameterName = item.ParameterName,
-                        Value = item.ParameterValue
-                    };
-                    temp.Add(sqlParameter);
-                }
+                    ParameterName = item.ParameterName,
+                    Value = item.ParameterValue
+                };
+                temp.Add(sqlParameter);
             }
             return temp;
         }
@@ -83,34 +67,7 @@ namespace ChessTourBuilderApp.Data.DataBases
         public static bool ChangeConnection()
         {
             try
-            {
-                paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
-                string[] lines = File.ReadAllLines(paths);
-
-                if (lines.Length != 4) return false;
-
-                string sqlcon = $"Data Source = {lines[0]}; " +
-                                      $"Initial Catalog = {lines[1]}; " +
-                                      $"User ID = {lines[2]};" +
-                                      $"Password = {lines[3]};" +
-                                      $"Trusted_Connection = true;" +
-                                      $"TrustServerCertificate = true;" +
-                                      $"Encrypt = false;" +
-                                      $"Integrated Security = true;";
-                connection = new SqlConnection(sqlcon);
-
-                connection.Open();
-                using var sqlCommand = connection.CreateCommand();
-                sqlCommand.CommandText = "select 1 from Organizer";
-                sqlCommand.ExecuteNonQuery();
-                connection.Close();
-
-                using (StreamWriter w = new(flag))
-                {
-                    w.WriteLine("1");
-                }
-                serverOrLite = true;
-                StaticResouses.dBQ = new ServerQ();
+            { 
 
                 return true;
             }
@@ -156,19 +113,7 @@ namespace ChessTourBuilderApp.Data.DataBases
         {
             try
             {
-                connection = new SqlConnection($"Data Source = {values[0]}; " +
-                             $"Initial Catalog = {values[1]}; " +
-                             $"User ID = {values[2]};" +
-                             $"Password = {values[3]};" +
-                             $"Trusted_Connection = true;" +
-                             $"TrustServerCertificate = true;" +
-                             $"Encrypt = false;" +
-                             $"Integrated Security = true;");
-                connection.Open();
-                using var command = connection.CreateCommand();
-                command.CommandText = $"use {values[1]}";
-                command.ExecuteNonQuery();
-                connection.Close();
+                
             }
             catch
             {
@@ -177,34 +122,12 @@ namespace ChessTourBuilderApp.Data.DataBases
 
             try
             {
-                connection.Open();
-                using var command = connection.CreateCommand();
-                command.CommandText = "select 1 from Organizer";
-                command.ExecuteNonQuery();
-                connection.Close();
+                
             }
             catch
             {
                 return "NoTable";
             }
-
-
-            paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
-
-            using (StreamWriter w = new(paths))
-            {
-                w.WriteLine(values[0]);
-                w.WriteLine(values[1]);
-                w.WriteLine(values[2]);
-                w.WriteLine(values[3]);
-            }
-
-            using (StreamWriter w = new(flag))
-            {
-                w.WriteLine("1");
-            }
-            serverOrLite = true;
-            StaticResouses.dBQ = new ServerQ();
 
             return "ok";
         }
@@ -215,13 +138,13 @@ namespace ChessTourBuilderApp.Data.DataBases
 
             try
             {
-                tempLite = new SqliteConnection("DataSource = "+ Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db"));
+                tempLite = new SqliteConnection("DataSource = " + Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db"));
                 tempLite.Open();
                 sqlCommand = new SqliteCommand(GetTablesLite(), tempLite);
                 sqlCommand.ExecuteNonQuery();
                 tempLite.Close();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return e.Message;
             }

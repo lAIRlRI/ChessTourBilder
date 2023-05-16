@@ -47,22 +47,27 @@
 </body>
 
 @code {
-    List<Data.Model.Tour> models = TourControler.Get().Where(p => p.EventID == EventControler.nowEvent.EventID).ToList();
+    List<Data.Model.Tour> models;
     static string like = "", addstr = "Добавить";
     bool add;
     string result = "";
     Data.Model.Tour model = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
         add = false;
         addstr = "Добавить";
+        await Inizaliz();
+    }
+
+    private async Task Inizaliz() 
+    {
+        models = await TourControler.GetByEventId(EventControler.nowEvent.EventID);
     }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Add()
+    private async void Add()
     {
         result = "";
         if (string.IsNullOrWhiteSpace(model.NameTour))
@@ -70,10 +75,12 @@
             result = "Поле не должно быть пустым";
             return;
         }
+
         model.EventID = EventControler.nowEvent.EventID;
-        if (TourControler.Insert(model))
+
+        if (await TourControler.Insert(model))
         {
-            model = TourControler.GetLast();
+            model = await TourControler.GetLast();
             OnClickNavigateEvent(model);
         }
     }

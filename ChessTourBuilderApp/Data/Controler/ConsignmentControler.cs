@@ -1,7 +1,7 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,110 +15,47 @@ namespace ChessTourBuilderApp.Data.Controler
     {
         public static Consignment nowConsignment;
         static List<Consignment> models;
-        static List<IDbDataParameter> list;
 
-        static Func<IDataReader, Consignment> mapper = r => new Consignment()
+        public static async Task<bool> Insert(Consignment model)
         {
-            ConsignmentID = Convert.ToInt32(r["ConsignmentID"]),
-            TourID = Convert.ToInt32(r["TourID"]),
-            StatusID = Convert.ToInt32(r["StatusID"]),
-            DateStart = Convert.ToDateTime(r["DateStart"]),
-            GameMove = r["GameMove"].ToString()
-        };
-
-
-        private static void SqlParameterSet(Consignment model)
-        {
-            list = DataBase.SetParameters
-                (
-                    new List<ParametrBD>()
-                    {
-                        new ParametrBD( "@TourID", model.TourID ) ,
-                        new ParametrBD("@StatusID", model.StatusID) ,
-                        new ParametrBD("@DateStart", model.DateStart) ,
-                        new ParametrBD("@GameMove", model.GameMove == null ? DBNull.Value : model.GameMove )
-                    }
-                );
+            string messege = await Api.ApiControler.Post($"Consignments/create", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Insert(Consignment model)
+        public static async Task<bool> Update(Consignment model)
         {
-            SqlParameterSet(model);
-            if (!DataBase.Execute("INSERT INTO Consignment(" +
-                                                                "TourID," +
-                                                                "StatusID," +
-                                                                "DateStart)" +
-                                                          "VALUES(" +
-                                                                $"@TourID," +
-                                                                $"@StatusID," +
-                                                                $"@DateStart)", list.ToArray())) return false;
-            int modelID = Get().Max(p => p.ConsignmentID);
-            model.whitePlayer.ConsignmentID = modelID;
-            model.whitePlayer.IsWhile = true;
-
-            model.blackPlayer.ConsignmentID = modelID;
-            model.blackPlayer.IsWhile = false;
-
-            if (!ConsignmentPlayerControler.Insert(model.whitePlayer)) return false;
-            if (!ConsignmentPlayerControler.Insert(model.blackPlayer)) return false;
-
-            return true;
+            string messege = await Api.ApiControler.Put($"Consignments/edit", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Update(Consignment model)
+        public static async Task<bool> Delete(int id)
         {
-            SqlParameterSet(model);
-            if (!DataBase.Execute($"UPDATE Consignment " +
-                $"SET TourID = @TourID" +
-                $",StatusID = @StatusID" +
-                $",DateStart = @DateStart" +
-                $",GameMove = @GameMove" +
-                $" WHERE ConsignmentID = {model.ConsignmentID}", list.ToArray())) return false;
-            if (!ConsignmentPlayerControler.Update(model.blackPlayer)) return false;
-            if (!ConsignmentPlayerControler.Update(model.whitePlayer)) return false;
-            return true;
+            string messege = await Api.ApiControler.Delete($"Consignments/delete?id={id}");
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM Consignment WHERE ConsignmentID = {id}");
-
-        public static List<Consignment> Get(string str)
+        public static async Task<List<Consignment>> GetAll()
         {
-            models = DataBase.Read(str, mapper);
-            ConsignmentPlayerGet();
+            models = JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get("Consignments/get"));
             return models;
         }
 
-        public static Consignment GetLast()
+        public static async Task<Consignment> GetById(int id)
         {
-            models = DataBase.Read("SELECT * FROM Consignment where ConsignmentID = (select max(ConsignmentID) from Consignment)", mapper);
-            ConsignmentPlayerGet();
-            return models[0];
+            return JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getById?id={id}"));
         }
 
-        public static List<Consignment> Get()
+        public static async Task<List<Consignment>> GetByTourId(int id)
         {
-            models = DataBase.Read("SELECT * FROM Consignment", mapper);
-            ConsignmentPlayerGet();
-            return models;
+            return JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get($"Consignments/getByTourId?id={id}"));
         }
 
-        private static void ConsignmentPlayerGet()
+        public static async Task<Consignment> GetLast()
         {
-            foreach (var item in models)
-            {
-                List<ConsignmentPlayer> consignmentPlayers = ConsignmentPlayerControler.Get($"select * from ConsignmentPlayer where ConsignmentID = {item.ConsignmentID}");
-                if (consignmentPlayers.Count == 0) return;
-                if (consignmentPlayers[0].IsWhile)
-                {
-                    item.whitePlayer = consignmentPlayers[0];
-                    item.blackPlayer = consignmentPlayers[1];
-                }
-                else
-                {
-                    item.whitePlayer = consignmentPlayers[1];
-                    item.blackPlayer = consignmentPlayers[0];
-                }
-            }
+            return JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getLast"));
         }
     }
 }

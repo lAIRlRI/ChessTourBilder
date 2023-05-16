@@ -1,7 +1,7 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,67 +15,47 @@ namespace ChessTourBuilderApp.Data.Controler
     {
         public static Tour nowTour = new();
         static List<Tour> models;
-        private static List<IDbDataParameter> list;
-        private static readonly Func<IDataReader, Tour> mapper = r => new Tour()
-        {
-            TourID = Convert.ToInt32(r["TourID"]),
-            NameTour = r["NameTour"].ToString(),
-            EventID = Convert.ToInt32(r["EventID"])
-        };
 
-
-        private static void SqlParameterSet(Tour model)
+        public static async Task<bool> Insert(Tour model)
         {
-            list = DataBase.SetParameters
-                (
-                    new List<ParametrBD>()
-                    {
-                        new ParametrBD("@EventID",model.EventID),
-                        new ParametrBD("@NameTour",model.NameTour)
-                    }
-                );
+            string messege = await Api.ApiControler.Post($"Tours/create", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Insert(Tour model)
+        public static async Task<bool> Update(Tour model)
         {
-            SqlParameterSet(model);
-            return DataBase.Execute("INSERT INTO Tour(EventID,NameTour)" +
-                                                          "VALUES(@EventID,@NameTour)", list.ToArray());
+            string messege = await Api.ApiControler.Put($"Tours/edit", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Update(Tour model)
+        public static async Task<bool> Delete(int id)
         {
-            SqlParameterSet(model);
-            return DataBase.Execute($"UPDATE Tour " +
-                $"SET EventID = @EventID" +
-                $",NameTour = @NameTour" +
-                $" WHERE ID = {model.TourID}", list.ToArray());
+            string messege = await Api.ApiControler.Delete($"Tours/delete?id={id}");
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM Tour WHERE TourID = {id}");
-
-        public static List<Tour> Get(string str)
+        public static async Task<List<Tour>> GetAll()
         {
-            models = DataBase.Read(str, mapper);
+            models = JsonConvert.DeserializeObject<List<Tour>>(await Api.ApiControler.Get("Tours/get"));
             return models;
         }
 
-        public static List<Tour> Get()
+        public static async Task<List<Tour>> GetByEventId(int id)
         {
-            models = DataBase.Read("SELECT * FROM Tour", mapper);
-            return models;
+            return JsonConvert.DeserializeObject<List<Tour>>(await Api.ApiControler.Get($"Tours/getByEventId?id={id}"));
         }
 
-        public static Tour Get(int id)
+        public static async Task<Tour> GetById(int id)
         {
-            models = DataBase.Read($"SELECT * FROM Tour WHERE TourID = {id}", mapper);
-            return models[0];
+            return JsonConvert.DeserializeObject<Tour>(await Api.ApiControler.Get($"Tours/getById?id={id}"));
         }
 
-        public static Tour GetLast()
+        public static async Task<Tour> GetLast()
         {
-            models = DataBase.Read("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)", mapper);
-            return models[0];
+            return JsonConvert.DeserializeObject<Tour>(await Api.ApiControler.Get($"Tours/getLast"));
         }
     }
 }

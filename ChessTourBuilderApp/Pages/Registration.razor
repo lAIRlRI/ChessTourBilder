@@ -40,11 +40,11 @@
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Cheker()
+    private async void Cheker()
     {
         Array.Clear(result);
-        if (!Data.HelpClasses.Helper.CheckOrganizer(organizer, ref result)) return;
-        if (Data.Controler.OrganizerControler.Insert(organizer))
+        if (!await Data.HelpClasses.Helper.CheckOrganizer(organizer, result)) return;
+        if (await Data.Controler.OrganizerControler.Insert(organizer))
         {
             OnClickNavigate("/");
         }

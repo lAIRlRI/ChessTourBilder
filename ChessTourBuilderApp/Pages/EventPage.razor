@@ -71,7 +71,7 @@
                 <div>
                     <p>@result[1]</p>
                     <select @bind="FIDEID" placeholder="Белыми">
-                        @foreach (var item in PlayerControler.Get())
+                        @foreach (var item in listPlayer)
                         {
                             <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
                         }
@@ -98,9 +98,22 @@
     bool update = true, add, addPlayer = EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton() && !StaticResouses.IsPlayer;
     string[] result = new string[5];
     int FIDEID;
-    List<Data.Model.Player> list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
+    List<Data.Model.Player> list;
+    List<Data.Model.Player> listPlayer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        add = false;
+        await Inizaliz();
+    }
+
+    private async Task Inizaliz()
+    {
+        list = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
+    }
 
     private void OnUpdate() => update = !update;
+
     private void OnClickNavigation(string str)
     {
         if ("/tourList" == str)
@@ -110,17 +123,21 @@
         NavigationManager.NavigateTo(str);
     }
 
-    private void OnAdd() => add = !add;
+    private async void OnAdd() 
+    {
+        listPlayer = await PlayerControler.GetAll();
+        add = !add; 
+    }
 
-    private void Add()
+    private async void Add()
     {
         if (FIDEID == 0) return;
         if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player)) return;
-        EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
-        list = PlayerControler.Get("select p.* from Player p join EventPlayer ev on p.FIDEID = ev.PlayerID where ev.EventID = " + EventControler.nowEvent.EventID).ToList();
+        await EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
+        await Inizaliz();
     }
 
-    private void OnUpdateButton()
+    private async void OnUpdateButton()
     {
         if (eventModelupdate.Name == null) eventModelupdate.Name = EventControler.nowEvent.Name;
         if (eventModelupdate.LocationEvent == null) eventModelupdate.LocationEvent = EventControler.nowEvent.LocationEvent;
@@ -131,7 +148,7 @@
         Array.Clear(result);
 
         if (!Helper.CheckEvent(eventModelupdate, ref result)) return;
-        if (!EventControler.Update(eventModelupdate)) return;
+        if (!await EventControler.Update(eventModelupdate)) return;
 
         update = false;
         EventControler.nowEvent = eventModelupdate;
@@ -139,9 +156,9 @@
         eventModelupdate = new();
     }
 
-    private void OnDelete()
+    private async void OnDelete()
     {
-        if (!EventControler.Delete(EventControler.nowEvent)) return;
+        if (!await EventControler.Delete(EventControler.nowEvent.EventID)) return;
         EventControler ev = new();
         OnClickNavigation("/eventList");
     }

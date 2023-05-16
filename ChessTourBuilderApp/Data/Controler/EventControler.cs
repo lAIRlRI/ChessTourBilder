@@ -1,7 +1,7 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,127 +15,48 @@ namespace ChessTourBuilderApp.Data.Controler
     {
         public static Event nowEvent = new();
         static List<Event> models;
-        static List<IDbDataParameter> list;
-        public static Func<IDataReader, Event> mapper = r => new Event()
-            {
-                EventID = Convert.ToInt32(r["EventID"]),
-                Name = r["Name"].ToString(),
-                PrizeFund = Convert.ToInt32(r["PrizeFund"]),
-                LocationEvent = r["LocationEvent"].ToString(),
-                DataStart = Convert.ToDateTime(r["DataStart"]),
-                DataFinish = Convert.ToDateTime(r["DataFinish"]),
-                StatusID = Convert.ToInt32(r["StatusID"]),
-                OrganizerID = Convert.ToInt32(r["OrganizerID"]),
-                TypeEvent = Convert.ToBoolean(r["TypeEvent"]),
-                IsPublic = Convert.ToBoolean(r["IsPublic"])
-            };
 
-        private static void SqlParameterSet(Event model)
+        public static async Task<bool> Insert(Event model)
         {
-            list = DataBase.SetParameters
-                (
-                    new List<ParametrBD>() 
-                    {
-                        new ParametrBD("@Name",model.Name),
-                        new ParametrBD("@PrizeFund",model.PrizeFund),
-                        new ParametrBD("@DataStart",model.DataStart),
-                        new ParametrBD("@DataFinish",model.DataFinish),
-                        new ParametrBD("@StatusID",model.StatusID),
-                        new ParametrBD("@OrganizerID",model.OrganizerID),
-                        new ParametrBD("@LocationEvent",model.LocationEvent),
-                        new ParametrBD("@TypeEvent",model.TypeEvent),
-                        new ParametrBD("@IsPublic",model.IsPublic),
-                    }
-                );
+            string messege = await Api.ApiControler.Post($"Events/create", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Insert(Event model)
+        public static async Task<bool> Update(Event model)
         {
-            SqlParameterSet(model);
-            DataBase.Execute("INSERT INTO Event(" +
-                                                                "Name," +
-                                                                "PrizeFund," +
-                                                                "DataStart," +
-                                                                "DataFinish," +
-                                                                "StatusID," +
-                                                                "OrganizerID," +
-                                                                "LocationEvent," +
-                                                                "TypeEvent," +
-                                                                "IsPublic)" +
-                                                          "VALUES(" +
-                                                                $"@Name," +
-                                                                $"@PrizeFund," +
-                                                                $"@DataStart," +
-                                                                $"@DataFinish," +
-                                                                $"@StatusID," +
-                                                                $"@OrganizerID," +
-                                                                $"@LocationEvent," +
-                                                                $"@TypeEvent," +
-                                                                $"@IsPublic)", list.ToArray());
-            DataBase.Execute($"create table {GetLast().GetTableName()} (" +
-                                                       "EventID int not null," +
-                                                       "PlayerID int not null," +
-                                                       "Result float not null," +
-                                                       "ConsignmentID int not null)");
-            StaticResouses.dBQ.UpdateStatus();
-            return true;
+            string messege = await Api.ApiControler.Put($"Events/edit", model);
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Update(Event model)
+        public static async Task<bool> Delete(int id)
         {
-            SqlParameterSet(model);
-             DataBase.Execute($"UPDATE Event " +
-                "SET Name = @Name" +
-                ",PrizeFund = @PrizeFund" +
-                ",DataStart = @DataStart" +
-                ",DataFinish = @DataFinish" +
-                ",StatusID = @StatusID" +
-                ",OrganizerID = @OrganizerID" +
-                ",IsPublic = @IsPublic" +
-                ",LocationEvent = @LocationEvent" +
-                ",TypeEvent = @TypeEvent" +
-                $" WHERE EventID = {model.EventID}", list.ToArray());
-
-            StaticResouses.dBQ.UpdateStatus();
-
-            return true;
+            string messege = await Api.ApiControler.Delete($"Events/delete?id={id}");
+            if (messege == "Nice") return true;
+            return false;
         }
 
-        public static bool Delete(Event model)
+        public static async Task<List<Event>> GetAll()
         {
-            DataBase.Execute($"DELETE FROM Event WHERE EventID = {model.EventID}");
-
-            StaticResouses.dBQ.UpdateStatus();
-
-            return true;
-        }
-
-        public static List<Event> Get(string str)
-        {
-            StaticResouses.dBQ.UpdateStatus();
-            models = DataBase.Read(str, mapper);
+            models = JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/get"));
             return models;
         }
 
-        public static List<Event> Get()
+        public static async Task<List<Event>> GetPublic()
         {
-            StaticResouses.dBQ.UpdateStatus();
-            models = DataBase.Read("SELECT * FROM Event", mapper);
+            models = JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/getPublic"));
             return models;
         }
 
-        public static Event GetLast()
+        public static async Task<Event> GetById(int id)
         {
-            StaticResouses.dBQ.UpdateStatus();
-            models = DataBase.Read("SELECT * FROM Event where EventID = (select max(EventID) from Event)", mapper);
-            return models[0];
+            return JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getById?id={id}"));
         }
 
-        public static Event Get(int id)
+        public static async Task<Event> GetLast()
         {
-            StaticResouses.dBQ.UpdateStatus();
-            models = DataBase.Read($"SELECT * FROM Event WHERE EventID = {id}", mapper);
-            return models[0];
+            return JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getLast"));
         }
     }
 }
