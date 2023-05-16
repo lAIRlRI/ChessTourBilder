@@ -2,7 +2,6 @@
 @layout MainLayout
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Microsoft.Data.SqlClient;
 @inject NavigationManager NavigationManager
 
 
@@ -78,16 +77,7 @@
         DBChangeText = "Ждите, создвём бд \n";
         try
         {
-            string str = $"create database {values[1]} ";
-            DataBase.connection = new SqlConnection($"Data Source = {values[0]}; " +
-                          $"Initial Catalog = master; " +
-                          $"User ID = {values[2]};" +
-                          $"Password = {values[3]};" +
-                          $"Trusted_Connection = true;" +
-                          $"TrustServerCertificate = true;" +
-                          $"Encrypt = false;" +
-                          $"Integrated Security = true;");
-            DataBase.ConnChangeTemp(str);
+           
             OnCreateTable(values[1]);
         }
         catch (Exception e)
