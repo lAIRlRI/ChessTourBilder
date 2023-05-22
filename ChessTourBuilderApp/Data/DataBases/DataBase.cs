@@ -13,7 +13,6 @@ namespace ChessTourBuilderApp.Data.DataBases
 {
     internal class DataBase
     {
-        static string paths;
         static string pathsSQL;
         static string flag;
         public static IDbConnection connection;

@@ -114,7 +114,7 @@
     {
         if (string.IsNullOrWhiteSpace(resultTour)) resultTour = TourControler.nowTour.NameTour;
         TourControler.nowTour.NameTour = resultTour;
-        if (!await TourControler.Update(TourControler.nowTour)) return;
+        if (!await TourControler.Update(TourControler.nowTour, TourControler.nowTour.TourID)) return;
         update = false;
     }
 

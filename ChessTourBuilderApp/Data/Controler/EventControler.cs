@@ -23,9 +23,9 @@ namespace ChessTourBuilderApp.Data.Controler
             return false;
         }
 
-        public static async Task<bool> Update(Event model)
+        public static async Task<bool> Update(Event model, int id)
         {
-            string messege = await Api.ApiControler.Put($"Events/edit", model);
+            string messege = await Api.ApiControler.Put($"Events/edit?id={id}", model);
             if (messege == "Nice") return true;
             return false;
         }

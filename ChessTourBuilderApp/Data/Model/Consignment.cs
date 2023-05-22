@@ -13,6 +13,7 @@ namespace ChessTourBuilderApp.Data.Model
         public int StatusID { get; set; }
         public DateTime? DateStart { get; set; }
         public string GameMove { get; set; }
+        public string TableName { get; set; }
 
         public ConsignmentPlayer whitePlayer;
         public ConsignmentPlayer blackPlayer;

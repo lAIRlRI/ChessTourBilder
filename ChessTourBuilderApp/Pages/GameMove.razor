@@ -68,13 +68,6 @@
         <div>Белые @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
         <button @onclick="Exit" class="text">Выйти</button>
     }
-
-    <div>
-        @foreach (var item in chessGame.Move)
-        {
-            @(item + "; ")
-        }
-    </div>
     <section>
         @for (var i = 8; i > 0; i--)
         {
@@ -91,6 +84,12 @@
             </div>
         }
     </section>
+    <div>
+        @foreach (var item in chessGame.Move)
+        {
+            @(item + "; ")
+        }
+    </div>
 </section>
 
 @code {

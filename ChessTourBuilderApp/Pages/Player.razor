@@ -107,7 +107,7 @@
         Array.Clear(result);
 
         if (!await Helper.CheckPlayerUpAsync(playerModel, result, Fide)) return;
-        if (!await PlayerControler.Update(playerModel)) return;
+        if (!await PlayerControler.Update(playerModel, Fide)) return;
 
         update = false;
         PlayerControler.nowPlayer = playerModel;

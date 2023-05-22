@@ -2,13 +2,7 @@
 using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.ChessClasses
 {
@@ -29,7 +23,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             DataBase.OpenConn();
             this.consignment = consignment;
-            DataBase.ExecuteFull(StaticResouses.dBQ.GetTableMove(tableMove));
+            DataBase.ExecuteFull(StaticResouses.dBQ.GetTableMove(tableMove));//
 
             DataBase.ExecuteFull($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
             CreateChessTable();
@@ -45,7 +39,6 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in table)
             {
-                //хештаблицы???; избавиться от object
                 switch (item.Name)
                 {
                     case "":
@@ -111,7 +104,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID, Pozition)" +
-                        $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID},'{figure.Pozition.cell}')";
+                        $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID},'{figure.Pozition.cell}')";//
             DataBase.ExecuteFull(str);
 
             lastPozition = figure.Pozition;
@@ -132,7 +125,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             DataBase.ExecuteFull(str);
             int ID = IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
             str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
-                        $" values ({ID},'{pozition + name}',{consignment.ConsignmentID},{consignment.TourID})";
+                        $" values ({ID},'{pozition + name}',{consignment.ConsignmentID},{consignment.TourID})";//
             DataBase.ExecuteFull(str);
             GetFigures();
             Move.Add(pozition + name);
@@ -220,7 +213,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             consignment.StatusID = 1;
 
-            await ConsignmentControler.Update(consignment);
+            await ConsignmentControler.Update(consignment, consignment.ConsignmentID);
 
             IsGameContinues = false;
 
@@ -260,7 +253,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetMovePozition(tableMove), TableFiguresScheme.mapper);
             string move = dataSet[0].Move.ToString();
 
-            DataBase.ExecuteFull(StaticResouses.dBQ.DeleteTableMove(tableMove));
+            DataBase.ExecuteFull(StaticResouses.dBQ.DeleteTableMove(tableMove));//
 
             string str = $"UPDATE {tableFigures} " +
                $"SET Pozition = '{lastPozition.cell}'" +

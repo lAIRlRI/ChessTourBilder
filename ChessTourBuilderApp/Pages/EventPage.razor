@@ -148,7 +148,7 @@
         Array.Clear(result);
 
         if (!Helper.CheckEvent(eventModelupdate, ref result)) return;
-        if (!await EventControler.Update(eventModelupdate)) return;
+        if (!await EventControler.Update(eventModelupdate, EventControler.nowEvent.EventID)) return;
 
         update = false;
         EventControler.nowEvent = eventModelupdate;
