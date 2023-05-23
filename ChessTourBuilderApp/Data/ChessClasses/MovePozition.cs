@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.ChessClasses
 {
-    internal class TableFiguresScheme
+    internal class MovePozition
     {
-        public static readonly Func<IDataReader, TableFiguresScheme> mapper = r => new TableFiguresScheme()
+        public static readonly Func<IDataReader, MovePozition> mapper = r => new MovePozition()
         {
             Move = r["Move"].ToString(),
             Pozition = r["Pozition"].ToString()
@@ -18,13 +18,13 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         public string Move { get; set; }
         public string Pozition { get; set; }
 
-        public TableFiguresScheme(string move, string pozition)
+        public MovePozition(string move, string pozition)
         {
             Move = move;
             Pozition = pozition;
         }
 
-        public TableFiguresScheme()
+        public MovePozition()
         {
 
         }

@@ -13,7 +13,7 @@ namespace ChessTourBuilderApp.Data.Api
 
         static HttpClient httpClient = new();
 
-        public static async Task<string> Post(string url, object body) 
+        public static async Task<string> Post(string url, object body = null) 
         {
             try
             {
@@ -27,7 +27,7 @@ namespace ChessTourBuilderApp.Data.Api
             }
         }
 
-        public static async Task<string> Put(string url, object body)
+        public static async Task<string> Put(string url, object body = null)
         {
             try
             {

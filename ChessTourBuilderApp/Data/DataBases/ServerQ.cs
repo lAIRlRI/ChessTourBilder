@@ -77,7 +77,7 @@ namespace ChessTourBuilderApp.Data.DataBases
         {
             return ";with playerSum as" +
             $"(select PlayerID, Sum(Result) as Points from {Controler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
-            "select Concat(FirstName, ' ', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc";
+            "select ROW_NUMBER() OVER (ORDER BY Points DESC) AS Pozition, Concat(FirstName, ' ', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc";
         }
 
         public bool UpdateStatus()

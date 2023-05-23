@@ -3,6 +3,7 @@
 @using System.Data
 @using ChessTourBuilderApp.Data.DataBases
 @using System.Text.RegularExpressions
+@using ChessTourBuilderApp.Data.Model
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
@@ -50,17 +51,5 @@
         }
 
         return ds;
-    }
-
-    public class ResultSheme
-    {
-        public static readonly Func<IDataReader, ResultSheme> mapper = r => new ResultSheme()
-        {
-            Points = r["Points"].ToString(),
-            Fi = r["Fi"].ToString(),
-        };
-        public int Pozition { get; set; }
-        public string Points { get; set; }
-        public string Fi { get; set; }
     }
 }

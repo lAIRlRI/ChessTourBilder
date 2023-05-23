@@ -138,7 +138,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (move[1].ToString() != vectorY.ToString()) return null;
 
-            List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetTableMove(tableMove), TableFiguresScheme.mapper);
+            List<MovePozition> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetTableMove(tableMove), MovePozition.mapper);
 
             string moveChange = dataSet[0].Move.ToString();
             string pozitionChange = dataSet[0].Pozition.ToString();

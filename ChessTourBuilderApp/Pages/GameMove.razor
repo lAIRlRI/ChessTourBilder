@@ -127,7 +127,7 @@
         chessGame.DeleteLastMove(IsWhile);
     }
 
-    private bool SwitchStageGet()
+    private async Task<bool> SwitchStageGet()
     {
         switch (stage)
         {
@@ -135,7 +135,7 @@
                 return true;
             case "rpt":
                 if (newFigure == null) return false;
-                chessGame.InsertFigure(move, newFigure, IsWhile);
+                await chessGame.InsertFigure(move, newFigure, IsWhile);
                 dis = false;
                 rpt = false;
                 stage = "ok";
@@ -172,12 +172,12 @@
         }
     }
 
-    private void SetMove()
+    private async void SetMove()
     {
         if (index == null) return;
         if (move == null) return;
-        if (SwitchStageGet())
-            stage = chessGame.SetFigure(chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index), move);
+        if (await SwitchStageGet())
+            stage = await chessGame.SetFigure(chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index), move);
         SwitchStageSet();
     }
 
