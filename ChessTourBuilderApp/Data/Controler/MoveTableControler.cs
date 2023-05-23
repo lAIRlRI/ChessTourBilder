@@ -6,9 +6,6 @@ namespace ChessTourBuilderApp.Data.Controler
 {
     internal class MoveTableControler
     {
-        public static MoveTableModel nowConsignment;
-        static List<MoveTableModel> models;
-
         public static async Task<bool> CreateTableMove(string table)
         {
             string messege = await Api.ApiControler.Get($"MoveTableControler/createTableMove?table={table}");
@@ -44,9 +41,6 @@ namespace ChessTourBuilderApp.Data.Controler
             return false;
         }
 
-        public static async Task<MovePozition> GetMovePozition(string table)
-        {
-            return JsonConvert.DeserializeObject<MovePozition>(await Api.ApiControler.Get($"MoveTableControler/getMovePozition?table={table}"));
-        }
+        public static async Task<MovePozition> GetMovePozition(string table) => JsonConvert.DeserializeObject<MovePozition>(await Api.ApiControler.Get($"MoveTableControler/getMovePozition?table={table}"));
     }
 }

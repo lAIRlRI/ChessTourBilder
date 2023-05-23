@@ -1,6 +1,4 @@
 ﻿using ChessTourBuilderApp.Data.Controler;
-using ChessTourBuilderApp.Data.DataBases;
-using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using System.Data;
 
@@ -100,7 +98,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             if (figure == null) return "no";
 
-            (string, int) function = figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures, tableMove);
+            (string, int) function = await figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures, tableMove);
 
             string insertMove = function.Item1;
             orderCaptures = function.Item2;
@@ -204,19 +202,25 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             IsGameContinues = false;
 
-            if (result != 2)//++++
+            TableResult tableResult = new() 
             {
-                DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                   $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},{consignment.whitePlayer.Result},{consignment.ConsignmentID})");
-                DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                    $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},{consignment.blackPlayer.Result},{consignment.ConsignmentID})");
-                return;
-            }
+                EventID = EventControler.nowEvent.EventID,
+                PlayerID = consignment.whitePlayer.PlayerID,
+                Result = (double)consignment.whitePlayer.Result,
+                ConsignmentID = consignment.ConsignmentID
+            };
+            await ResultTableControler.InsertResult(EventControler.nowEvent.GetTableName(), tableResult);
 
-            DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},0.5,{consignment.ConsignmentID})");
-            DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},0.5,{consignment.ConsignmentID})");
+            tableResult = new()
+            {
+                EventID = EventControler.nowEvent.EventID,
+                PlayerID = consignment.blackPlayer.PlayerID,
+                Result = (double)consignment.blackPlayer.Result,
+                ConsignmentID = consignment.ConsignmentID
+            };
+            await ResultTableControler.InsertResult(EventControler.nowEvent.GetTableName(), tableResult);
+
+            return;
         }
 
         private static double ELO(double mPlayer, double sPlayer, double result)
@@ -248,7 +252,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item2 = lastIDFigure.ToString()
             };
 
-            await FigureTableControler.UpdatePozition(tableFigures, updateFigureModel);
+            await FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
 
             if (move[1] == 'x' || move[0] == 'x')
             {
@@ -290,7 +294,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = lastPozition.cell,
                     Item2 = lastIDFigure.ToString()
                 };
-                await FigureTableControler.UpdatePozition(tableFigures, updateFigureModel);
+                await FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
             }
 
             Move.RemoveAt(Move.Count - 1);

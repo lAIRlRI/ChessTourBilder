@@ -43,19 +43,10 @@ namespace ChessTourBuilderApp.Data.Controler
             return models;
         }
 
-        public static async Task<Consignment> GetById(int id)
-        {
-            return JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getById?id={id}"));
-        }
+        public static async Task<Consignment> GetById(int id) => JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getById?id={id}"));
 
-        public static async Task<List<Consignment>> GetByTourId(int id)
-        {
-            return JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get($"Consignments/getByTourId?id={id}"));
-        }
+        public static async Task<List<Consignment>> GetByTourId(int id) => JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get($"Consignments/getByTourId?id={id}"));
 
-        public static async Task<Consignment> GetLast()
-        {
-            return JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getLast"));
-        }
+        public static async Task<Consignment> GetLast() => JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getLast"));
     }
 }

@@ -14,7 +14,6 @@ namespace ChessTourBuilderApp.Data.Controler
     internal class OrganizerControler
     {
         public static Organizer nowOrganizer;
-        private static List<Organizer> models;
 
         public static async Task<bool> Insert(Organizer model)
         {
@@ -44,15 +43,8 @@ namespace ChessTourBuilderApp.Data.Controler
             return false;
         }
 
-        public static async Task<List<Organizer>> GetAll()
-        {
-            models = JsonConvert.DeserializeObject<List<Organizer>>(await Api.ApiControler.Get("Organizers/get"));
-            return models;
-        }
+        public static async Task<List<Organizer>> GetAll() => JsonConvert.DeserializeObject<List<Organizer>>(await Api.ApiControler.Get("Organizers/get"));
 
-        public static async Task<Organizer> GetById(int id)
-        {
-            return JsonConvert.DeserializeObject<Organizer>(await Api.ApiControler.Get($"Organizers/getById?id={id}"));
-        }
+        public static async Task<Organizer> GetById(int id) => JsonConvert.DeserializeObject<Organizer>(await Api.ApiControler.Get($"Organizers/getById?id={id}"));
     }
 }

@@ -1,9 +1,5 @@
-﻿using ChessTourBuilderApp.Data.ChessClasses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ChessTourBuilderApp.Data.Model;
+using Newtonsoft.Json;
 
 namespace ChessTourBuilderApp.Data.Controler
 {
@@ -11,18 +7,20 @@ namespace ChessTourBuilderApp.Data.Controler
     {
         public static async Task<bool> CreateResultTable(string table)
         {
-            string messege = await Api.ApiControler.Get($"FigureTableControler/createResultTable?table={table}");
+            string messege = await Api.ApiControler.Get($"TableResultController/createResultTable?table={table}");
             if (messege == "Nice") return true;
             return false;
         }
 
-        public static async Task<bool> InsertResult(string table, FigureScheme value)
+        public static async Task<bool> InsertResult(string table, TableResult value)
         {
-            string messege = await Api.ApiControler.Post($"FigureTableControler/insertResult?table={table}", value);
+            string messege = await Api.ApiControler.Post($"TableResultController/insertResult?table={table}", value);
             if (messege == "-1") return true;
             return false;
         }
 
+        public static async Task<List<ResultSheme>> GetResultTable(string table) => JsonConvert.DeserializeObject<List<ResultSheme>>(await Api.ApiControler.Get($"TableResultController/getResultTable?table={table}"));
 
+        public static async Task<List<ResultSheme>> GetResultTableСircle(string table) => JsonConvert.DeserializeObject<List<ResultSheme>>(await Api.ApiControler.Get($"TableResultController/getResultTableСircle?table={table}"));
     }
 }

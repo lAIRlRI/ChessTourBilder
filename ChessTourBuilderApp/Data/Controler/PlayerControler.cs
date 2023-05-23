@@ -14,7 +14,6 @@ namespace ChessTourBuilderApp.Data.Controler
     internal class PlayerControler
     {
         public static Player nowPlayer;
-        static List<Player> models;
 
         public static async Task<bool> Insert(Player model)
         {
@@ -37,21 +36,11 @@ namespace ChessTourBuilderApp.Data.Controler
             return false;
         }
 
-        public static async Task<List<Player>> GetAll()
-        {
-            models = JsonConvert.DeserializeObject<List<Player>>(await Api.ApiControler.Get("Players/get"));
-            return models;
-        }
+        public static async Task<List<Player>> GetAll() => JsonConvert.DeserializeObject<List<Player>>(await Api.ApiControler.Get("Players/get"));
 
-        public static async Task<Player> GetById(int id)
-        {
-            return JsonConvert.DeserializeObject<Player>(await Api.ApiControler.Get($"Players/getById?id={id}"));
-        }
+        public static async Task<Player> GetById(int id) => JsonConvert.DeserializeObject<Player>(await Api.ApiControler.Get($"Players/getById?id={id}"));
 
-        public static async Task<List<Player>> GetByEventId(int id)
-        {
-            return JsonConvert.DeserializeObject<List<Player>>(await Api.ApiControler.Get($"Players/getByEventId?id={id}"));
-        }
+        public static async Task<List<Player>> GetByEventId(int id) => JsonConvert.DeserializeObject<List<Player>>(await Api.ApiControler.Get($"Players/getByEventId?id={id}"));
 
         public static async Task<bool> GetLogin(string login)
         {

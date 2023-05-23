@@ -25,9 +25,9 @@ namespace ChessTourBuilderApp.Data.Controler
             return JsonConvert.DeserializeObject<List<FigureScheme>>(await Api.ApiControler.Get($"FigureTableControler/getAll?table={table}"));
         }
 
-        public static async Task<bool> UpdatePozition(string table, UpdateFigureModel view)
+        public static async Task<bool> UpdatePozition(string table, bool IsMoving, UpdateFigureModel view)
         {
-            string messege = await Api.ApiControler.Put($"FigureTableControler/updatePozition?table={table}", view);
+            string messege = await Api.ApiControler.Put($"FigureTableControler/updatePozition?table={table}&IsMoving={IsMoving}", view);
             if (messege == "-1") return true;
             return false;
         }
@@ -35,6 +35,13 @@ namespace ChessTourBuilderApp.Data.Controler
         public static async Task<bool> UpdateInGame(string table, UpdateFigureModel view)
         {
             string messege = await Api.ApiControler.Put($"FigureTableControler/updateInGame?table={table}", view);
+            if (messege == "-1") return true;
+            return false;
+        }
+
+        public static async Task<bool> UpdateEat(string table, UpdateFigureModel view)
+        {
+            string messege = await Api.ApiControler.Put($"FigureTableControler/updateEat?table={table}", view);
             if (messege == "-1") return true;
             return false;
         }

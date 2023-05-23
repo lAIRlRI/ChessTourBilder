@@ -14,7 +14,6 @@ namespace ChessTourBuilderApp.Data.Controler
     internal class EventControler
     {
         public static Event nowEvent = new();
-        static List<Event> models;
 
         public static async Task<bool> Insert(Event model)
         {
@@ -37,26 +36,12 @@ namespace ChessTourBuilderApp.Data.Controler
             return false;
         }
 
-        public static async Task<List<Event>> GetAll()
-        {
-            models = JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/get"));
-            return models;
-        }
+        public static async Task<List<Event>> GetAll() => JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/get"));
 
-        public static async Task<List<Event>> GetPublic()
-        {
-            models = JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/getPublic"));
-            return models;
-        }
+        public static async Task<List<Event>> GetPublic() => JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/getPublic"));
 
-        public static async Task<Event> GetById(int id)
-        {
-            return JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getById?id={id}"));
-        }
+        public static async Task<Event> GetById(int id) => JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getById?id={id}"));
 
-        public static async Task<Event> GetLast()
-        {
-            return JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getLast"));
-        }
+        public static async Task<Event> GetLast() => JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getLast"));
     }
 }

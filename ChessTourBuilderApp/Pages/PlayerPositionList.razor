@@ -1,6 +1,7 @@
 ﻿@page "/playerPositionList"
 @layout MainLayout
 @using System.Data
+@using ChessTourBuilderApp.Data.Controler
 @using ChessTourBuilderApp.Data.DataBases
 @using System.Text.RegularExpressions
 @using ChessTourBuilderApp.Data.Model
@@ -32,24 +33,22 @@
 </body>
 
 @code {
-    List<ResultSheme> ds = Initializa();
 
     string like;
+    List<ResultSheme> ds;
+
+    protected override async Task OnInitializedAsync()
+    {
+         ds = await Initializa();
+    }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private static List<ResultSheme> Initializa()
+    private async static Task<List<ResultSheme>> Initializa()
     {
-        List<ResultSheme> ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
-            DataBase.Read(Data.HelpClasses.StaticResouses.dBQ.GetResult(), ResultSheme.mapper)
+        return Data.Controler.EventControler.nowEvent.TypeEvent ?
+           await ResultTableControler.GetResultTable(EventControler.nowEvent.GetTableName())
         :
-            DataBase.Read(Data.HelpClasses.StaticResouses.dBQ.GetResultСircle(), ResultSheme.mapper);
-
-        for (int i = 0; i < ds.Count; i++)
-        {
-            ds[i].Pozition = i + 1;
-        }
-
-        return ds;
+           await ResultTableControler.GetResultTableСircle(EventControler.nowEvent.GetTableName());
     }
 }

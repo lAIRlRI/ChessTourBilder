@@ -1,5 +1,7 @@
-﻿using ChessTourBuilderApp.Data.DataBases;
+﻿using ChessTourBuilderApp.Data.Controler;
+using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
+using ChessTourBuilderApp.Data.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +14,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
     internal class Pawn : Figure
     {
         public override string Name { get; } = "";
+        UpdateFigureModel updateFigureModel;
 
         public Pawn(string poziton, bool IsWhile, int ID) : base(poziton, IsWhile, ID) { }
 
@@ -66,7 +69,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return cellsTrue.Where(p => p.Y > 0 && p.Y < 9).ToList();
         }
 
-        public override (string, int) SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
+        public override async Task<(string, int)> SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
         {
             (string, int) result;
             result.Item1 = null;
@@ -76,20 +79,18 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             Figure NotGameFigure = figures.FirstOrDefault(p => p.Pozition.cell == move && p.InGame == true);
 
-            string str;
-
             if (NotGameFigure != default(Figure))
             {
                 if (move[0] == Pozition.cell[0]) return result;
                 if (NotGameFigure.IsWhile == IsWhile) return result;
 
                 result.Item2++;
-
-                str = $"UPDATE {tableFigures} " +
-                $"SET InGame = 0," +
-                $" EatID = {result.Item2}" +
-                $" WHERE ID = {NotGameFigure.ID}";
-                DataBase.ExecuteFull(str);
+                updateFigureModel = new()
+                {
+                    Item1 = result.Item2.ToString(),
+                    Item2 = NotGameFigure.ID.ToString()
+                };
+                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
                 insertMove = Name + "x" + move;
             }
@@ -97,18 +98,20 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             if (move[1] == '8' || move[1] == '1')
             {
                 result.Item2++;
-                str = $"UPDATE {tableFigures} " +
-                $"SET InGame = 0," +
-                $" EatID = {result.Item2}" +
-                $" WHERE ID = {ID}";
-                DataBase.ExecuteFull(str);
+
+                updateFigureModel = new()
+                {
+                    Item1 = result.Item2.ToString(),
+                    Item2 = ID.ToString()
+                };
+                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
                 result.Item1 = "rpt";
 
                 return result;
             }
 
-            string temp = Proxod(move, tableMove, figures, tableFigures, result.Item2);
+            string temp = await ProxodAsync(move, tableMove, figures, tableFigures, result.Item2);
 
             if (temp != null)
             {
@@ -118,18 +121,21 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (move[0] != Pozition.cell[0] && NotGameFigure == default(Figure)) return result;
 
-            str = $"UPDATE {tableFigures} " +
-                $"SET Pozition = '{move}'," +
-                $"IsMoving = 1 " +
-                $" WHERE ID = {ID}";
-            DataBase.ExecuteFull(str);
+
+            updateFigureModel = new()
+            {
+                Item1 = move,
+                Item2 = ID.ToString()
+            };
+
+            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
             result.Item1 = insertMove;
 
             return result;
         }
 
-        private string Proxod(string move, string tableMove, Figure[] figures, string tableFigures, int oreder)
+        private async Task<string> ProxodAsync(string move, string tableMove, Figure[] figures, string tableFigures, int oreder)
         {
             if (move[0] == Pozition.cell[0]) return null;
             int vectorY = IsWhile ? 6 : 3;
@@ -150,11 +156,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (figure == default(Figure)) return null;
             oreder++;
-            string str = $"UPDATE {tableFigures} " +
-            $"SET InGame = 0," +
-            $" EatID = {oreder}" +
-            $" WHERE ID = {figure.ID}";
-            DataBase.ExecuteFull(str);
+            updateFigureModel = new()
+            {
+                Item1 = oreder.ToString(),
+                Item2 = figure.ID.ToString()
+            };
+            await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
             return Name + "x" + move;
         }
