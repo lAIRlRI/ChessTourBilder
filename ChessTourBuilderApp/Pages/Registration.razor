@@ -28,13 +28,14 @@
                 <input @bind-value="organizer.Password" placeholder="Пароль" type="password">
             </div>
         </div>
-        <button class="text text-color-right border-none" @onclick="@Cheker" href="">Зарегистрироваться</button>
-        <button class="text text-color-right border-none" @onclick="@(()=>OnClickNavigate("/"))" href="">Войти</button>
+        <button disabled="@pressed" @onclick="@Cheker" href="">Зарегистрироваться</button>
+        <button disabled="@pressed" @onclick="@(()=>OnClickNavigate("/"))" href="">Войти</button>
     </section>
 </body>
 
 @code {
     string[] result = new string[5];
+    bool pressed = false;
     Data.Model.Organizer organizer = new();
 
 
@@ -42,11 +43,20 @@
 
     private async void Cheker()
     {
+        pressed = true;
         Array.Clear(result);
-        if (!await Data.HelpClasses.Helper.CheckOrganizer(organizer, result)) return;
+
+        result = await Data.HelpClasses.Helper.CheckOrganizer(organizer);
+
+        if (!Data.HelpClasses.Helper.CheckStringArray(result)) 
+        {
+            pressed = false;
+            return;
+        } 
         if (await Data.Controler.OrganizerControler.Insert(organizer))
         {
             OnClickNavigate("/");
         }
+        pressed = false;
     }
 }

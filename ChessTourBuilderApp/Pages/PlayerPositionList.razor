@@ -35,11 +35,12 @@
 @code {
 
     string like;
-    List<ResultSheme> ds;
+    List<ResultSheme> ds = new();
 
     protected override async Task OnInitializedAsync()
     {
-         ds = await Initializa();
+        ds = await Initializa();
+        if (ds == null) ds = new();
     }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);

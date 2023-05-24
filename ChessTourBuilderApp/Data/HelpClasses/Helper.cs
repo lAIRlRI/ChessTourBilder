@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections;
 using ChessTourBuilderApp.Data.Model;
@@ -37,9 +33,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static string FI() 
         {
             if (StaticResouses.IsPlayer) 
-            {
                 return PlayerControler.nowPlayer.FirstName + " " + PlayerControler.nowPlayer.LastName;
-            }
             return OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName; 
         }
 
@@ -64,8 +58,10 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
         public static bool CheckDeleteButton() => OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
 
-        public static async Task<bool> CheckOrganizer(Organizer organizer, string[] bools)
+        public static async Task<string[]> CheckOrganizer(Organizer organizer)
         {
+            string[] bools = new string[5];
+
             if (string.IsNullOrWhiteSpace(organizer.FirstName))
                 bools[0] = Text();
             else if (regex.IsMatch(organizer.FirstName))
@@ -82,14 +78,21 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (string.IsNullOrWhiteSpace(organizer.Login))
                 bools[3] = Text();
-            else if (await OrganizerControler.GetLogin(organizer.Login))
+            else if (!await OrganizerControler.GetLogin(organizer.Login))
                 bools[3] = "Пользователь уже существует";
 
             if (string.IsNullOrWhiteSpace(organizer.Password))
                 bools[4] = Text();
 
-            return bools.All(p => p == null);
+            return bools;
         }
+
+        /// <summary>
+        /// Проверка массива: все элементы null
+        /// </summary>
+        /// <param name="bools">массив сообщений</param>
+        /// <returns>true - если все элементы null, иначе false</returns>
+        public static bool CheckStringArray(string[] bools) => bools.All(p => p == null);
 
         public static bool CheckDB(string[] values, ref string[] bools)
         {
@@ -108,6 +111,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return bools.All(p => p == null);
         }
 
+        
         public static async Task<bool> CheckPlayer(Player player, string[] bools)
         {
             if (player.FIDEID.ToString().Length != 7)
@@ -142,9 +146,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (string.IsNullOrWhiteSpace(player.Contry))
                 bools[6] = Text();
-
-            
-
+           
             return bools.All(p => p == null);
         }
 
@@ -217,8 +219,9 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return bools.All(p => p == null);
         }
 
-        public static bool CheckEvent(Event @event, ref string[] bools)
+        public static string[] CheckEvent(Event @event)
         {
+            string[] bools = new string[5];
             if (string.IsNullOrWhiteSpace(@event.Name))
                 bools[0] = Text();
 
@@ -239,7 +242,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             else if (@event.DataFinish < @event.DataStart)
                 bools[3] = "не может быть меньше чем Дата начала";
 
-            return bools.All(p => p == null);
+            return bools;
         }
     }
 }

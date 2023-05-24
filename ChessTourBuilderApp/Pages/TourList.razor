@@ -47,23 +47,13 @@
 </body>
 
 @code {
-    List<Data.Model.Tour> models;
-    static string like = "", addstr = "Добавить";
+    List<Data.Model.Tour> models = new();
+    string like = "", addstr = "Добавить";
     bool add;
     string result = "";
     Data.Model.Tour model = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        add = false;
-        addstr = "Добавить";
-        await Inizaliz();
-    }
-
-    private async Task Inizaliz() 
-    {
-        models = await TourControler.GetByEventId(EventControler.nowEvent.EventID);
-    }
+    protected override async Task OnInitializedAsync() => models = await TourControler.GetByEventId(EventControler.nowEvent.EventID);
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 

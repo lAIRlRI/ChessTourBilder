@@ -54,7 +54,7 @@
                     <p>Круговой</p>
                     <input @bind-value="eventModel.TypeEvent" type="checkbox" class="text-pozition"/>
                 </div>
-                <button class="top-row-text text" @onclick="Add">Добавить</button>
+                <button class="top-row-text text" disabled="@doit" @onclick="Add">Добавить</button>
             </div>
         }
 
@@ -72,42 +72,46 @@
 </body>
 
 @code {
-    List<Data.Model.Event> eventModels;
-    static string like = "", addstr = "Добавить";
-    bool add =  false;
+    List<Data.Model.Event> eventModels = new();
+    string like = "", addstr = "Добавить";
+    bool add = false, doit = false;
     string[] result = new string[5];
     Data.Model.Event eventModel = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        add = false;
-        addstr = "Добавить";
-        await Inizaliz();
-    }
+    protected override async Task OnInitializedAsync() => await Inizaliz();
 
     private async Task Inizaliz()
     {
+        await EventControler.UpdateStatus();
         if (StaticResouses.IsPlayer)
         {
 
         }
         else eventModels = OrganizerControler.nowOrganizer.Administrator == -1 ? await EventControler.GetPublic() : await EventControler.GetAll();
+        if (eventModels == null) eventModels = new List<Event>();
     }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
     private async void Add()
     {
+        doit = true;
         Array.Clear(result);
-        if (!Data.HelpClasses.Helper.CheckEvent(eventModel, ref result)) return;
+        result = Data.HelpClasses.Helper.CheckEvent(eventModel);
+
+        if (!Data.HelpClasses.Helper.CheckStringArray(result)) return;
+
         eventModel.OrganizerID = OrganizerControler.nowOrganizer.OrganizerID;
         eventModel.StatusID = 1;
+
         if (await EventControler.Insert(eventModel))
         {
             add = false;
             EventControler ev = new();
             OnClickNavigateEvent(await EventControler.GetLast());
         }
+
+        doit = false;
     }
 
     private void AddClick()

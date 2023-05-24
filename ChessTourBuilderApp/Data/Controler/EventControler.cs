@@ -29,6 +29,13 @@ namespace ChessTourBuilderApp.Data.Controler
             return false;
         }
 
+        public static async Task<bool> UpdateStatus()
+        {
+            string messege = await Api.ApiControler.Post($"Events/updateStatus");
+            if (messege == "Nice") return true;
+            return false;
+        }
+
         public static async Task<bool> Delete(int id)
         {
             string messege = await Api.ApiControler.Delete($"Events/delete?id={id}");

@@ -67,18 +67,16 @@
 </body>
 
 @code {
-    List<Data.Model.Consignment> models;
-    static string addstr = "Добавить", resultTour;
+    List<Data.Model.Consignment> models = new();
+    string addstr = "Добавить", resultTour;
     string[] result = new string[3];
     Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };
     bool update = true;
     bool add = false;
-    List<Data.Model.Player> list;
+    List<Data.Model.Player> list = new();
 
     protected override async Task OnInitializedAsync()
     {
-        add = false;
-        addstr = "Добавить";
         await Inizaliz();
     }
 

@@ -68,20 +68,13 @@
 </body>
 
 @code {
-    List<Data.Model.Player> playerModels;
-    static string like = "", addstr = "Добавить";
+    List<Data.Model.Player> playerModels = new();
+    string like = "", addstr = "Добавить";
     bool add = false;
     string[] result = new string[7];
     Data.Model.Player playerModel = new();
 
     protected override async Task OnInitializedAsync()
-    {
-        add = false;
-        addstr = "Добавить";
-        await Inizaliz();
-    }
-
-    private async Task Inizaliz()
     {
         playerModels = await PlayerControler.GetAll();
     }

@@ -77,7 +77,7 @@
                         }
                     </select>
                 </div>
-                <button @onclick="Add">Добавить</button>
+                <button disabled="@doit" @onclick="Add">Добавить</button>
             </div>
         }
     }
@@ -96,20 +96,16 @@
 
     Data.Model.Event eventModelupdate = new();
     bool update = true, add, addPlayer = EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton() && !StaticResouses.IsPlayer;
+    bool doit = false;
     string[] result = new string[5];
     int FIDEID;
-    List<Data.Model.Player> list;
-    List<Data.Model.Player> listPlayer;
+    List<Data.Model.Player> list = new();
+    List<Data.Model.Player> listPlayer = new();
 
     protected override async Task OnInitializedAsync()
     {
-        add = false;
-        await Inizaliz();
-    }
-
-    private async Task Inizaliz()
-    {
         list = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
+        listPlayer = await PlayerControler.GetAll();
     }
 
     private void OnUpdate() => update = !update;
@@ -123,18 +119,34 @@
         NavigationManager.NavigateTo(str);
     }
 
-    private async void OnAdd() 
+    private void OnAdd() 
     {
-        listPlayer = await PlayerControler.GetAll();
         add = !add; 
     }
 
     private async void Add()
     {
-        if (FIDEID == 0) return;
-        if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player)) return;
+        doit = true;
+        if (FIDEID == 0)
+        {
+            doit = false;
+            return;
+        } 
+        if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player))
+        {
+            doit = false;
+            return;
+        }
         await EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
-        await Inizaliz();
+        var temp = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
+        Up(temp);
+        doit = false;
+    }
+
+
+    private void Up(List<Data.Model.Player> players) 
+    {
+        list = players;
     }
 
     private async void OnUpdateButton()
@@ -146,8 +158,9 @@
         if (eventModelupdate.PrizeFund == null) eventModelupdate.PrizeFund = EventControler.nowEvent.PrizeFund;
 
         Array.Clear(result);
+        result = Helper.CheckEvent(eventModelupdate);
 
-        if (!Helper.CheckEvent(eventModelupdate, ref result)) return;
+        if (!Helper.CheckStringArray(result)) return;
         if (!await EventControler.Update(eventModelupdate, EventControler.nowEvent.EventID)) return;
 
         update = false;
