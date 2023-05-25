@@ -47,6 +47,8 @@ namespace ChessTourBuilderApp.Data.Controler
 
         public static async Task<List<Event>> GetPublic() => JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/getPublic"));
 
+        public static async Task<List<Event>> GetPlayerEvent() => JsonConvert.DeserializeObject<List<Event>>(await Api.ApiControler.Get("Events/getPlayerEvent"));
+
         public static async Task<Event> GetById(int id) => JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getById?id={id}"));
 
         public static async Task<Event> GetLast() => JsonConvert.DeserializeObject<Event>(await Api.ApiControler.Get($"Events/getLast"));

@@ -15,7 +15,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         private int orderCaptures = 0;
         private int lastIDFigure;
 
-        public Figure[] Figures { get; private set; } = new Figure[32];
+        public Figure[] Figures { get; private set; }
         public List<string> Move { get; } = new List<string>();
         public bool IsGameContinues { get; private set; } = true;
 
@@ -33,8 +33,10 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             await ConsignmentControler.Update(consignment, consignment.ConsignmentID);
 
-            CreateChessTable();
-            GetFigures();
+            if (await FigureTableControler.CreateFigureMove(tableFigures)) 
+            {
+                GetFigures();
+            }
         }
 
         private async void GetFigures()
@@ -156,11 +158,14 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return true;
         }
 
-        public Figure[] GetFigure(bool IsWhile) => Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
-
-        private async void CreateChessTable()
+        public Figure[] GetFigure(bool IsWhile) 
         {
-            await FigureTableControler.CreateFigureMove(tableFigures);
+            if (Figures == null) 
+            {
+                Figures = Array.Empty<Figure>();
+                return Figures;
+            }
+            return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
         }
 
         public async void EndGame(double? result)

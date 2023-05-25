@@ -1,13 +1,6 @@
-﻿using ChessTourBuilderApp.Data.DataBases;
-using ChessTourBuilderApp.Data.HelpClasses;
+﻿using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.Controler
 {
@@ -17,6 +10,7 @@ namespace ChessTourBuilderApp.Data.Controler
 
         public static async Task<bool> Insert(Player model)
         {
+            model.Passord = Helper.GeneratePassword(8);
             string messege = await Api.ApiControler.Post($"Players/create", model);
             if (messege == "Nice") return true;
             return false;

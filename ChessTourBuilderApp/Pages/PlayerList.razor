@@ -16,7 +16,7 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Игроки</h1>
-        @if(!StaticResouses.IsPlayer)
+        @if (!StaticResouses.IsPlayer)
         {
             <h1 class="title-text" @onclick="AddClick">Добавить</h1>
         }
@@ -52,7 +52,7 @@
                 <p class="error-text">@result[6]</p>
                 <input @bind-value="playerModel.Contry" placeholder="Страна" />
             </div>
-            <button class="title-text" @onclick="Add">Добавить</button>
+            <button class="title-text" disabled="@pressed" @onclick="Add">Добавить</button>
         </div>
     }
 
@@ -71,6 +71,7 @@
     List<Data.Model.Player> playerModels = new();
     string like = "", addstr = "Добавить";
     bool add = false;
+    bool pressed = false;
     string[] result = new string[7];
     Data.Model.Player playerModel = new();
 
@@ -84,8 +85,22 @@
     private async void Add()
     {
         Array.Clear(result);
-        if (!await Helper.CheckPlayer(playerModel, result)) return;
-        if (!await PlayerControler.Insert(playerModel)) return;
+        pressed = true;
+        result = await Data.HelpClasses.Helper.CheckPlayer(playerModel);
+
+        if (!Data.HelpClasses.Helper.CheckStringArray(result))
+        {
+            pressed = false;
+            StateHasChanged();
+            return;
+        }
+        if (!await PlayerControler.Insert(playerModel))
+        {
+            pressed = false;
+            StateHasChanged();
+            return;
+        }
+
         PlayerControler ev = new();
         OnClickNavigateToPlayer(playerModel);
     }

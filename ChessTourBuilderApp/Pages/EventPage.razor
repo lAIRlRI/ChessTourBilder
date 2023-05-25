@@ -25,7 +25,7 @@
         </div>
         <div>
             <p class="error-text">@result[0]</p>
-            <input class="top-row-text text" disabled="@update" @bind-value="eventModelupdate.Name" placeholder="@EventControler.nowEvent.Name" />
+            <input class="top-row-text text" disabled="@update" @bind-value="eventModelupdate.Name"/>
         </div>
     </div>
     <div class="info-conteneer">
@@ -35,19 +35,23 @@
         <section class="info-item2">
             <div>
                 <p class="error-text">@result[1]</p>
-                <input @bind-value="eventModelupdate.PrizeFund" type="number" placeholder="Призовой фонд: @EventControler.nowEvent.PrizeFund p." disabled="@update" />
+                <p class="error-text">Призовой фонд</p>
+                <input @bind-value="eventModelupdate.PrizeFund" type="number" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[4]</p>
-                <input @bind-value="eventModelupdate.LocationEvent" placeholder="Место: @EventControler.nowEvent.LocationEvent" disabled="@update" />
+                <p class="error-text">Место</p>
+                <input @bind-value="eventModelupdate.LocationEvent" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[2]</p>
-                <input @bind-value="eventModelupdate.DataStart" type="datetime" placeholder="Начало: @EventControler.nowEvent.DataStart" disabled="@update" />
+                <p class="error-text">Начало</p>
+                <input @bind-value="eventModelupdate.DataStart" type="datetime" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[3]</p>
-                <input @bind-value="eventModelupdate.DataFinish" type="datetime" placeholder="Окончание: @EventControler.nowEvent.DataFinish" disabled="@update" />
+                <p class="error-text">Окончание</p>
+                <input @bind-value="eventModelupdate.DataFinish" type="datetime" disabled="@update" />
             </div>
             <input placeholder="Стутус: @Helper.status[EventControler.nowEvent.StatusID-1]" disabled />
         </section>
@@ -94,8 +98,8 @@
 
 @code {
 
-    Data.Model.Event eventModelupdate = new();
-    bool update = true, add, addPlayer = EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton() && !StaticResouses.IsPlayer;
+    Data.Model.Event eventModelupdate = EventControler.nowEvent;
+    bool update = true, add, addPlayer = !StaticResouses.IsPlayer && EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton();
     bool doit = false;
     string[] result = new string[5];
     int FIDEID;
@@ -138,15 +142,9 @@
             return;
         }
         await EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
-        var temp = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
-        Up(temp);
+        list = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
         doit = false;
-    }
-
-
-    private void Up(List<Data.Model.Player> players) 
-    {
-        list = players;
+        StateHasChanged();
     }
 
     private async void OnUpdateButton()
@@ -160,13 +158,22 @@
         Array.Clear(result);
         result = Helper.CheckEvent(eventModelupdate);
 
-        if (!Helper.CheckStringArray(result)) return;
-        if (!await EventControler.Update(eventModelupdate, EventControler.nowEvent.EventID)) return;
+        if (!Helper.CheckStringArray(result)) 
+        {
+            StateHasChanged();
+            return;
+        } 
+        if (!await EventControler.Update(eventModelupdate, EventControler.nowEvent.EventID))
+        {
+            StateHasChanged();
+            return;
+        }
 
         update = false;
         EventControler.nowEvent = eventModelupdate;
         EventControler ev = new();
         eventModelupdate = new();
+        StateHasChanged();
     }
 
     private async void OnDelete()

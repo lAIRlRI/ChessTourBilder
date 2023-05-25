@@ -3,7 +3,6 @@
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
-@using System.Data
 @inject NavigationManager NavigationManager
 
 
@@ -86,8 +85,7 @@
     int Fide = (int)PlayerControler.nowPlayer.FIDEID;
     bool update = true;
     string[] result = new string[8];
-    List<TourPozition> ds = DataBase.Read("select Name, TopPlece from Event e " +
-                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}", TourPozition.mapper);
+    List<TourPozition> ds = new();
 
     private void OnUpdate() => update = !update;
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
@@ -106,13 +104,16 @@
 
         Array.Clear(result);
 
-        if (!await Helper.CheckPlayerUpAsync(playerModel, result, Fide)) return;
+        result = await Helper.CheckPlayerUpAsync(playerModel, Fide);
+
+        if (!Helper.CheckStringArray(result)) return;
         if (!await PlayerControler.Update(playerModel, Fide)) return;
 
         update = false;
         PlayerControler.nowPlayer = playerModel;
         PlayerControler ev = new();
         playerModel = new();
+        StateHasChanged();
     }
 
     private async void OnDelete()
@@ -124,11 +125,6 @@
 
     public class TourPozition
     {
-        public static readonly Func<IDataReader, TourPozition> mapper = r => new TourPozition()
-            {
-                Name = r["Name"].ToString(),
-                TopPlece = Convert.ToInt32(r["TopPlece"])
-            };
         public string Name { get; set; }
         public int TopPlece { get; set; }
     }

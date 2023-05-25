@@ -13,14 +13,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
         public static Hashtable StringToInt = new(new Dictionary<char, int>()
             {
-                {'A', 1 },
-                {'B', 2 },
-                {'C', 3 },
-                {'D', 4 },
-                {'E', 5 },
-                {'F', 6 },
-                {'G', 7 },
-                {'H', 8 }
+                {'A', 1 },{'B', 2 },{'C', 3 },{'D', 4 },
+                {'E', 5 },{'F', 6 },{'G', 7 },{'H', 8 }
             }
         );
 
@@ -56,7 +50,11 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return result.ToString();
         }
 
-        public static bool CheckDeleteButton() => OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
+        public static bool CheckDeleteButton() 
+        {
+            if (OrganizerControler.nowOrganizer == null) return false;
+            return OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
+        } 
 
         public static async Task<string[]> CheckOrganizer(Organizer organizer)
         {
@@ -111,9 +109,10 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             return bools.All(p => p == null);
         }
 
-        
-        public static async Task<bool> CheckPlayer(Player player, string[] bools)
+        public static async Task<string[]> CheckPlayer(Player player)
         {
+            string[] bools = new string[7];
+
             if (player.FIDEID.ToString().Length != 7)
                 bools[0] = "FIDEID должен состоять из 7 цифр";
 
@@ -147,11 +146,13 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             if (string.IsNullOrWhiteSpace(player.Contry))
                 bools[6] = Text();
            
-            return bools.All(p => p == null);
+            return bools;
         }
 
-        public static async Task<bool> CheckPlayerUpAsync(Player player, string[] bools, int FIDEID)
+        public static async Task<string[]> CheckPlayerUpAsync(Player player, int FIDEID)
         {
+            string[] bools = new string[8];
+
             if (FIDEID != player.FIDEID) 
             {
                 if (player.FIDEID.ToString().Length != 7)
@@ -194,9 +195,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             if (string.IsNullOrWhiteSpace(player.Passord))
                 bools[7] = Text();
 
-            return bools.All(p => p == null);
+            return bools;
         }
-
 
         public static bool CheckConsignment(Consignment consignment, ref string[] bools)
         {

@@ -85,7 +85,7 @@
         await EventControler.UpdateStatus();
         if (StaticResouses.IsPlayer)
         {
-
+            eventModels =  await EventControler.GetPlayerEvent();
         }
         else eventModels = OrganizerControler.nowOrganizer.Administrator == -1 ? await EventControler.GetPublic() : await EventControler.GetAll();
         if (eventModels == null) eventModels = new List<Event>();
@@ -99,7 +99,11 @@
         Array.Clear(result);
         result = Data.HelpClasses.Helper.CheckEvent(eventModel);
 
-        if (!Data.HelpClasses.Helper.CheckStringArray(result)) return;
+        if (!Data.HelpClasses.Helper.CheckStringArray(result)) 
+        {
+            StateHasChanged();
+            return;
+        }
 
         eventModel.OrganizerID = OrganizerControler.nowOrganizer.OrganizerID;
         eventModel.StatusID = 1;
@@ -110,8 +114,8 @@
             EventControler ev = new();
             OnClickNavigateEvent(await EventControler.GetLast());
         }
-
         doit = false;
+        StateHasChanged();
     }
 
     private void AddClick()

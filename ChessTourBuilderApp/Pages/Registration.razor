@@ -38,7 +38,6 @@
     bool pressed = false;
     Data.Model.Organizer organizer = new();
 
-
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
     private async void Cheker()
@@ -51,6 +50,8 @@
         if (!Data.HelpClasses.Helper.CheckStringArray(result)) 
         {
             pressed = false;
+
+            StateHasChanged();
             return;
         } 
         if (await Data.Controler.OrganizerControler.Insert(organizer))
@@ -58,5 +59,6 @@
             OnClickNavigate("/");
         }
         pressed = false;
+        StateHasChanged();
     }
 }

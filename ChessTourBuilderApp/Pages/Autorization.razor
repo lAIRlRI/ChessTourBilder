@@ -38,15 +38,22 @@
     async Task OnAvtorizate()
     {
         doit = true;
-        q = await Data.Api.ApiControler.Post("Account/autorizate", new { Login = organizer.Login, Password = organizer.Password });
+        if (IsPlayer)
+        {
+            q = await Data.Api.ApiControler.Post("Account/autorizatePlayer", new { Login = organizer.Login, Password = organizer.Password });
+        }
+        else q = await Data.Api.ApiControler.Post("Account/autorizate", new { Login = organizer.Login, Password = organizer.Password });
 
         if (q == "Nice")
         {
-            Data.Controler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+            if (IsPlayer)
+                Data.Controler.PlayerControler.nowPlayer = JsonConvert.DeserializeObject<Data.Model.Player>(await Data.Api.ApiControler.Get("Account/getInfoPlayer"));
+            else Data.Controler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
             Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
             OnClickNavigate("/eventList");
         }
         else style = true;
         doit = false;
+        StateHasChanged();
     }
 }

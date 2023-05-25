@@ -23,18 +23,20 @@
             <button class="top-row-text text" @onclick="AddClick">@addstr</button>
             <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
         }
-        <input class="title-text" @bind-value="resultTour" placeholder="@Data.Controler.TourControler.nowTour.NameTour" />
+        <input class="title-text" @bind-value="resultTour" disabled="@update"/>
     </div>
     @if (add)
     {
         <div class="element">
             <div>
                 <p>@result[0]</p>
-                <input @bind-value="model.DateStart" type="datetime-local" placeholder="Дата начала" />
+                <p>Дата начала</p>
+                <input @bind-value="model.DateStart" type="datetime-local"/>
             </div>
             <div>
                 <p>@result[1]</p>
-                <select @bind="@model.whitePlayer.PlayerID" placeholder="Белыми">
+                <p>Белыми</p>
+                <select @bind="@model.whitePlayer.PlayerID">
                     <option value="0">Белыми</option>
                     @foreach (var item in list)
                     {
@@ -42,7 +44,8 @@
                     }
                 </select>
                 <p>@result[2]</p>
-                <select @bind="@model.blackPlayer.PlayerID" placeholder="Черными">
+                <p>Черными</p>
+                <select @bind="@model.blackPlayer.PlayerID">
                     <option value="0">Черными</option>
                     @foreach (var item in list)
                     {
@@ -68,17 +71,14 @@
 
 @code {
     List<Data.Model.Consignment> models = new();
-    string addstr = "Добавить", resultTour;
+    string addstr = "Добавить", resultTour = Data.Controler.TourControler.nowTour.NameTour;
     string[] result = new string[3];
     Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };
     bool update = true;
     bool add = false;
     List<Data.Model.Player> list = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Inizaliz();
-    }
+    protected override async Task OnInitializedAsync() => await Inizaliz();
 
     private async Task Inizaliz()
     {
@@ -92,14 +92,23 @@
     private async void Add()
     {
         Array.Clear(result);
-        if (!Helper.CheckConsignment(model, ref result)) return;
+
+        if (!Helper.CheckConsignment(model, ref result))
+        {
+            StateHasChanged();
+            return;
+        } 
+
         model.StatusID = 1;
         model.TourID = Data.Controler.TourControler.nowTour.TourID;
+
         if (await Data.Controler.ConsignmentControler.Insert(model))
         {
             model = await Data.Controler.ConsignmentControler.GetLast();
             OnClickNavigateEvent(model);
         }
+
+        StateHasChanged();
     }
 
     private void AddClick()
@@ -112,8 +121,13 @@
     {
         if (string.IsNullOrWhiteSpace(resultTour)) resultTour = TourControler.nowTour.NameTour;
         TourControler.nowTour.NameTour = resultTour;
-        if (!await TourControler.Update(TourControler.nowTour, TourControler.nowTour.TourID)) return;
+        if (!await TourControler.Update(TourControler.nowTour, TourControler.nowTour.TourID)) 
+        {
+            StateHasChanged();
+            return;
+        } 
         update = false;
+        StateHasChanged();
     }
 
     private void OnClickNavigateEvent(Data.Model.Consignment ev)
