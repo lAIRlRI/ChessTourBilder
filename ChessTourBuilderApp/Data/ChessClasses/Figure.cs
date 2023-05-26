@@ -32,46 +32,14 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public abstract List<Cell> GetCells(Figure[] figures);
 
-        public async Task<string> SetFigure(Figure[] figures, string move, string tableFigures, int orderCaptures)
-        {
-            string realMove = Move(new Cell(move), figures);
-            if (realMove == null) return realMove;
-            string insertMove = Name + move;
-
-            Figure NotGameFigure = figures.FirstOrDefault(p => p.Pozition.cell == move && p.InGame == true);
-
-            if (NotGameFigure != default(Figure))
-            {
-                if (NotGameFigure.IsWhile == IsWhile) return null;
-
-                orderCaptures++;
-
-                updateFigureModel = new()
-                {
-                    Item1 = orderCaptures.ToString(),
-                    Item2 = NotGameFigure.ID.ToString()
-                };
-                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
-
-                insertMove = Name + "x" + move;
-            }
-
-            updateFigureModel = new()
-            {
-                Item1 = move,
-                Item2 = ID.ToString()
-            };
-
-            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
-
-            return insertMove;
-        }
-
-        public virtual async Task<(string, int)> SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
+        public virtual async Task<(string, int)> SetFigure(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
         {
             (string, int) result;
             result.Item1 = null;
             result.Item2 = orderCaptures;
+
+            string realMove = Move(new Cell(move), figures);
+            if (realMove == null) return result;
 
             string insertMove = Name + move;
 
@@ -99,7 +67,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item2 = ID.ToString()
             };
 
-            await FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
+            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
             result.Item1 = insertMove;
 

@@ -30,93 +30,18 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return str ? move.cell : null;
         }
 
-        public new async Task<string> SetFigure(Figure[] Figures, string move, string tableFigures, int orderCaptures)
-        {
-            string realMove = Move(new Cell(move), Figures);
-            if (realMove == null) return realMove;
-            string insertMove = Name + move;
-
-            if (realMove == "O-O-O")
-            {
-
-                updateFigureModel = new()
-                {
-                    Item1 = $"C{Pozition.Y}",
-                    Item2 = ID.ToString()
-                };
-
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
-
-                updateFigureModel = new()
-                {
-                    Item1 = $"D{Pozition.Y}",
-                    Item2 = (IsWhile ? 31 : 32).ToString()
-                };
-
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
-
-                return realMove;
-            }
-
-            if (realMove == "O-O")
-            {
-                updateFigureModel = new()
-                {
-                    Item1 = $"G{Pozition.Y}",
-                    Item2 = ID.ToString()
-                };
-
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
-
-                updateFigureModel = new()
-                {
-                    Item1 = $"F{Pozition.Y}",
-                    Item2 = (IsWhile ? 29 : 30).ToString()
-                };
-
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
-
-                return realMove;
-            }
-
-            Figure NotGameFigure = Figures.FirstOrDefault(p => p.Pozition.cell == move && p.InGame == true);
-
-            if (NotGameFigure != default(Figure))
-            {
-                if (NotGameFigure.IsWhile == IsWhile) return null;
-
-                orderCaptures++;
-                updateFigureModel = new()
-                {
-                    Item1 = orderCaptures.ToString(),
-                    Item2 = NotGameFigure.ID.ToString()
-                };
-                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
-
-                insertMove = Name + "x" + move;
-
-            }
-
-            updateFigureModel = new()
-            {
-                Item1 = move,
-                Item2 = ID.ToString()
-            };
-
-            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
-
-            return insertMove;
-        }
-
-        public async override Task<(string, int)> SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
+        public override async Task<(string, int)> SetFigure(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
         {
             (string, int) result;
             result.Item1 = null;
             result.Item2 = orderCaptures;
 
+            string realMove = Move(new Cell(move), figures);
+            if (realMove == null) return result;
+
             string insertMove = Name + move;
 
-            if (move == $"A{Pozition.Y}")
+            if (realMove == "O-O-O")
             {
                 updateFigureModel = new()
                 {
@@ -124,7 +49,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item2 = ID.ToString()
                 };
 
-                await FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
+                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
                 updateFigureModel = new()
                 {
@@ -138,7 +63,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 return result;
             }
 
-            if (move == $"H{Pozition.Y}")
+            if (realMove == "O-O")
             {
                 updateFigureModel = new()
                 {
@@ -188,6 +113,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             result.Item1 = insertMove;
             return result;
         }
+
 
         private string[] Castling(Figure[] figures)
         {

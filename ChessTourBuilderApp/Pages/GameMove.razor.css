@@ -3,6 +3,10 @@
     background-color: #FFF9F9;
 }
 
+.cell{
+    border-color: red;
+}
+
 .text-aling {
     text-align: center;
 }

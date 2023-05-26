@@ -9,27 +9,6 @@
 <section class="main-conteneer">
     <p class="top-row-text text">@str</p>
     <div style="display: flex; flex-wrap: wrap;">
-        <div>
-            <select disabled="@dis" @bind="index">
-                <option selected value="">Выберете фигуру</option>
-                @foreach (var item in chessGame.GetFigure(IsWhile))
-                {
-                    <option value="@item.ID">@item.Name@item.Pozition.cell</option>
-                }
-            </select>
-        </div>
-        <div>
-            <select disabled="@dis" @bind="move">
-                <option selected value="">Выберете ход</option>
-                @if (index != null)
-                {
-                    foreach (var item in chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index).GetCells(chessGame.Figures))
-                    {
-                        <option value="@item.cell">@item.cell</option>
-                    }
-                }
-            </select>
-        </div>
         @if (rpt)
         {
             <div>
@@ -42,14 +21,12 @@
                 </select>
             </div>
         }
-
     </div>
     @if (chessGame.IsGameContinues && StaticResouses.IsPlayer)
     {
         <div>
-            <button @onclick="SetMove" class="text">Сделать ход</button>
-            <button @onclick="SwapEnd" class="text">Завершить партию</button>
-            <button @onclick="DeleteMove" class="text">Удалить ход</button>
+            <button @onclick="SetMove" disabled="@pressed" class="text">Сделать ход</button>
+            <button @onclick="DeleteMove" disabled="@pressed" class="text">Удалить ход</button>
             <button @onclick="Surrender" class="text">Сдаться</button>
         </div>
         @if (End)
@@ -74,7 +51,9 @@
             <div style="display: flex;">
                 @for (int j = 1; j < 9; j++)
                 {
-                    <div style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid black">
+                    int currentI = i;
+                    int currentJ = j;
+                    <div @onclick="(()=> OnCkickTable(currentI, currentJ))" style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid black">
                         @if (CheckFigure(i, j) != default(Figure))
                         {
                             <p style="color: @ColorFigure(figureView.IsWhile)">@figureView.Name@figureView.Pozition.cell</p>
@@ -95,15 +74,23 @@
 @code {
     List<Cell> cells = new();
     ChessGame chessGame = new(ConsignmentControler.nowConsignment);
-    bool IsWhile = true, End = false, del = false, rpt = false, dis = false;
+    bool IsWhile = true, End = false, del = false, rpt = false, dis = false, firstClick = true, pressed = false;
     string move, str = "Белые", stage = "ok", newFigure;
     int? index = null;
     double? result;
     Figure figure = new Pawn("A8", true, -1);
     Figure figureView;
+    Figure firstClickFigure;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
+
+    protected async override Task OnInitializedAsync()
+    {
+        chessGame = new(ConsignmentControler.nowConsignment);
+        await chessGame.InizializeGame();
+        StateHasChanged();
+    }
 
     private string ColorFigure(bool IsWhile)
     {
@@ -113,8 +100,27 @@
 
     private Figure CheckFigure(int i, int j)
     {
+        if(chessGame.Figures == null) return default(Figure);
         figureView = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
         return figureView;
+    }
+
+    private void OnCkickTable(int i, int j)
+    {
+        if (firstClick)
+        {
+            firstClickFigure = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
+            if (firstClickFigure != null) 
+            {
+                if (firstClickFigure.IsWhile != IsWhile) firstClickFigure = null;
+            } 
+            firstClick = false;
+        }
+        else
+        {
+            move = (new Cell(j, i)).cell;
+            firstClick = true;
+        }
     }
 
     private void DeleteMove()
@@ -177,10 +183,20 @@
 
     private async void SetMove()
     {
-        if (index == null) return;
-        if (move == null) return;
+        pressed = true;
+        if (move == null)
+        {
+            pressed = false;
+            return;
+        }
+        if (firstClickFigure == null)  {
+            pressed = false;
+            return;
+        } 
         if (await SwitchStageGet())
-            stage = await chessGame.SetFigure(chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index), move);
+            stage = await chessGame.SetFigure(firstClickFigure, move);
+
+        pressed = false;
         SwitchStageSet();
         StateHasChanged();
     }

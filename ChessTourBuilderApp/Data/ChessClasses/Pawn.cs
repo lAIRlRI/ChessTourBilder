@@ -69,11 +69,14 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return cellsTrue.Where(p => p.Y > 0 && p.Y < 9).ToList();
         }
 
-        public override async Task<(string, int)> SetFigureTrueMove(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
+        public override async Task<(string, int)> SetFigure(Figure[] figures, string move, string tableFigures, int orderCaptures, string tableMove)
         {
             (string, int) result;
             result.Item1 = null;
             result.Item2 = orderCaptures;
+
+            string realMove = Move(new Cell(move), figures);
+            if (realMove == null) return result;
 
             string insertMove = Name + move;
 

@@ -7,7 +7,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
     internal class ChessGame
     {
         private readonly string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
-        private readonly string tableFigures = "[#Figures" + DateTime.UtcNow + "]";
+        private readonly string tableFigures = "[Figures" + DateTime.UtcNow + "]";
         private readonly char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
 
         private Consignment consignment;
@@ -22,10 +22,9 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         public ChessGame(Consignment consignment)
         {
             this.consignment = consignment;
-            InizializeGame();
         }
 
-        private async void InizializeGame() 
+        public async Task InizializeGame() 
         {
             await MoveTableControler.CreateTableMove(tableMove);
 
@@ -39,7 +38,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             }
         }
 
-        private async void GetFigures()
+        public async void GetFigures()
         {
             var table = await FigureTableControler.GetAll(tableFigures);
             int i = 0;
@@ -47,7 +46,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in table)
             {
-                switch (item.Name)
+                switch (item.Figure)
                 {
                     case "":
                         Figures[i] = new Pawn(item.Pozition, item.IsWhile, item.ID)
@@ -100,7 +99,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             if (figure == null) return "no";
 
-            (string, int) function = await figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures, tableMove);
+            (string, int) function = await figure.SetFigure(Figures, move, tableFigures, orderCaptures, tableMove);
 
             string insertMove = function.Item1;
             orderCaptures = function.Item2;
@@ -135,7 +134,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             FigureScheme figureScheme = new() 
             {
-                Name = name, 
+                Figure = name, 
                 Pozition = pozition,
                 IsWhile = IsWhile
             };
@@ -160,12 +159,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public Figure[] GetFigure(bool IsWhile) 
         {
-            if (Figures == null) 
-            {
-                Figures = Array.Empty<Figure>();
-                return Figures;
-            }
-            return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
+             return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
         }
 
         public async void EndGame(double? result)

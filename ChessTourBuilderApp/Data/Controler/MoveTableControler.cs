@@ -9,35 +9,35 @@ namespace ChessTourBuilderApp.Data.Controler
         public static async Task<bool> CreateTableMove(string table)
         {
             string messege = await Api.ApiControler.Get($"MoveTableControler/createTableMove?table={table}");
-            if (messege == "-1") return true;
+            if (messege == "Nice") return true;
             return false;
         }
 
         public static async Task<bool> PutWinner(string table, int ID)
         {
             string messege = await Api.ApiControler.Put($"MoveTableControler/putWinner?table={table}&ID={ID}");
-            if (messege == "-1") return true;
+            if (messege == "Nice") return true;
             return false;
         }
 
         public static async Task<bool> PutLastMove(string table)
         {
             string messege = await Api.ApiControler.Put($"MoveTableControler/putLastMove?table={table}");
-            if (messege == "-1") return true;
+            if (messege == "Nice") return true;
             return false;
         }
 
         public static async Task<bool> PostMove( string table, MoveTableModel value)
         {
             string messege = await Api.ApiControler.Post($"MoveTableControler/postMove?table={table}", value);
-            if (messege == "-1") return true;
+            if (messege == "Nice") return true;
             return false;
         }
 
         public static async Task<bool> DeleteLastMove(string table)
         {
             string messege = await Api.ApiControler.Delete($"MoveTableControler/deleteLastMove?table={table}");
-            if (messege == "-1") return true;
+            if (messege == "Nice") return true;
             return false;
         }
 
