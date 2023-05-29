@@ -1,5 +1,4 @@
 ﻿@page "/eventList"
-@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Model
 @using Data.Controler
@@ -115,7 +114,6 @@
         if (await StaticResouses.mainControler.EventControler.Insert(eventModel))
         {
             add = false;
-            EventControler ev = new();
             OnClickNavigateEvent(await StaticResouses.mainControler.EventControler.GetLast());
         }
         doit = false;

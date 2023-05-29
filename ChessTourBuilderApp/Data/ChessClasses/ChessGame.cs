@@ -1,5 +1,4 @@
-﻿using ChessTourBuilderApp.Data.Controler.ControlerServer;
-using ChessTourBuilderApp.Data.HelpClasses;
+﻿using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using System.Data;
 

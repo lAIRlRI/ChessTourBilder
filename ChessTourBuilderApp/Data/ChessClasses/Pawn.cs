@@ -1,13 +1,7 @@
-﻿using ChessTourBuilderApp.Data.Controler.ControlerServer;
-using ChessTourBuilderApp.Data.DataBases;
+﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.ChessClasses
 {

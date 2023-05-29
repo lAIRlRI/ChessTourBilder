@@ -2,8 +2,6 @@
 @layout MainLayout
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Data.Controler;
-@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @inject NavigationManager NavigationManager
 
 
@@ -119,7 +117,6 @@
     private async void OnDelete()
     {
         if (!await StaticResouses.mainControler.PlayerControler.Delete((int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID)) return;
-        PlayerControler ev = new();
         OnClickNavigation("/eventList");
     }
 
