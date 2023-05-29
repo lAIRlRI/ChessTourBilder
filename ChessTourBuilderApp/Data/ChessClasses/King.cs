@@ -1,5 +1,6 @@
-﻿using ChessTourBuilderApp.Data.Controler;
+﻿using ChessTourBuilderApp.Data.Controler.ControlerServer;
 using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 
 namespace ChessTourBuilderApp.Data.ChessClasses
@@ -49,7 +50,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item2 = ID.ToString()
                 };
 
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
                 updateFigureModel = new()
                 {
@@ -57,7 +58,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item2 = (IsWhile ? 31 : 32).ToString()
                 };
 
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
                 result.Item1 = "O-O-O";
                 return result;
@@ -71,7 +72,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item2 = ID.ToString()
                 };
 
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
                 updateFigureModel = new()
                 {
@@ -79,7 +80,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item2 = (IsWhile ? 29 : 30).ToString()
                 };
 
-                await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
                 result.Item1 = "O-O";
                 return result;
@@ -97,7 +98,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = result.Item2.ToString(),
                     Item2 = NotGameFigure.ID.ToString()
                 };
-                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
                 insertMove = Name + "x" + move;
             }
@@ -108,7 +109,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item2 = ID.ToString()
             };
 
-            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+            await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
             result.Item1 = insertMove;
             return result;

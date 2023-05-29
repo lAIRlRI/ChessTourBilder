@@ -42,7 +42,7 @@
     }
     else
     {
-        <div>Белые @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
+        <div>Белые @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
         <button @onclick="Exit" class="text">Выйти</button>
     }
     <section>
@@ -53,7 +53,7 @@
                 {
                     int currentI = i;
                     int currentJ = j;
-                    <div @onclick="(()=> OnCkickTable(currentI, currentJ))" style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid black">
+                    <div @onclick="(()=> OnCkickTable(currentI, currentJ))" style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid @CheckFigureColor(i,j)">
                         @if (CheckFigure(i, j) != default(Figure))
                         {
                             <p style="color: @ColorFigure(figureView.IsWhile)">@figureView.Name@figureView.Pozition.cell</p>
@@ -73,10 +73,9 @@
 
 @code {
     List<Cell> cells = new();
-    ChessGame chessGame = new(ConsignmentControler.nowConsignment);
+    ChessGame chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
     bool IsWhile = true, End = false, del = false, rpt = false, dis = false, firstClick = true, pressed = false;
-    string move, str = "Белые", stage = "ok", newFigure;
-    int? index = null;
+    string move, str = "Белые", stage = "ok", newFigure, ColorfirstClick, ColorSecondClick;
     double? result;
     Figure figure = new Pawn("A8", true, -1);
     Figure figureView;
@@ -87,7 +86,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        chessGame = new(ConsignmentControler.nowConsignment);
+        chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
         await chessGame.InizializeGame();
         StateHasChanged();
     }
@@ -105,6 +104,13 @@
         return figureView;
     }
 
+    private string CheckFigureColor(int i, int j)
+    {
+        if (i.ToString() + j == ColorfirstClick) return "red";
+        else if (i.ToString() + j == ColorSecondClick) return "green";
+        return "black";
+    }
+
     private void OnCkickTable(int i, int j)
     {
         if (firstClick)
@@ -115,19 +121,22 @@
                 if (firstClickFigure.IsWhile != IsWhile) firstClickFigure = null;
             } 
             firstClick = false;
+            ColorfirstClick = i.ToString() + j;
+            ColorSecondClick = "";
         }
         else
         {
             move = (new Cell(j, i)).cell;
             firstClick = true;
+            ColorSecondClick = i.ToString() + j;
         }
+
     }
 
     private void DeleteMove()
     {
         if (!del) return;
         IsWhile = !IsWhile;
-        index = null;
         Swap();
         del = false;
         chessGame.DeleteLastMove(IsWhile);
@@ -164,7 +173,6 @@
         {
             case "ok":
                 IsWhile = !IsWhile;
-                index = null;
                 del = true;
                 move = null;
                 Swap();
@@ -197,7 +205,11 @@
             stage = await chessGame.SetFigure(firstClickFigure, move);
 
         pressed = false;
+        await chessGame.GetFigures();
         SwitchStageSet();
+
+        ColorfirstClick = "";
+        ColorSecondClick = "";
         StateHasChanged();
     }
 

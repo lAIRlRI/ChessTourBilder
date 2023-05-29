@@ -1,4 +1,4 @@
-﻿using ChessTourBuilderApp.Data.Controler;
+﻿using ChessTourBuilderApp.Data.Controler.ControlerServer;
 using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
@@ -93,7 +93,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = result.Item2.ToString(),
                     Item2 = NotGameFigure.ID.ToString()
                 };
-                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
                 insertMove = Name + "x" + move;
             }
@@ -107,7 +107,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = result.Item2.ToString(),
                     Item2 = ID.ToString()
                 };
-                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
                 result.Item1 = "rpt";
 
@@ -131,7 +131,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item2 = ID.ToString()
             };
 
-            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+            await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
             result.Item1 = insertMove;
 
@@ -164,7 +164,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item1 = oreder.ToString(),
                 Item2 = figure.ID.ToString()
             };
-            await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
+            await StaticResouses.mainControler.FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
             return Name + "x" + move;
         }

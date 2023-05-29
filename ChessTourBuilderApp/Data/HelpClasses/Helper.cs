@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Collections;
 using ChessTourBuilderApp.Data.Model;
-using ChessTourBuilderApp.Data.Controler;
 using System.Security.Cryptography;
 
 namespace ChessTourBuilderApp.Data.HelpClasses
@@ -27,8 +26,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static string FI() 
         {
             if (StaticResouses.IsPlayer) 
-                return PlayerControler.nowPlayer.FirstName + " " + PlayerControler.nowPlayer.LastName;
-            return OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName; 
+                return StaticResouses.mainControler.PlayerControler.nowPlayer.FirstName + " " + StaticResouses.mainControler.PlayerControler.nowPlayer.LastName;
+            return StaticResouses.mainControler.OrganizerControler.nowOrganizer.FirstName + " " + StaticResouses.mainControler.OrganizerControler.nowOrganizer.MiddleName; 
         }
 
         public  static string GeneratePassword(int passwordLength)
@@ -52,8 +51,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
         public static bool CheckDeleteButton() 
         {
-            if (OrganizerControler.nowOrganizer == null) return false;
-            return OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
+            if (StaticResouses.mainControler.OrganizerControler.nowOrganizer == null) return false;
+            return StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID == StaticResouses.mainControler.EventControler.nowEvent.OrganizerID || StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator != -1;
         } 
 
         public static async Task<string[]> CheckOrganizer(Organizer organizer)
@@ -76,7 +75,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (string.IsNullOrWhiteSpace(organizer.Login))
                 bools[3] = Text();
-            else if (!await OrganizerControler.GetLogin(organizer.Login))
+            else if (!await StaticResouses.mainControler.OrganizerControler.GetLogin(organizer.Login))
                 bools[3] = "Пользователь уже существует";
 
             if (string.IsNullOrWhiteSpace(organizer.Password))
@@ -116,7 +115,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             if (player.FIDEID.ToString().Length != 7)
                 bools[0] = "FIDEID должен состоять из 7 цифр";
 
-            if (!await PlayerControler.GetLogin(player.FIDEID.ToString()))
+            if (!await StaticResouses.mainControler.PlayerControler.GetLogin(player.FIDEID.ToString()))
                 bools[0] = "Игрок уже существует";
 
             if (string.IsNullOrWhiteSpace(player.FirstName))
@@ -158,7 +157,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
                 if (player.FIDEID.ToString().Length != 7)
                     bools[0] = "FIDEID должен состоять из 7 цифр";
 
-                if (!await PlayerControler.GetLogin(player.FIDEID.ToString()))
+                if (!await StaticResouses.mainControler.PlayerControler.GetLogin(player.FIDEID.ToString()))
                     bools[0] = "Игрок уже существует";
             }
             
@@ -205,7 +204,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             else if (consignment.DateStart < DateTime.Now)
                 bools[0] = "Не может быть меньше сегоднящней";
 
-            if (EventControler.nowEvent.DataStart < consignment.DateStart && EventControler.nowEvent.DataFinish > consignment.DateStart)
+            if (StaticResouses.mainControler.EventControler.nowEvent.DataStart < consignment.DateStart && StaticResouses.mainControler.EventControler.nowEvent.DataFinish > consignment.DateStart)
                 bools[0] = "Партия должна проходить в рамках турнира";
 
             if (consignment.blackPlayer.PlayerID == 0)

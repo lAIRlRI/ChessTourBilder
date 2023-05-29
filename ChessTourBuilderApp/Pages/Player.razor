@@ -2,7 +2,8 @@
 @layout MainLayout
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Data.Controler
+@using Data.Controler;
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @inject NavigationManager NavigationManager
 
 
@@ -15,7 +16,7 @@
         <h1 class="top-row-text text">@(Helper.FI())</h1>
     </div>
     <div class="nav-item">
-        @if (OrganizerControler.nowOrganizer.Administrator != -1)
+        @if (StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator != -1)
         {
             <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
@@ -32,36 +33,36 @@
         <section class="info-item2">
             <div>
                 <p class="error-text">@result[0]</p>
-                <input @bind-value="playerModel.FIDEID" type="number" placeholder="FIDEID: @PlayerControler.nowPlayer.FIDEID" disabled="@update" />
+                <input @bind-value="playerModel.FIDEID" type="number" placeholder="FIDEID: @StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[1]</p>
-                <input @bind-value="playerModel.FirstName" placeholder="Имя: @PlayerControler.nowPlayer.FirstName" disabled="@update" />
+                <input @bind-value="playerModel.FirstName" placeholder="Имя: @StaticResouses.mainControler.PlayerControler.nowPlayer.FirstName" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[2]</p>
-                <input @bind-value="playerModel.MiddleName" placeholder="Фамилия: @PlayerControler.nowPlayer.MiddleName" disabled="@update" />
+                <input @bind-value="playerModel.MiddleName" placeholder="Фамилия: @StaticResouses.mainControler.PlayerControler.nowPlayer.MiddleName" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[3]</p>
-                <input @bind-value="playerModel.LastName" placeholder="Отчество: @PlayerControler.nowPlayer.LastName" disabled="@update" />
+                <input @bind-value="playerModel.LastName" placeholder="Отчество: @StaticResouses.mainControler.PlayerControler.nowPlayer.LastName" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[4]</p>
-                <input @bind-value="playerModel.Birthday" type="date" placeholder="День рождения: @PlayerControler.nowPlayer.Birthday" disabled="@update" />
+                <input @bind-value="playerModel.Birthday" type="date" placeholder="День рождения: @StaticResouses.mainControler.PlayerControler.nowPlayer.Birthday" disabled="@update" />
             </div>
 
             <div>
                 <p class="error-text">@result[5]</p>
-                <input @bind-value="playerModel.ELORating" type="number" step="0.1" placeholder="Рейтинг: @PlayerControler.nowPlayer.ELORating" disabled="@update" />
+                <input @bind-value="playerModel.ELORating" type="number" step="0.1" placeholder="Рейтинг: @StaticResouses.mainControler.PlayerControler.nowPlayer.ELORating" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[6]</p>
-                <input @bind-value="playerModel.Contry" placeholder="Страна: @PlayerControler.nowPlayer.Contry" disabled="@update" />
+                <input @bind-value="playerModel.Contry" placeholder="Страна: @StaticResouses.mainControler.PlayerControler.nowPlayer.Contry" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[7]</p>
-                <input @bind-value="playerModel.Passord" placeholder="Пароль: @PlayerControler.nowPlayer.Passord" disabled="@update" />
+                <input @bind-value="playerModel.Passord" placeholder="Пароль: @StaticResouses.mainControler.PlayerControler.nowPlayer.Passord" disabled="@update" />
             </div>
         </section>
     </div>
@@ -82,7 +83,7 @@
 
 @code {
     Data.Model.Player playerModel = new();
-    int Fide = (int)PlayerControler.nowPlayer.FIDEID;
+    int Fide = (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID;
     bool update = true;
     string[] result = new string[8];
     List<TourPozition> ds = new();
@@ -93,32 +94,31 @@
     private async void OnUpdateButton()
     {
 
-        if (playerModel.FIDEID == null) playerModel.FIDEID = PlayerControler.nowPlayer.FIDEID;
-        if (playerModel.FirstName == null) playerModel.FirstName = PlayerControler.nowPlayer.FirstName;
-        if (playerModel.MiddleName == null) playerModel.MiddleName = PlayerControler.nowPlayer.MiddleName;
-        if (playerModel.LastName == null) playerModel.LastName = PlayerControler.nowPlayer.LastName;
-        if (playerModel.Birthday == null) playerModel.Birthday = PlayerControler.nowPlayer.Birthday;
-        if (playerModel.ELORating == null) playerModel.ELORating = PlayerControler.nowPlayer.ELORating;
-        if (playerModel.Contry == null) playerModel.Contry = PlayerControler.nowPlayer.Contry;
-        if (playerModel.Passord == null) playerModel.Passord = PlayerControler.nowPlayer.Passord;
+        if (playerModel.FIDEID == null) playerModel.FIDEID = StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID;
+        if (playerModel.FirstName == null) playerModel.FirstName = StaticResouses.mainControler.PlayerControler.nowPlayer.FirstName;
+        if (playerModel.MiddleName == null) playerModel.MiddleName = StaticResouses.mainControler.PlayerControler.nowPlayer.MiddleName;
+        if (playerModel.LastName == null) playerModel.LastName = StaticResouses.mainControler.PlayerControler.nowPlayer.LastName;
+        if (playerModel.Birthday == null) playerModel.Birthday = StaticResouses.mainControler.PlayerControler.nowPlayer.Birthday;
+        if (playerModel.ELORating == null) playerModel.ELORating = StaticResouses.mainControler.PlayerControler.nowPlayer.ELORating;
+        if (playerModel.Contry == null) playerModel.Contry = StaticResouses.mainControler.PlayerControler.nowPlayer.Contry;
+        if (playerModel.Passord == null) playerModel.Passord = StaticResouses.mainControler.PlayerControler.nowPlayer.Passord;
 
         Array.Clear(result);
 
         result = await Helper.CheckPlayerUpAsync(playerModel, Fide);
 
         if (!Helper.CheckStringArray(result)) return;
-        if (!await PlayerControler.Update(playerModel, Fide)) return;
+        if (!await StaticResouses.mainControler.PlayerControler.Update(playerModel, Fide)) return;
 
         update = false;
-        PlayerControler.nowPlayer = playerModel;
-        PlayerControler ev = new();
+        StaticResouses.mainControler.PlayerControler.nowPlayer = playerModel;
         playerModel = new();
         StateHasChanged();
     }
 
     private async void OnDelete()
     {
-        if (!await PlayerControler.Delete((int)PlayerControler.nowPlayer.FIDEID)) return;
+        if (!await StaticResouses.mainControler.PlayerControler.Delete((int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID)) return;
         PlayerControler ev = new();
         OnClickNavigation("/eventList");
     }

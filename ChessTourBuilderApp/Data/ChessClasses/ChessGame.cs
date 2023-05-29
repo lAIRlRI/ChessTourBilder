@@ -1,4 +1,5 @@
-﻿using ChessTourBuilderApp.Data.Controler;
+﻿using ChessTourBuilderApp.Data.Controler.ControlerServer;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using System.Data;
 
@@ -6,7 +7,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 {
     internal class ChessGame
     {
-        private readonly string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
+        private readonly string tableMove = "[" + StaticResouses.mainControler.EventControler.nowEvent.Name + DateTime.UtcNow + "]";
         private readonly string tableFigures = "[Figures" + DateTime.UtcNow + "]";
         private readonly char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
 
@@ -26,21 +27,21 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public async Task InizializeGame() 
         {
-            await MoveTableControler.CreateTableMove(tableMove);
+            await StaticResouses.mainControler.MoveTableControler.CreateTableMove(tableMove);
 
             consignment.TableName = tableMove;
 
-            await ConsignmentControler.Update(consignment, consignment.ConsignmentID);
+            await StaticResouses.mainControler.ConsignmentControler.Update(consignment, consignment.ConsignmentID);
 
-            if (await FigureTableControler.CreateFigureMove(tableFigures)) 
+            if (await StaticResouses.mainControler.FigureTableControler.CreateFigureMove(tableFigures)) 
             {
-                GetFigures();
+               await GetFigures();
             }
         }
 
-        public async void GetFigures()
+        public async Task GetFigures()
         {
-            var table = await FigureTableControler.GetAll(tableFigures);
+            var table = await StaticResouses.mainControler.FigureTableControler.GetAll(tableFigures);
             int i = 0;
             Figures = new Figure[table.Count];
 
@@ -118,14 +119,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Pozition = figure.Pozition.cell
             };
 
-            await MoveTableControler.PostMove(tableMove, moveTableModel);
+            await StaticResouses.mainControler.MoveTableControler.PostMove(tableMove, moveTableModel);
 
             lastPozition = figure.Pozition;
             lastIDFigure = figure.ID;
 
             Move.Add(insertMove);
-
-            GetFigures();
 
             return "ok";
         }
@@ -138,7 +137,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Pozition = pozition,
                 IsWhile = IsWhile
             };
-            await FigureTableControler.InsertFigure(tableFigures, figureScheme);
+            await StaticResouses.mainControler.FigureTableControler.InsertFigure(tableFigures, figureScheme);
 
             int ID = IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
 
@@ -150,9 +149,9 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 TourID = consignment.TourID,
                 Pozition = pozition + name
             };
-            await MoveTableControler.PostMove(tableMove, moveTableModel);
+            await StaticResouses.mainControler.MoveTableControler.PostMove(tableMove, moveTableModel);
 
-            GetFigures();
+            await GetFigures();
             Move.Add(pozition + name);
             return true;
         }
@@ -164,7 +163,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public async void EndGame(double? result)
         {
-            await MoveTableControler.PutLastMove(tableMove);
+            await StaticResouses.mainControler.MoveTableControler.PutLastMove(tableMove);
 
             if (result == 2)
             {
@@ -187,7 +186,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     consignment.blackPlayer.Result = 1;
                 }
 
-                await MoveTableControler.PutWinner(tableMove, ID);
+                await StaticResouses.mainControler.MoveTableControler.PutWinner(tableMove, ID);
             }
 
             consignment.whitePlayer.player.ELORating = ELO((double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.Result);
@@ -197,27 +196,27 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             consignment.StatusID = 1;
 
-            await ConsignmentControler.Update(consignment, consignment.ConsignmentID);
+            await StaticResouses.mainControler.ConsignmentControler.Update(consignment, consignment.ConsignmentID);
 
             IsGameContinues = false;
 
             TableResult tableResult = new() 
             {
-                EventID = EventControler.nowEvent.EventID,
+                EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID,
                 PlayerID = consignment.whitePlayer.PlayerID,
                 Result = (double)consignment.whitePlayer.Result,
                 ConsignmentID = consignment.ConsignmentID
             };
-            await ResultTableControler.InsertResult(EventControler.nowEvent.GetTableName(), tableResult);
+            await StaticResouses.mainControler.ResultTableControler.InsertResult(StaticResouses.mainControler.EventControler.nowEvent.GetTableName(), tableResult);
 
             tableResult = new()
             {
-                EventID = EventControler.nowEvent.EventID,
+                EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID,
                 PlayerID = consignment.blackPlayer.PlayerID,
                 Result = (double)consignment.blackPlayer.Result,
                 ConsignmentID = consignment.ConsignmentID
             };
-            await ResultTableControler.InsertResult(EventControler.nowEvent.GetTableName(), tableResult);
+            await StaticResouses.mainControler.ResultTableControler.InsertResult(StaticResouses.mainControler.EventControler.nowEvent.GetTableName(), tableResult);
 
             return;
         }
@@ -240,10 +239,10 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
         public async void DeleteLastMove(bool IsWhile)
         {
-            MovePozition dataSet = await MoveTableControler.GetMovePozition(tableMove);
+            MovePozition dataSet = await StaticResouses.mainControler.MoveTableControler.GetMovePozition(tableMove);
             string move = dataSet.Move.ToString();
 
-            await MoveTableControler.DeleteLastMove(tableMove);
+            await StaticResouses.mainControler.MoveTableControler.DeleteLastMove(tableMove);
 
             UpdateFigureModel updateFigureModel = new()
             {
@@ -251,7 +250,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item2 = lastIDFigure.ToString()
             };
 
-            await FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
+            await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
 
             if (move[1] == 'x' || move[0] == 'x')
             {
@@ -259,7 +258,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 {
                     Item1 = orderCaptures.ToString()
                 };
-                await FigureTableControler.UpdateInGame(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateInGame(tableFigures, updateFigureModel);
             }
 
             int pozition = IsWhile ? 1 : 8;
@@ -271,7 +270,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = pozition.ToString(),
                     Item2 = "0"
                 };
-                await FigureTableControler.UpdateCastlingLong(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateCastlingLong(tableFigures, updateFigureModel);
             }
 
             if (move == "O-O")
@@ -281,7 +280,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = pozition.ToString(),
                     Item2 = "0"
                 };
-                await FigureTableControler.UpdateCastlingShort(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateCastlingShort(tableFigures, updateFigureModel);
             }
 
             char temp = figure.FirstOrDefault(p => p == move[^1]);
@@ -293,12 +292,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item1 = lastPozition.cell,
                     Item2 = lastIDFigure.ToString()
                 };
-                await FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
             }
 
             Move.RemoveAt(Move.Count - 1);
 
-            GetFigures();
+            await GetFigures();
         }
     }
 }

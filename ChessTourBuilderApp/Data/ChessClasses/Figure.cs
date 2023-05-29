@@ -1,4 +1,4 @@
-﻿using ChessTourBuilderApp.Data.Controler;
+﻿using ChessTourBuilderApp.Data.Controler.ControlerServer;
 using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
@@ -56,7 +56,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     Item2 = NotGameFigure.ID.ToString()
                 };
 
-                await FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
+                await StaticResouses.mainControler.FigureTableControler.UpdateEat(tableFigures, updateFigureModel);
 
                 insertMove = Name + "x" + move;
             }
@@ -67,7 +67,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                 Item2 = ID.ToString()
             };
 
-            await FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
+            await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures, true, updateFigureModel);
 
             result.Item1 = insertMove;
 

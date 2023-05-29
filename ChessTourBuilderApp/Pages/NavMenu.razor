@@ -1,5 +1,6 @@
 ﻿@page "/navMenu"
 @using ChessTourBuilderApp.Data.Controler
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @layout MainLayout
 
@@ -23,7 +24,7 @@
         </div>
         @if (!StaticResouses.IsPlayer)
         {
-            if (OrganizerControler.nowOrganizer.Administrator != -1)
+            if (StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator != -1)
             {
                 <div class="nav-item ">
                     <span class="nav-item-icon"></span>

@@ -1,5 +1,6 @@
 ﻿@page "/tour"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @inject NavigationManager NavigationManager
@@ -17,7 +18,7 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Партии</h1>
-        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
+        @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
             <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="AddClick">@addstr</button>
@@ -71,7 +72,7 @@
 
 @code {
     List<Data.Model.Consignment> models = new();
-    string addstr = "Добавить", resultTour = Data.Controler.TourControler.nowTour.NameTour;
+    string addstr = "Добавить", resultTour = StaticResouses.mainControler.TourControler.nowTour.NameTour;
     string[] result = new string[3];
     Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };
     bool update = true;
@@ -82,8 +83,8 @@
 
     private async Task Inizaliz()
     {
-        models = await ConsignmentControler.GetByTourId(TourControler.nowTour.TourID);
-        list = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
+        models = await StaticResouses.mainControler.ConsignmentControler.GetByTourId(StaticResouses.mainControler.TourControler.nowTour.TourID);
+        list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
     }
 
     private void OnUpdate() => update = !update;
@@ -100,11 +101,11 @@
         } 
 
         model.StatusID = 1;
-        model.TourID = Data.Controler.TourControler.nowTour.TourID;
+        model.TourID = StaticResouses.mainControler.TourControler.nowTour.TourID;
 
-        if (await Data.Controler.ConsignmentControler.Insert(model))
+        if (await StaticResouses.mainControler.ConsignmentControler.Insert(model))
         {
-            model = await Data.Controler.ConsignmentControler.GetLast();
+            model = await StaticResouses.mainControler.ConsignmentControler.GetLast();
             OnClickNavigateEvent(model);
         }
 
@@ -119,9 +120,9 @@
 
     private async void OnUpdateButton()
     {
-        if (string.IsNullOrWhiteSpace(resultTour)) resultTour = TourControler.nowTour.NameTour;
-        TourControler.nowTour.NameTour = resultTour;
-        if (!await TourControler.Update(TourControler.nowTour, TourControler.nowTour.TourID)) 
+        if (string.IsNullOrWhiteSpace(resultTour)) resultTour = StaticResouses.mainControler.TourControler.nowTour.NameTour;
+        StaticResouses.mainControler.TourControler.nowTour.NameTour = resultTour;
+        if (!await StaticResouses.mainControler.TourControler.Update(StaticResouses.mainControler.TourControler.nowTour, StaticResouses.mainControler.TourControler.nowTour.TourID))
         {
             StateHasChanged();
             return;
@@ -132,13 +133,13 @@
 
     private void OnClickNavigateEvent(Data.Model.Consignment ev)
     {
-        Data.Controler.ConsignmentControler.nowConsignment = ev;
+        StaticResouses.mainControler.ConsignmentControler.nowConsignment = ev;
         NavigationManager.NavigateTo("/game");
     }
 
     private async void OnDelete()
     {
-        await TourControler.Delete(TourControler.nowTour.TourID);
+        await StaticResouses.mainControler.TourControler.Delete(StaticResouses.mainControler.TourControler.nowTour.TourID);
         OnClickNavigate("/tourList");
     }
 }

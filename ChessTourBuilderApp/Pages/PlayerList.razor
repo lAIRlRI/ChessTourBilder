@@ -1,5 +1,6 @@
 ﻿@page "/playerList"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @using System.Text.RegularExpressions
@@ -77,7 +78,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        playerModels = await PlayerControler.GetAll();
+        playerModels = await StaticResouses.mainControler.PlayerControler.GetAll();
     }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
@@ -94,14 +95,13 @@
             StateHasChanged();
             return;
         }
-        if (!await PlayerControler.Insert(playerModel))
+        if (!await StaticResouses.mainControler.PlayerControler.Insert(playerModel))
         {
             pressed = false;
             StateHasChanged();
             return;
         }
 
-        PlayerControler ev = new();
         OnClickNavigateToPlayer(playerModel);
     }
 
@@ -113,7 +113,7 @@
 
     private void OnClickNavigateToPlayer(Data.Model.Player player)
     {
-        PlayerControler.nowPlayer = player;
+        StaticResouses.mainControler.PlayerControler.nowPlayer = player;
         NavigationManager.NavigateTo("/player");
     }
 }

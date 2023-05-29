@@ -1,5 +1,6 @@
 ﻿@page "/tourList"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @using System.Text.RegularExpressions
@@ -15,8 +16,8 @@
         <h1 class="top-row-text text">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <div class="top-row-conteneer">
-        <h1 class="top-row-text text">@(EventControler.nowEvent.Name)</h1>
-        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
+        <h1 class="top-row-text text">@(StaticResouses.mainControler.EventControler.nowEvent.Name)</h1>
+        @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
             <h1 class="top-row-text text" @onclick="AddClick">Добавить</h1>
         }
@@ -53,7 +54,7 @@
     string result = "";
     Data.Model.Tour model = new();
 
-    protected override async Task OnInitializedAsync() => models = await TourControler.GetByEventId(EventControler.nowEvent.EventID);
+    protected override async Task OnInitializedAsync() => models = await StaticResouses.mainControler.TourControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
@@ -66,11 +67,11 @@
             return;
         }
 
-        model.EventID = EventControler.nowEvent.EventID;
+        model.EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID;
 
-        if (await TourControler.Insert(model))
+        if (await StaticResouses.mainControler.TourControler.Insert(model))
         {
-            model = await TourControler.GetLast();
+            model = await StaticResouses.mainControler.TourControler.GetLast();
             OnClickNavigateEvent(model);
         }
     }
@@ -83,7 +84,7 @@
 
     private void OnClickNavigateEvent(Data.Model.Tour ev)
     {
-        TourControler.nowTour = ev;
+        StaticResouses.mainControler.TourControler.nowTour = ev;
         NavigationManager.NavigateTo("/tour");
     }
 }

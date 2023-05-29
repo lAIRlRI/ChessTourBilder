@@ -1,5 +1,6 @@
 ﻿@page "/game"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @inject NavigationManager NavigationManager
@@ -16,31 +17,32 @@
         <section class="info-item3">
             <h3 class="text">Белыми: @whiteP</h3>
             <h3 class="text">Черными: @blackP</h3>
-            <h3 class="text">Время: @ConsignmentControler.nowConsignment.DateStart</h3>
-            <h3 class="text">Результат: @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
-            <h3 class="text">Стутус: @Helper.status[EventControler.nowEvent.StatusID-1]</h3>
+            <h3 class="text">Время: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.DateStart</h3>
+            <h3 class="text">Результат: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
+            <h3 class="text">Стутус: @Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]</h3>
         </section>
     </div>
     <section class="pozition-conteneer">
         <div class="element">
-            <h3 class="text">@ConsignmentControler.nowConsignment.GameMove</h3>
+            <h3 class="text">@StaticResouses.mainControler.ConsignmentControler.nowConsignment.GameMove</h3>
         </div>
     </section>
-    @if (ConsignmentControler.nowConsignment.StatusID == 2 && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
+    @if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID == 2 && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
     {
         <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Смотреть</button>
     }
     @if (check) 
     {
             <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть локально</button>
     }
 </body>
 
 @code {
     bool check = OnCheck();
 
-    string blackP = ConsignmentControler.nowConsignment.blackPlayer.player.FirstName + " " + ConsignmentControler.nowConsignment.blackPlayer.player.MiddleName;
-    string whiteP = ConsignmentControler.nowConsignment.whitePlayer.player.FirstName + " " + ConsignmentControler.nowConsignment.whitePlayer.player.MiddleName;
+    string blackP = StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.player.FirstName + " " + StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.player.MiddleName;
+    string whiteP = StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.player.FirstName + " " + StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.player.MiddleName;
 
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
 
@@ -48,8 +50,8 @@
     {
         if(StaticResouses.IsPlayer)
         {
-            if (ConsignmentControler.nowConsignment.blackPlayer.PlayerID == (int)PlayerControler.nowPlayer.FIDEID) return true;
-            if (ConsignmentControler.nowConsignment.whitePlayer.PlayerID == (int)PlayerControler.nowPlayer.FIDEID) return true;
+            if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.PlayerID == (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID) return true;
+            if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.PlayerID == (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID) return true;
         }
         return false;
     }

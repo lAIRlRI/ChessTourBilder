@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChessTourBuilderApp.Data.HelpClasses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -69,14 +70,14 @@ namespace ChessTourBuilderApp.Data.DataBases
         public string GetResult()
         {
             return ";with playerSum as" +
-            $"(select PlayerID, Sum(Result) as Points from {Controler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
+            $"(select PlayerID, Sum(Result) as Points from {StaticResouses.mainControler.EventControler.nowEvent.GetTableName()} group by PlayerID)" +
             "select Concat(FirstName, ' ', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc";
         }
 
         public string GetResultСircle()
         {
             return ";with playerSum as" +
-            $"(select PlayerID, Sum(Result) as Points from {Controler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
+            $"(select PlayerID, Sum(Result) as Points from {StaticResouses.mainControler.EventControler.nowEvent.GetTableName()} where Result <> 0.5 group by PlayerID)" +
             "select ROW_NUMBER() OVER (ORDER BY Points DESC) AS Pozition, Concat(FirstName, ' ', MiddleName) as Fi, Points from Player pl inner join playerSum p on pl.FIDEID = p.PlayerID order by Points desc";
         }
 

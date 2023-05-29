@@ -1,5 +1,6 @@
 ﻿@page "/eventPage"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @inject NavigationManager NavigationManager
@@ -17,7 +18,7 @@
         <div class="nav-item">
             <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))" class="top-row-text text">Результаты</button>
             <button @onclick="@(()=>OnClickNavigation("/tourList"))" class="top-row-text text">Туры</button>
-            @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
+            @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
             {
                 <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
                 <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
@@ -53,7 +54,7 @@
                 <p class="error-text">Окончание</p>
                 <input @bind-value="eventModelupdate.DataFinish" type="datetime" disabled="@update" />
             </div>
-            <input placeholder="Стутус: @Helper.status[EventControler.nowEvent.StatusID-1]" disabled />
+            <input placeholder="Стутус: @Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]" disabled />
         </section>
     </div>
     <div style="display:flex;">
@@ -61,7 +62,7 @@
         {
             <div style="display:flex;">
                 <p>Публичный</p>
-                <input @bind-value="@EventControler.nowEvent.IsPublic" type="checkbox" />
+                <input @bind-value="@StaticResouses.mainControler.EventControler.nowEvent.IsPublic" type="checkbox" />
             </div>
             <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
         }
@@ -82,6 +83,7 @@
                     </select>
                 </div>
                 <button disabled="@doit" @onclick="Add">Добавить</button>
+                <button disabled="@doit" @onclick="AddImport">Импрорт игроков</button>
             </div>
         }
     }
@@ -98,8 +100,8 @@
 
 @code {
 
-    Data.Model.Event eventModelupdate = EventControler.nowEvent;
-    bool update = true, add, addPlayer = !StaticResouses.IsPlayer && EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton();
+    Data.Model.Event eventModelupdate = StaticResouses.mainControler.EventControler.nowEvent;
+    bool update = true, add, addPlayer = !StaticResouses.IsPlayer && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && Helper.CheckDeleteButton();
     bool doit = false;
     string[] result = new string[5];
     int FIDEID;
@@ -108,8 +110,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        list = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
-        listPlayer = await PlayerControler.GetAll();
+        list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
+        listPlayer = await StaticResouses.mainControler.PlayerControler.GetAll();
     }
 
     private void OnUpdate() => update = !update;
@@ -141,19 +143,38 @@
             doit = false;
             return;
         }
-        await EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = EventControler.nowEvent.EventID });
-        list = await PlayerControler.GetByEventId(EventControler.nowEvent.EventID);
+        await StaticResouses.mainControler.EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID });
+        list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
+        doit = false;
+        StateHasChanged();
+    }
+
+    private async void AddImport()
+    {
+        doit = true;
+        if (FIDEID == 0)
+        {
+            doit = false;
+            return;
+        }
+        if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player))
+        {
+            doit = false;
+            return;
+        }
+        await StaticResouses.mainControler.EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID });
+        list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
         doit = false;
         StateHasChanged();
     }
 
     private async void OnUpdateButton()
     {
-        if (eventModelupdate.Name == null) eventModelupdate.Name = EventControler.nowEvent.Name;
-        if (eventModelupdate.LocationEvent == null) eventModelupdate.LocationEvent = EventControler.nowEvent.LocationEvent;
-        if (eventModelupdate.DataStart == null) eventModelupdate.DataStart = EventControler.nowEvent.DataStart;
-        if (eventModelupdate.DataFinish == null) eventModelupdate.DataFinish = EventControler.nowEvent.DataFinish;
-        if (eventModelupdate.PrizeFund == null) eventModelupdate.PrizeFund = EventControler.nowEvent.PrizeFund;
+        if (eventModelupdate.Name == null) eventModelupdate.Name = StaticResouses.mainControler.EventControler.nowEvent.Name;
+        if (eventModelupdate.LocationEvent == null) eventModelupdate.LocationEvent = StaticResouses.mainControler.EventControler.nowEvent.LocationEvent;
+        if (eventModelupdate.DataStart == null) eventModelupdate.DataStart = StaticResouses.mainControler.EventControler.nowEvent.DataStart;
+        if (eventModelupdate.DataFinish == null) eventModelupdate.DataFinish = StaticResouses.mainControler.EventControler.nowEvent.DataFinish;
+        if (eventModelupdate.PrizeFund == null) eventModelupdate.PrizeFund = StaticResouses.mainControler.EventControler.nowEvent.PrizeFund;
 
         Array.Clear(result);
         result = Helper.CheckEvent(eventModelupdate);
@@ -163,23 +184,21 @@
             StateHasChanged();
             return;
         } 
-        if (!await EventControler.Update(eventModelupdate, EventControler.nowEvent.EventID))
+        if (!await StaticResouses.mainControler.EventControler.Update(eventModelupdate, StaticResouses.mainControler.EventControler.nowEvent.EventID))
         {
             StateHasChanged();
             return;
         }
 
         update = false;
-        EventControler.nowEvent = eventModelupdate;
-        EventControler ev = new();
+        StaticResouses.mainControler.EventControler.nowEvent = eventModelupdate;
         eventModelupdate = new();
         StateHasChanged();
     }
 
     private async void OnDelete()
     {
-        if (!await EventControler.Delete(EventControler.nowEvent.EventID)) return;
-        EventControler ev = new();
+        if (!await StaticResouses.mainControler.EventControler.Delete(StaticResouses.mainControler.EventControler.nowEvent.EventID)) return;
         OnClickNavigation("/eventList");
     }
 }

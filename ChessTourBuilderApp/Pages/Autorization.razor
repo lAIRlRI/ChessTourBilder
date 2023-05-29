@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using ChessTourBuilderApp.Data.HelpClasses
 @using Newtonsoft.Json
 @layout MainLayout
 @inject NavigationManager NavigationManager
@@ -47,8 +48,9 @@
         if (q == "Nice")
         {
             if (IsPlayer)
-                Data.Controler.PlayerControler.nowPlayer = JsonConvert.DeserializeObject<Data.Model.Player>(await Data.Api.ApiControler.Get("Account/getInfoPlayer"));
-            else Data.Controler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+                StaticResouses.mainControler.PlayerControler.nowPlayer = JsonConvert.DeserializeObject<Data.Model.Player>(await Data.Api.ApiControler.Get("Account/getInfoPlayer"));
+            else StaticResouses.mainControler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+
             Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
             OnClickNavigate("/eventList");
         }

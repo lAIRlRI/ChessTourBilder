@@ -9,44 +9,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChessTourBuilderApp.Data.Controler
+namespace ChessTourBuilderApp.Data.Controler.ControlerServer
 {
-    internal class ConsignmentControler
+    internal class ConsignmentControler : IConsignmentControler
     {
-        public static Consignment nowConsignment;
+        public Consignment nowConsignment { get; set; }
         static List<Consignment> models;
 
-        public static async Task<bool> Insert(Consignment model)
+        public async Task<bool> Insert(Consignment model)
         {
             string messege = await Api.ApiControler.Post($"Consignments/create", model);
             if (messege == "Nice") return true;
             return false;
         }
 
-        public static async Task<bool> Update(Consignment model, int id)
+        public async Task<bool> Update(Consignment model, int id)
         {
             string messege = await Api.ApiControler.Put($"Consignments/edit?id={id}", model);
             if (messege == "Nice") return true;
             return false;
         }
 
-        public static async Task<bool> Delete(int id)
+        public async Task<bool> Delete(int id)
         {
             string messege = await Api.ApiControler.Delete($"Consignments/delete?id={id}");
             if (messege == "Nice") return true;
             return false;
         }
 
-        public static async Task<List<Consignment>> GetAll()
+        public async Task<List<Consignment>> GetAll()
         {
             models = JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get("Consignments/get"));
             return models;
         }
 
-        public static async Task<Consignment> GetById(int id) => JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getById?id={id}"));
+        public async Task<Consignment> GetById(int id) => JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getById?id={id}"));
 
-        public static async Task<List<Consignment>> GetByTourId(int id) => JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get($"Consignments/getByTourId?id={id}"));
+        public async Task<List<Consignment>> GetByTourId(int id) => JsonConvert.DeserializeObject<List<Consignment>>(await Api.ApiControler.Get($"Consignments/getByTourId?id={id}"));
 
-        public static async Task<Consignment> GetLast() => JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getLast"));
+        public async Task<Consignment> GetLast() => JsonConvert.DeserializeObject<Consignment>(await Api.ApiControler.Get($"Consignments/getLast"));
     }
 }

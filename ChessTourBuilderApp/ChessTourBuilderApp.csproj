@@ -74,4 +74,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Controler\ContolerLocal\" />
+  </ItemGroup>
+
 </Project>

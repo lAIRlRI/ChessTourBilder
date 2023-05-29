@@ -1,4 +1,5 @@
 ﻿@page "/eventList"
+@using ChessTourBuilderApp.Data.Controler.ControlerServer
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Model
 @using Data.Controler
@@ -82,12 +83,15 @@
 
     private async Task Inizaliz()
     {
-        await EventControler.UpdateStatus();
+        await StaticResouses.mainControler.EventControler.UpdateStatus();
         if (StaticResouses.IsPlayer)
         {
-            eventModels =  await EventControler.GetPlayerEvent();
+            eventModels = await StaticResouses.mainControler.EventControler.GetPlayerEvent();
         }
-        else eventModels = OrganizerControler.nowOrganizer.Administrator == -1 ? await EventControler.GetPublic() : await EventControler.GetAll();
+        else eventModels = StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator == -1 ? 
+                                                        await StaticResouses.mainControler.EventControler.GetPublic() 
+                                                    : 
+                                                        await StaticResouses.mainControler.EventControler.GetAll();
         if (eventModels == null) eventModels = new List<Event>();
     }
 
@@ -105,14 +109,14 @@
             return;
         }
 
-        eventModel.OrganizerID = OrganizerControler.nowOrganizer.OrganizerID;
+        eventModel.OrganizerID = StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID;
         eventModel.StatusID = 1;
 
-        if (await EventControler.Insert(eventModel))
+        if (await StaticResouses.mainControler.EventControler.Insert(eventModel))
         {
             add = false;
             EventControler ev = new();
-            OnClickNavigateEvent(await EventControler.GetLast());
+            OnClickNavigateEvent(await StaticResouses.mainControler.EventControler.GetLast());
         }
         doit = false;
         StateHasChanged();
@@ -126,7 +130,7 @@
 
     private void OnClickNavigateEvent(Event ev)
     {
-        EventControler.nowEvent = ev;
+        StaticResouses.mainControler.EventControler.nowEvent = ev;
         NavigationManager.NavigateTo("/eventPage");
     }
 }
