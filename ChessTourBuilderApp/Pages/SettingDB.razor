@@ -119,7 +119,6 @@
     {
         try
         {
-            DataBase.ConnChangeTemp($"use {str} " + DataBase.GetTables());
             CreateAdmin = true;
             DBChangeText += "\nЖдите, создвнны таблицы\n";
         }

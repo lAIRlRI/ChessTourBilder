@@ -35,12 +35,6 @@ namespace ChessTourBuilderApp.Data.DataBases
             return File.ReadAllText(flag);
         }
 
-        public static string GetTables()
-        {
-            pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
-            return File.ReadAllText(pathsSQL);
-        }
-
         public static string GetTablesLite()
         {
             pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БДLite.txt");

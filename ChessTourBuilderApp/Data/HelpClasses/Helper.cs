@@ -10,7 +10,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
     {
         private static readonly Regex regex = new("[^а-яА-Яa-zA-Z]");
 
-        public static Hashtable StringToInt = new(new Dictionary<char, int>()
+        public static Hashtable StringToInt = new( new Dictionary<char, int>()
             {
                 {'A', 1 },{'B', 2 },{'C', 3 },{'D', 4 },
                 {'E', 5 },{'F', 6 },{'G', 7 },{'H', 8 }
@@ -22,6 +22,21 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static string[] IntToString = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
         private static string Text() => $"Поле не должно быть пустым";
+
+
+        public static string CheckLenghtNumber(string str, int lenght = 50)
+        {
+            if (!string.IsNullOrWhiteSpace(str)) 
+                return Text();
+
+            if (!Regex.IsMatch(str, @"^(?!.\s$)(?!.\s{2})(?!^\s).*$"))
+                return "Уберите лишние пробелы.";
+
+            if (str.Length > lenght)
+                return $"Данные не должны превышать {lenght} символов";
+
+            return null;
+        }
 
         public static string FI() 
         {
@@ -59,9 +74,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         {
             string[] bools = new string[5];
 
-            if (string.IsNullOrWhiteSpace(organizer.FirstName))
-                bools[0] = Text();
-            else if (regex.IsMatch(organizer.FirstName))
+            bools[0] = CheckLenghtNumber(organizer.FirstName);
+            if (regex.IsMatch(organizer.FirstName))
                 bools[0] = "Поле может содержать только буквы";
 
             if (string.IsNullOrWhiteSpace(organizer.MiddleName))
