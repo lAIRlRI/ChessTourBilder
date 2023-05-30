@@ -10,5 +10,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
     internal class StaticResouses
     {
         public static IDBQ dBQ;
+
+        public static bool IsPlayer = false;
     }
 }

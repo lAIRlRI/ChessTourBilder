@@ -21,6 +21,10 @@
             <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
         }
+        @if (!StaticResouses.IsPlayer)
+        {
+            <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+        }
     </div>
     <div class="info-conteneer">
         <section class="image-conteneer info-item1">
@@ -45,7 +49,7 @@
             </div>
             <div>
                 <p class="error-text">@result[4]</p>
-                <input @bind-value="playerModel.Birthday" type="datetime-local" placeholder="День рождения: @PlayerControler.nowPlayer.Birthday" disabled="@update" />
+                <input @bind-value="playerModel.Birthday" type="date" placeholder="День рождения: @PlayerControler.nowPlayer.Birthday" disabled="@update" />
             </div>
 
             <div>
@@ -54,7 +58,11 @@
             </div>
             <div>
                 <p class="error-text">@result[6]</p>
-                <input @bind-value="playerModel.Contry" placehol der="Страна: @playerModel.Contry" disabled="@update" />
+                <input @bind-value="playerModel.Contry" placeholder="Страна: @PlayerControler.nowPlayer.Contry" disabled="@update" />
+            </div>
+            <div>
+                <p class="error-text">@result[7]</p>
+                <input @bind-value="playerModel.Passord" placeholder="Пароль: @PlayerControler.nowPlayer.Passord" disabled="@update" />
             </div>
         </section>
     </div>
@@ -75,8 +83,9 @@
 
 @code {
     Data.Model.Player playerModel = new();
+    int Fide = (int)PlayerControler.nowPlayer.FIDEID;
     bool update = true;
-    string[] result = new string[7];
+    string[] result = new string[8];
     List<TourPozition> ds = DataBase.Read("select Name, TopPlece from Event e " +
                             $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}", TourPozition.mapper);
 
@@ -85,6 +94,7 @@
 
     private void OnUpdateButton()
     {
+
         if (playerModel.FIDEID == null) playerModel.FIDEID = PlayerControler.nowPlayer.FIDEID;
         if (playerModel.FirstName == null) playerModel.FirstName = PlayerControler.nowPlayer.FirstName;
         if (playerModel.MiddleName == null) playerModel.MiddleName = PlayerControler.nowPlayer.MiddleName;
@@ -92,10 +102,11 @@
         if (playerModel.Birthday == null) playerModel.Birthday = PlayerControler.nowPlayer.Birthday;
         if (playerModel.ELORating == null) playerModel.ELORating = PlayerControler.nowPlayer.ELORating;
         if (playerModel.Contry == null) playerModel.Contry = PlayerControler.nowPlayer.Contry;
+        if (playerModel.Passord == null) playerModel.Passord = PlayerControler.nowPlayer.Passord;
 
         Array.Clear(result);
 
-        if (!Helper.CheckPlayer(playerModel, ref result)) return;
+        if (!Helper.CheckPlayerUp(playerModel, ref result, Fide)) return;
         if (!PlayerControler.Update(playerModel, PlayerControler.nowPlayer.FIDEID)) return;
 
         update = false;

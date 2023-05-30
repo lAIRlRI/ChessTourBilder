@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Collections;
 using ChessTourBuilderApp.Data.Model;
 using ChessTourBuilderApp.Data.Controler;
+using System.Security.Cryptography;
 
 namespace ChessTourBuilderApp.Data.HelpClasses
 {
@@ -32,7 +33,35 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static string[] IntToString = new string[] { "A", "B", "C", "D", "E", "F", "G", "H" };
 
         private static string Text() => $"Поле не должно быть пустым";
-        public static string FI() => OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName;
+
+        public static string FI() 
+        {
+            if (StaticResouses.IsPlayer) 
+            {
+                return PlayerControler.nowPlayer.FirstName + " " + PlayerControler.nowPlayer.LastName;
+            }
+            return OrganizerControler.nowOrganizer.FirstName + " " + OrganizerControler.nowOrganizer.MiddleName; 
+        }
+
+        public  static string GeneratePassword(int passwordLength)
+        {
+            const string validChars = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var rng = RandomNumberGenerator.Create();
+            var buffer = new byte[passwordLength * 4];
+            rng.GetBytes(buffer);
+            var result = new StringBuilder(passwordLength);
+
+            for (int i = 0; i < passwordLength; i++)
+            {
+                var rnd = BitConverter.ToUInt32(buffer, i * 4);
+                var idx = rnd % validChars.Length;
+
+                result.Append(validChars[(int)idx]);
+            }
+
+            return result.ToString();
+        }
+
         public static bool CheckDeleteButton() => OrganizerControler.nowOrganizer.OrganizerID == EventControler.nowEvent.OrganizerID || OrganizerControler.nowOrganizer.Administrator != -1;
 
         public static bool CheckOrganizer(Organizer organizer, ref string[] bools)
@@ -114,8 +143,58 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             if (string.IsNullOrWhiteSpace(player.Contry))
                 bools[6] = Text();
 
+            
+
             return bools.All(p => p == null);
         }
+
+        public static bool CheckPlayerUp(Player player, ref string[] bools, int FIDEID)
+        {
+            if (FIDEID != player.FIDEID) 
+            {
+                if (player.FIDEID.ToString().Length != 7)
+                    bools[0] = "FIDEID должен состоять из 7 цифр";
+
+                if (PlayerControler.Get().FirstOrDefault(p => p.FIDEID == player.FIDEID) != default(Player))
+                    bools[0] = "Игрок уже существует";
+            }
+            
+            if (string.IsNullOrWhiteSpace(player.FirstName))
+                bools[1] = Text();
+            else if (regex.IsMatch(player.FirstName))
+                bools[1] = "Поле может содержать только буквы";
+
+            if (string.IsNullOrWhiteSpace(player.MiddleName))
+                bools[2] = Text();
+            else if (regex.IsMatch(player.MiddleName))
+                bools[2] = "Поле может содержать только буквы";
+
+            if (!string.IsNullOrWhiteSpace(player.LastName))
+                if (regex.IsMatch(player.LastName))
+                    bools[3] = "Поле может содержать только буквы";
+
+            if (player.Birthday == null)
+                bools[4] = Text();
+            else if (player.Birthday > DateTime.Now)
+                bools[4] = "не может больше меньше сегоднящней";
+
+            if (player.ELORating == null)
+                bools[5] = Text();
+            else if (player.ELORating < 0)
+                bools[5] = "ЕLO не может быть меньше 0";
+
+            if (string.IsNullOrWhiteSpace(player.Contry))
+                bools[6] = Text();
+
+            if (player.FIDEID.ToString().Length != 7)
+                bools[0] = "FIDEID должен состоять из 7 цифр";
+
+            if (string.IsNullOrWhiteSpace(player.Passord))
+                bools[7] = Text();
+
+            return bools.All(p => p == null);
+        }
+
 
         public static bool CheckConsignment(Consignment consignment, ref string[] bools)
         {

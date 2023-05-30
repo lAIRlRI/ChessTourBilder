@@ -17,7 +17,10 @@
     </section>
     <div class="top-row-conteneer">
         <h1 class="title-text">Турниры</h1>
-        <h1 class="title-text" @onclick="AddClick">@addstr</h1>
+        @if (!StaticResouses.IsPlayer)
+        {
+            <h1 class="title-text" @onclick="AddClick">@addstr</h1>
+        }
     </div>
     <section class="pozition-conteneer">
         @if (add)
@@ -69,14 +72,24 @@
 </body>
 
 @code {
-    List<Data.Model.Event> eventModels = OrganizerControler.nowOrganizer.Administrator == -1
-                                        ? EventControler.Get()
-                                            .Where(p => p.OrganizerID == OrganizerControler.nowOrganizer.OrganizerID
-                                                || p.IsPublic == true).ToList() : EventControler.Get();
+    List<Data.Model.Event> eventModels = Inizilize();
     static string like = "", addstr = "Добавить";
     bool add =  false;
     string[] result = new string[5];
     Data.Model.Event eventModel = new();
+
+    private static List<Data.Model.Event> Inizilize()
+    {
+        if (StaticResouses.IsPlayer) 
+        {
+            return Data.DataBases.DataBase.Read("select * from Event e " +
+                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}", EventControler.mapper);
+        }
+        else return OrganizerControler.nowOrganizer.Administrator == -1
+                                        ? EventControler.Get()
+                                            .Where(p => p.OrganizerID == OrganizerControler.nowOrganizer.OrganizerID
+                                                || p.IsPublic == true).ToList() : EventControler.Get();
+    }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 

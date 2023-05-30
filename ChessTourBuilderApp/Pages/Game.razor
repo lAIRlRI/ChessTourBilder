@@ -26,15 +26,31 @@
             <h3 class="text">@ConsignmentControler.nowConsignment.GameMove</h3>
         </div>
     </section>
-    @if (ConsignmentControler.nowConsignment.StatusID == 2 && EventControler.nowEvent.StatusID != 1)
+    @if (ConsignmentControler.nowConsignment.StatusID == 2 && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
     {
-        <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+        <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Смотреть</button>
+    }
+    @if (check) 
+    {
+            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
     }
 </body>
 
 @code {
+    bool check = OnCheck();
+
     string blackP = ConsignmentControler.nowConsignment.blackPlayer.player.FirstName + " " + ConsignmentControler.nowConsignment.blackPlayer.player.MiddleName;
     string whiteP = ConsignmentControler.nowConsignment.whitePlayer.player.FirstName + " " + ConsignmentControler.nowConsignment.whitePlayer.player.MiddleName;
 
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
+
+    private static bool OnCheck() 
+    {
+        if(StaticResouses.IsPlayer)
+        {
+            if (ConsignmentControler.nowConsignment.blackPlayer.PlayerID == (int)PlayerControler.nowPlayer.FIDEID) return true;
+            if (ConsignmentControler.nowConsignment.whitePlayer.PlayerID == (int)PlayerControler.nowPlayer.FIDEID) return true;
+        }
+        return false;
+    }
 }

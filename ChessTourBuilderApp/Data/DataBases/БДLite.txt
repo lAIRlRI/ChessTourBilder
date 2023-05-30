@@ -7,6 +7,7 @@ CREATE TABLE Player(
     FirstName TEXT NOT NULL,
     MiddleName TEXT NOT NULL,
     LastName TEXT,
+    Passord TEXT NOT NULL,
     Birthday TEXT NOT NULL,
     ELORating REAL NOT NULL,
     Contry TEXT NOT NULL,

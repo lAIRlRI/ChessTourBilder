@@ -16,7 +16,7 @@
     </div>
     <div class="top-row-conteneer">
         <h1 class="top-row-text text">@(EventControler.nowEvent.Name)</h1>
-        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1)
+        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
             <h1 class="top-row-text text" @onclick="AddClick">Добавить</h1>
         }

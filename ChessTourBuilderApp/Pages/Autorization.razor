@@ -12,6 +12,10 @@
         <h1 class="top-row-text text text-color-right" href="">Авторизация</h1>
         <input @bind-value="organizer.Login" placeholder="Логин" type="text">
         <input @bind-value="organizer.Password" placeholder="Пароль" type="password">
+        <div style="display:flex;">
+            <input @bind-value="IsPlayer" type="checkbox" />
+            <h4>Войти как игрок</h4>
+        </div>
         @if (style)
         {
             <h6 class="text alert">Неправильный логин или пароль</h6>
@@ -24,21 +28,47 @@
 @code
 {
     private Data.Model.Organizer organizer = new();
-    private bool style = false;
+    private bool style = false, IsPlayer = false;
 
 
     void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
     void OnAvtorizate()
     {
-        Data.Controler.OrganizerControler.nowOrganizer = Data.Controler.OrganizerControler.Get()
-                                                            .FirstOrDefault(p => p.Login == organizer.Login
-                                                                                    && p.Password == organizer.Password);
-        if (Data.Controler.OrganizerControler.nowOrganizer == null)
+        if (IsPlayer)
         {
-            style = true;
-            return;
+            Data.Controler.PlayerControler.nowPlayer = Data.Controler.PlayerControler.Get()
+                                                                .FirstOrDefault(p => p.FIDEID.ToString() == organizer.Login
+                                                                                        && p.Passord == organizer.Password);
+            Data.Controler.OrganizerControler.nowOrganizer = new Data.Model.Organizer();
         }
+        else 
+        {
+            Data.Controler.OrganizerControler.nowOrganizer = Data.Controler.OrganizerControler.Get()
+                                                                .FirstOrDefault(p => p.Login == organizer.Login
+                                                                                        && p.Password == organizer.Password);
+        }
+
+        Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
+
+        if (IsPlayer)
+        {
+            if (Data.Controler.PlayerControler.nowPlayer == null)
+            {
+                style = true;
+                return;
+            }
+        }
+        else 
+        {
+            if (Data.Controler.OrganizerControler.nowOrganizer == null)
+            {
+                style = true;
+                return;
+            }
+        }
+
+        Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
         OnClickNavigate("/eventList");
     }
 }

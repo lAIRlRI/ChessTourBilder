@@ -18,7 +18,6 @@ namespace ChessTourBuilderApp.Data.DataBases
         static string pathsSQL;
         static string flag;
         public static IDbConnection connection;
-        public static SqlConnection temp;
         public static SqliteConnection tempLite;
         public static bool serverOrLite = true;
  
@@ -155,11 +154,9 @@ namespace ChessTourBuilderApp.Data.DataBases
 
         public static string NewConnection(string[] values)
         {
-            SqlCommand sqlCommand;
-
             try
             {
-                temp = new SqlConnection($"Data Source = {values[0]}; " +
+                connection = new SqlConnection($"Data Source = {values[0]}; " +
                              $"Initial Catalog = {values[1]}; " +
                              $"User ID = {values[2]};" +
                              $"Password = {values[3]};" +
@@ -167,10 +164,11 @@ namespace ChessTourBuilderApp.Data.DataBases
                              $"TrustServerCertificate = true;" +
                              $"Encrypt = false;" +
                              $"Integrated Security = true;");
-                temp.Open();
-                sqlCommand = new SqlCommand($"use {values[1]}", temp);
-                sqlCommand.ExecuteNonQuery();
-                temp.Close();
+                connection.Open();
+                using var command = connection.CreateCommand();
+                command.CommandText = $"use {values[1]}";
+                command.ExecuteNonQuery();
+                connection.Close();
             }
             catch
             {
@@ -179,17 +177,17 @@ namespace ChessTourBuilderApp.Data.DataBases
 
             try
             {
-                temp.Open();
-                sqlCommand = new SqlCommand($"select 1 from Organizer", temp);
-                sqlCommand.ExecuteNonQuery();
-                temp.Close();
+                connection.Open();
+                using var command = connection.CreateCommand();
+                command.CommandText = "select 1 from Organizer";
+                command.ExecuteNonQuery();
+                connection.Close();
             }
             catch
             {
                 return "NoTable";
             }
 
-            connection = temp;
 
             paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
 
@@ -239,7 +237,6 @@ namespace ChessTourBuilderApp.Data.DataBases
 
             return "ok";
         }
-
 
         public static List<T> Read<T>(string query, Func<IDataReader, T> mapper)
         {
@@ -309,10 +306,11 @@ namespace ChessTourBuilderApp.Data.DataBases
         {
             try
             {
-                if (temp.State == ConnectionState.Closed) temp.Open();
-                SqlCommand sqlCommand = new(str, temp);
-                sqlCommand.ExecuteNonQuery();
-                temp.Close();
+                if (connection.State == ConnectionState.Closed) connection.Open();
+                using var command = connection.CreateCommand();
+                command.CommandText = str;
+                command.ExecuteNonQuery();
+                connection.Close();
                 return true;
             }
             catch (Exception e)

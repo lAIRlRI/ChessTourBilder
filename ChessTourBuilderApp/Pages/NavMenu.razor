@@ -21,12 +21,15 @@
             <span class="nav-item-icon"></span>
             <a href="/" class="text">Выйти</a>
         </div>
-        @if (OrganizerControler.nowOrganizer.Administrator != -1)
+        @if (!StaticResouses.IsPlayer)
         {
-            <div class="nav-item ">
-                <span class="nav-item-icon"></span>
-                <a href="/setting" class="text">Настройки</a>
-            </div>
+            if (OrganizerControler.nowOrganizer.Administrator != -1)
+            {
+                <div class="nav-item ">
+                    <span class="nav-item-icon"></span>
+                    <a href="/setting" class="text">Настройки</a>
+                </div>
+            }
         }
     </nav>
 </body>
