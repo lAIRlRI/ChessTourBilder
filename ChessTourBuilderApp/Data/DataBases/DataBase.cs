@@ -38,7 +38,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 //var contents = reader.ReadToEnd();
                 flag = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "wwwroot/DataBases/FlagBD.txt");
 
-            return File.ReadAllText(flag);
+            return await File.ReadAllTextAsync(flag);
         }
 
         public static string GetTablesLite()
