@@ -114,6 +114,7 @@
         if (await StaticResouses.mainControler.EventControler.Insert(eventModel))
         {
             add = false;
+            await StaticResouses.mainControler.EventControler.UpdateStatus();
             OnClickNavigateEvent(await StaticResouses.mainControler.EventControler.GetLast());
         }
         doit = false;

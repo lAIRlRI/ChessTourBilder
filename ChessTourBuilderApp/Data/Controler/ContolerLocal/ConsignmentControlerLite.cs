@@ -48,7 +48,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
                                                         $"@StatusID," +
                                                         $"@DateStart)", list.ToArray())) return false;
 
-            int modelID = (await GetById(model.ConsignmentID)).ConsignmentID;
+            int modelID = (await GetLast()).ConsignmentID;
             model.whitePlayer.ConsignmentID = modelID;
             model.whitePlayer.IsWhile = true;
 
@@ -88,7 +88,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         {
             await Task.Delay(2);
             models = DataBase.Read("SELECT * FROM Consignment", mapper);
-            ConsignmentPlayerGet();
+            await ConsignmentPlayerGet();
             return models;
         }
 
@@ -96,7 +96,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         {
             await Task.Delay(2);
             models = DataBase.Read($"SELECT * FROM Consignment where ConsignmentID = {id}", mapper);
-            ConsignmentPlayerGet();
+            await ConsignmentPlayerGet();
             return models[0];
         }
 
@@ -104,7 +104,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         {
             await Task.Delay(2);
             models = DataBase.Read($"SELECT * FROM Consignment where TourID = {id}", mapper);
-            ConsignmentPlayerGet();
+            await ConsignmentPlayerGet();
             return models;
         }
 
@@ -112,11 +112,11 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         {
             await Task.Delay(2);
             models = DataBase.Read("SELECT * FROM Consignment where ConsignmentID = (select max(ConsignmentID) from Consignment)", mapper);
-            ConsignmentPlayerGet();
+            await ConsignmentPlayerGet();
             return models[0];
         }
 
-        private async static void ConsignmentPlayerGet()
+        private async static Task ConsignmentPlayerGet()
         {
             foreach (var item in models)
             {

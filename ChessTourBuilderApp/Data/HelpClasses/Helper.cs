@@ -26,7 +26,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
         public static string CheckLenghtNumber(string str, int lenght = 50)
         {
-            if (!string.IsNullOrWhiteSpace(str)) 
+            if (string.IsNullOrWhiteSpace(str)) 
                 return Text();
 
             if (!Regex.IsMatch(str, @"^(?!.\s$)(?!.\s{2})(?!^\s).*$"))
@@ -218,7 +218,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             else if (consignment.DateStart < DateTime.Now)
                 bools[0] = "Не может быть меньше сегоднящней";
 
-            if (StaticResouses.mainControler.EventControler.nowEvent.DataStart < consignment.DateStart && StaticResouses.mainControler.EventControler.nowEvent.DataFinish > consignment.DateStart)
+            if (!(StaticResouses.mainControler.EventControler.nowEvent.DataStart < consignment.DateStart && StaticResouses.mainControler.EventControler.nowEvent.DataFinish > consignment.DateStart))
                 bools[0] = "Партия должна проходить в рамках турнира";
 
             if (consignment.blackPlayer.PlayerID == 0)

@@ -1,4 +1,5 @@
-﻿using ChessTourBuilderApp.Data.HelpClasses;
+﻿using ChessTourBuilderApp.Data.Api;
+using ChessTourBuilderApp.Data.HelpClasses;
 using Microsoft.Data.Sqlite;
 using System.Data;
 using System.Reflection;
@@ -29,9 +30,14 @@ namespace ChessTourBuilderApp.Data.DataBases
             return temp;
         }
 
-        public static string GetFlag()
+        public async static  Task<string> GetFlag()
         {
-            flag = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\FlagBD.txt");
+                //using var stream = await FileSystem.OpenAppPackageFileAsync("FlagBD.txt");
+                //using var reader = new StreamReader(stream);
+
+                //var contents = reader.ReadToEnd();
+                flag = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "wwwroot/DataBases/FlagBD.txt");
+
             return File.ReadAllText(flag);
         }
 
@@ -51,10 +57,22 @@ namespace ChessTourBuilderApp.Data.DataBases
             connection.Close();
         }
 
-        public static bool ChangeConnection()
+        public async static Task<bool> ChangeConnection()
         {
             try
-            { 
+            {
+                string paths = Path.Combine(FileSystem.AppDataDirectory, @"Data\DataBases\serverSetting.txt");
+                string[] lines = File.ReadAllLines(paths);
+
+                ApiControler.baseURL = lines[0];
+
+                StaticResouses.mainControler = new(true);
+                await StaticResouses.mainControler.OrganizerControler.GetAll();
+
+                using (StreamWriter w = new(flag))
+                {
+                    w.WriteLine("1");
+                }
 
                 return true;
             }
@@ -85,8 +103,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 {
                     w.WriteLine("0");
                 }
-                serverOrLite = false;
-                StaticResouses.dBQ = new LiteQ();
+                StaticResouses.mainControler = new(false);
 
                 return true;
             }
@@ -96,24 +113,30 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static string NewConnection(string[] values)
+        public static async Task<string> NewConnection(string[] values)
         {
             try
             {
-                
+                StaticResouses.mainControler = new(true);
+                ApiControler.baseURL = values[0];
+                await StaticResouses.mainControler.OrganizerControler.GetAll();
+
+                string paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
+
+                using (StreamWriter w = new(paths))
+                {
+                    w.WriteLine(values[0]);
+                }
+
+                using (StreamWriter w = new(flag))
+                {
+                    w.WriteLine("1");
+                }
+                StaticResouses.mainControler = new(true);
             }
             catch
             {
                 return "NoDB";
-            }
-
-            try
-            {
-                
-            }
-            catch
-            {
-                return "NoTable";
             }
 
             return "ok";
@@ -142,8 +165,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             {
                 w.WriteLine("0");
             }
-            serverOrLite = false;
-            StaticResouses.dBQ = new LiteQ();
+            StaticResouses.mainControler = new(false);
 
             return "ok";
         }
@@ -163,6 +185,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 }
             }
             connection.Close();
+
             return result;
         }
 
@@ -191,6 +214,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             AddParameters(command, parameters);
             bool result = command.ExecuteNonQuery() > 0;
             connection.Close();
+
             return result;
         }
 
@@ -200,6 +224,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             using var command = connection.CreateCommand();
             command.CommandText = query;
             AddParameters(command, parameters);
+
             return command.ExecuteNonQuery() > 0;
         }
 
@@ -221,6 +246,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 command.CommandText = str;
                 command.ExecuteNonQuery();
                 connection.Close();
+
                 return true;
             }
             catch (Exception e)

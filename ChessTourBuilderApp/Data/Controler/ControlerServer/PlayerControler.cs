@@ -42,5 +42,12 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
             if (messege == "Nice") return true;
             return false;
         }
+
+        public async Task<bool> InsertAdmin()
+        {
+            string messege = await Api.ApiControler.Get($"Players/insertAdmin");
+            if (messege == "Nice") return true;
+            return false;
+        }
     }
 }

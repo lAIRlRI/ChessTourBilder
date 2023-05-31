@@ -1,7 +1,6 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Newtonsoft.Json;
 using System.Data;
 
 namespace ChessTourBuilderApp.Data.Controler.ControlerServer
@@ -99,22 +98,28 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         public async Task<Player> GetById(int id) 
         {
             await Task.Delay(2);
-            models = DataBase.Read("SELECT * FROM Player WHERE FIDEID = {id}", mapper);
+            models = DataBase.Read($"SELECT * FROM Player WHERE FIDEID = {id}", mapper);
             return models[0];
         }
 
         public async Task<List<Player>> GetByEventId(int id) 
         {
             await Task.Delay(2);
-            models = DataBase.Read($"SELECT p.* FROM EventPlayers ep JOIN Players p ON ep.PlayerId = p.PlayerId WHERE ep.EventId = {id};", mapper);
+            models = DataBase.Read($"SELECT p.* FROM EventPlayer ep JOIN Player p ON ep.PlayerID = p.FIDEID WHERE ep.EventID = {id};", mapper);
             return models;
         }
 
         public async Task<bool> GetLogin(string login)
         {
             await Task.Delay(2);
-            models = DataBase.Read($"SELECT TOP 1 * FROM Players WHERE Fideid = {login};", mapper);
-            return models == null;
+            models = DataBase.Read($"SELECT * FROM Player WHERE FIDEID = {login};", mapper);
+            return models.Count == 0;
+        }
+
+        public async Task<bool> InsertAdmin()
+        {
+            await Task.Delay(2);
+            return DataBase.Execute($"INSERT INTO Administrator ([OrganizerID]) VALUES (1)");
         }
     }
 }

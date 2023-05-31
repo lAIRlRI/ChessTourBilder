@@ -8,41 +8,34 @@
 <body class="main-conteneer">
     <section class="left-conteneer">
         <h1 class="top-row-text text text-color-right" href="">Настройки</h1>
+        <button @onclick="(()=>HandleSelectionChange(true))">Сервер</button>
+        <button @onclick="(()=>HandleSelectionChange(false))">Локально</button>
+
+
         <div class="form">
-            <div>
-                <p class="text-color-right error-text">@result[0]</p>
-                <input @bind-value="values[0]" placeholder="IP" type="text">
-            </div>
-            <div>
-                <p class="text-color-right error-text">@result[1]</p>
-                <input @bind-value="values[1]" placeholder="DBName" type="text">
-            </div>
-            <div>
-                <p class="text-color-right error-text">@result[2]</p>
-                <input @bind-value="values[2]" placeholder="User Name" type="text">
-            </div>
-            <div>
-                <p class="text-color-right error-text">@result[3]</p>
-                <input @bind-value="values[3]" placeholder="User Password" type="text">
-            </div>
+            @if (IsServer)
+            {
+                <div>
+                    <p class="text-color-right error-text">@result[0]</p>
+                    <input @bind-value="values[0]" placeholder="IP" type="text">
+                </div>
+                <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
+            }
+            else
+            {
+                <button @onclick="(()=>ChekerLite())">Создать БД локально</button>
+            }
+
         </div>
         <p>@DBChangeText</p>
         <p>@expentionMassege</p>
-        <button @onclick="(()=>OnCreateDB())">Создать БД</button>
-        @if (ExpTable)
-        {
-            <button @onclick="(()=>OnCreateTable(values[1]))">Создать Таблицы</button>
-        }
-        <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
-
-        <button @onclick="(()=>ChekerLite())">Создать БД локально</button>
     </section>
     <section>
         @if (CreateAdmin)
         {
             <div class="form">
                 <div>
-                <p class="text-color-right error-text">@result[0]</p>
+                    <p class="text-color-right error-text">@result[0]</p>
                     <input @bind-value="adminvalues[0]" placeholder="Имя" type="text">
                 </div>
                 <div>
@@ -58,7 +51,7 @@
                     <input @bind-value="adminvalues[3]" placeholder="User Password" type="text">
                 </div>
             </div>
-            <button @onclick="(()=>OnCreateAdmin(values[1]))">Создать Админа</button>
+            <button @onclick="(()=>OnCreateAdmin())">Создать Админа</button>
         }
     </section>
 </body>
@@ -68,16 +61,19 @@
 
     string DBChangeResult, DBChangeText, expentionMassege;
 
-    bool ExpBD, ExpTable, CreateAdmin;
+    bool ExpBD, ExpTable, CreateAdmin, IsServer;
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
+    private void HandleSelectionChange(bool param)
+    {
+        IsServer = param;
+    } 
+
     private void OnCreateDB()
     {
-        DBChangeText = "Ждите, создвём бд \n";
         try
         {
-           
             OnCreateTable(values[1]);
         }
         catch (Exception e)
@@ -87,7 +83,7 @@
         }
     }
 
-    private void Cheker()
+    private async void Cheker()
     {
         ExpBD = ExpTable = false;
 
@@ -95,7 +91,7 @@
 
         if (!Helper.CheckDB(values, ref result)) return;
 
-        DBChangeResult = DataBase.NewConnection(values);
+        DBChangeResult = await DataBase.NewConnection(values);
 
         switch (DBChangeResult)
         {
@@ -120,7 +116,6 @@
         try
         {
             CreateAdmin = true;
-            DBChangeText += "\nЖдите, создвнны таблицы\n";
         }
         catch (Exception e)
         {
@@ -129,22 +124,22 @@
         }
     }
 
-    private void OnCreateAdmin(string str)
+    private void OnCreateAdmin()
     {
         try
         {
             if (!Helper.CheckDB(adminvalues, ref result)) return;
-            DataBase.ConnChangeTemp($" use {str}; INSERT INTO Organizer (" +
-                                                                "FirstName," +
-                                                                "MiddleName," +
-                                                                "Login," +
-                                                                "Password)" +
-                                                          "VALUES(" +
-                                                                $"'{adminvalues[0]}'," +
-                                                                $"'{adminvalues[1]}'," +
-                                                                $"'{adminvalues[2]}'," +
-                                                                $"'{adminvalues[3]}')");
-            DataBase.ConnChangeTemp($" use {str}; INSERT INTO Administrator ([OrganizerID]) VALUES (1)");
+
+
+            StaticResouses.mainControler.OrganizerControler.Insert(new() 
+            {
+                    FirstName = adminvalues[0],
+                    MiddleName = adminvalues[1],
+                    Login = adminvalues[2],
+                    Password = adminvalues[3]
+            });
+
+            DataBase.ConnChangeTemp($" INSERT INTO Administrator ([OrganizerID]) VALUES (1)");
             Cheker();
         }
         catch (Exception e)

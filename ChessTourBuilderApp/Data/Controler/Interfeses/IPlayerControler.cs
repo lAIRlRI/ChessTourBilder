@@ -1,6 +1,4 @@
-﻿using ChessTourBuilderApp.Data.HelpClasses;
-using ChessTourBuilderApp.Data.Model;
-using Newtonsoft.Json;
+﻿using ChessTourBuilderApp.Data.Model;
 
 namespace ChessTourBuilderApp.Data.Controler
 {
@@ -15,5 +13,6 @@ namespace ChessTourBuilderApp.Data.Controler
         Task<Player> GetById(int id);
         Task<List<Player>> GetByEventId(int id);
         Task<bool> GetLogin(string login);
+        Task<bool> InsertAdmin();
     }
 }

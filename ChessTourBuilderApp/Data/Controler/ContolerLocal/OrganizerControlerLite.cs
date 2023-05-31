@@ -78,8 +78,8 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         {
             await Task.Delay(2);
             models = DataBase.Read("select o.*, a.AdministratorID from Organizer o " +
-                $"left join Administrator a on o.OrganizerID = a.OrganizerID where Login = {login}", mapper);
-            return models == null;
+                $"left join Administrator a on o.OrganizerID = a.OrganizerID where Login = '{login}'", mapper);
+            return models.Count == 0;
         }
 
         public async Task<List<Organizer>> GetAll() 

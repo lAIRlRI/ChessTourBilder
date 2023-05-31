@@ -39,22 +39,63 @@
     async Task OnAvtorizate()
     {
         doit = true;
-        if (IsPlayer)
-        {
-            q = await Data.Api.ApiControler.Post("Account/autorizatePlayer", new { Login = organizer.Login, Password = organizer.Password });
-        }
-        else q = await Data.Api.ApiControler.Post("Account/autorizate", new { Login = organizer.Login, Password = organizer.Password });
-
-        if (q == "Nice")
+        if (StaticResouses.mainControler.IsServer)
         {
             if (IsPlayer)
-                StaticResouses.mainControler.PlayerControler.nowPlayer = JsonConvert.DeserializeObject<Data.Model.Player>(await Data.Api.ApiControler.Get("Account/getInfoPlayer"));
-            else StaticResouses.mainControler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+            {
+                q = await Data.Api.ApiControler.Post("Account/autorizatePlayer", new { Login = organizer.Login, Password = organizer.Password });
+            }
+            else q = await Data.Api.ApiControler.Post("Account/autorizate", new { Login = organizer.Login, Password = organizer.Password });
+
+            if (q == "Nice")
+            {
+                if (IsPlayer)
+                    StaticResouses.mainControler.PlayerControler.nowPlayer = JsonConvert.DeserializeObject<Data.Model.Player>(await Data.Api.ApiControler.Get("Account/getInfoPlayer"));
+                else StaticResouses.mainControler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+
+                OnClickNavigate("/eventList");
+            }
+            else style = true;
+        }
+        else 
+        {
+            if (IsPlayer)
+            {
+                StaticResouses.mainControler.PlayerControler.nowPlayer = (await StaticResouses.mainControler.PlayerControler.GetAll())
+                                                                    .FirstOrDefault(p => p.FIDEID.ToString() == organizer.Login
+                                                                                            && p.Passord == organizer.Password);
+                StaticResouses.mainControler.OrganizerControler.nowOrganizer = new Data.Model.Organizer();
+            }
+            else
+            {
+                StaticResouses.mainControler.OrganizerControler.nowOrganizer = (await StaticResouses.mainControler.OrganizerControler.GetAll())
+                                                                    .FirstOrDefault(p => p.Login == organizer.Login
+                                                                                            && p.Password == organizer.Password);
+            }
 
             Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
+
+            if (IsPlayer)
+            {
+                if (StaticResouses.mainControler.PlayerControler.nowPlayer == null)
+                {
+                    style = true;
+                    doit = false;
+                    return;
+                }
+            }
+            else
+            {
+                if (StaticResouses.mainControler.OrganizerControler.nowOrganizer == null)
+                {
+                    style = true;
+                    doit = false;
+                    return;
+                }
+            }
             OnClickNavigate("/eventList");
         }
-        else style = true;
+
         doit = false;
         StateHasChanged();
     }

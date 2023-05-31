@@ -141,10 +141,10 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             if (move[1].ToString() != vectorY.ToString()) return null;
 
-            List<MovePozition> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetTableMove(tableMove), MovePozition.mapper);
+            MovePozition dataSet = await StaticResouses.mainControler.MoveTableControler.GetMovePozition(tableMove);
 
-            string moveChange = dataSet[0].Move.ToString();
-            string pozitionChange = dataSet[0].Pozition.ToString();
+            string moveChange = dataSet.Move.ToString();
+            string pozitionChange = dataSet.Pozition.ToString();
 
             if (moveChange != $"{move[0]}{vectorE}") return null;
             if (pozitionChange != $"{move[0]}{vectorN}") return null;

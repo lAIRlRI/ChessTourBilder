@@ -1,7 +1,6 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Newtonsoft.Json;
 using System.Data;
 
 namespace ChessTourBuilderApp.Data.Controler.ControlerServer
@@ -72,7 +71,6 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
                                                        "PlayerID int not null," +
                                                        "Result float not null," +
                                                        "ConsignmentID int not null)");
-            StaticResouses.dBQ.UpdateStatus();
             return true;
         }
 
@@ -91,9 +89,6 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
                ",LocationEvent = @LocationEvent" +
                ",TypeEvent = @TypeEvent" +
                $" WHERE EventID = {model.EventID}", list.ToArray());
-
-            StaticResouses.dBQ.UpdateStatus();
-
             return true;
         }
 
@@ -102,7 +97,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
             await Task.Delay(2);
             DataBase.Execute("UPDATE Event SET StatusID = CASE " +
                "WHEN DataStart > date('now') THEN 2 " +
-               "WHEN DataFinish >= date('now') AND DataStart <=  date('now') THEN 3 " +
+               "WHEN DataFinish > date('now') AND DataStart < date('now') THEN 3 " +
                "ELSE 1 END;");
             return true;
         }
@@ -111,14 +106,12 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         {
             await Task.Delay(2);
             DataBase.Execute($"DELETE FROM Event WHERE EventID = {id}");
-            StaticResouses.dBQ.UpdateStatus();
             return true;
         }
 
         public async Task<List<Event>> GetAll()
         {
             await Task.Delay(2);
-            StaticResouses.dBQ.UpdateStatus();
             models = DataBase.Read("SELECT * FROM Event", mapper);
             return models;
         }
@@ -126,16 +119,14 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         public async Task<List<Event>> GetPublic()
         {
             await Task.Delay(2);
-            StaticResouses.dBQ.UpdateStatus();
-            models = DataBase.Read($"SELECT * FROM Events WHERE IsPublic = 1 OR OrganizerId = {StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID};", mapper);
+            models = DataBase.Read($"SELECT * FROM Event WHERE IsPublic = 1 OR OrganizerId = {StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID};", mapper);
             return models;
         }
 
         public async Task<List<Event>> GetPlayerEvent()
         {
             await Task.Delay(2);
-            StaticResouses.dBQ.UpdateStatus();
-            models = DataBase.Read($"SELECT e.* FROM Events e WHERE EXISTS (SELECT 1 FROM EventPlayers ep WHERE ep.EventId = e.EventId AND ep.PlayerId = {StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID});", mapper);
+            models = DataBase.Read($"SELECT e.* FROM Event e WHERE EXISTS (SELECT 1 FROM EventPlayer ep WHERE ep.EventId = e.EventId AND ep.PlayerId = {StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID});", mapper);
             return models;
         }
 

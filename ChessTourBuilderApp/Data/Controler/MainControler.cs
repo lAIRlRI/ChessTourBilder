@@ -14,17 +14,35 @@ namespace ChessTourBuilderApp.Data.Controler
         public IResultTableControler ResultTableControler { get; private set; }
         public ITourControler TourControler { get; private set; }
 
+        public bool IsServer;
+
         public MainControler(bool IsServer)
         {
-            ConsignmentControler = new ConsignmentControler();
-            EventControler = new EventControler();
-            EventPlayerControler = new EventPlayerControler();
-            PlayerControler = new PlayerControler();
-            FigureTableControler = new FigureTableControler();
-            MoveTableControler = new MoveTableControler();
-            OrganizerControler = new OrganizerControler();
-            ResultTableControler = new ResultTableControler();
-            TourControler = new TourControler();
+            if (IsServer)
+            {
+                ConsignmentControler = new ConsignmentControler();
+                EventControler = new EventControler();
+                EventPlayerControler = new EventPlayerControler();
+                PlayerControler = new PlayerControler();
+                FigureTableControler = new FigureTableControler();
+                MoveTableControler = new MoveTableControler();
+                OrganizerControler = new OrganizerControler();
+                ResultTableControler = new ResultTableControler();
+                TourControler = new TourControler();
+            }
+            else 
+            {
+                ConsignmentControler = new ConsignmentControlerLite();
+                EventControler = new EventControlerLite();
+                EventPlayerControler = new EventPlayerControlerLite();
+                PlayerControler = new PlayerControlerLite();
+                FigureTableControler = new FigureTableControlerLite();
+                MoveTableControler = new MoveTableControlerLite();
+                OrganizerControler = new OrganizerControlerLite();
+                ResultTableControler = new ResultTableControlerLite();
+                TourControler = new TourControlerLite();
+            }
+            this.IsServer = IsServer;
         }
     }
 }
