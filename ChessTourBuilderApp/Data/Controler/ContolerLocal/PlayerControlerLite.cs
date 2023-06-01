@@ -7,7 +7,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
 {
     internal class PlayerControlerLite : IPlayerControler
     {
-        public Player nowPlayer { get; set; }
+        public Player nowPlayer { get; set; } = new Player();
         static List<Player> models;
         private static List<IDbDataParameter> list;
         public static readonly Func<IDataReader, Player> mapper = r => new Player()

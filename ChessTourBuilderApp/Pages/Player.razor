@@ -19,10 +19,6 @@
             <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
             <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
         }
-        @if (!StaticResouses.IsPlayer)
-        {
-            <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
-        }
     </div>
     <div class="info-conteneer">
         <section class="image-conteneer info-item1">
@@ -31,36 +27,43 @@
         <section class="info-item2">
             <div>
                 <p class="error-text">@result[0]</p>
-                <input @bind-value="playerModel.FIDEID" type="number" placeholder="FIDEID: @StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID" disabled="@update" />
+                <p class="error-text">FIDEID</p>
+                <input @bind-value="playerModel.FIDEID" type="number" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[1]</p>
-                <input @bind-value="playerModel.FirstName" placeholder="Имя: @StaticResouses.mainControler.PlayerControler.nowPlayer.FirstName" disabled="@update" />
+                <p class="error-text">Имя</p>
+                <input @bind-value="playerModel.FirstName" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[2]</p>
-                <input @bind-value="playerModel.MiddleName" placeholder="Фамилия: @StaticResouses.mainControler.PlayerControler.nowPlayer.MiddleName" disabled="@update" />
+                <p class="error-text">Фамилия</p>
+                <input @bind-value="playerModel.MiddleName" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[3]</p>
-                <input @bind-value="playerModel.LastName" placeholder="Отчество: @StaticResouses.mainControler.PlayerControler.nowPlayer.LastName" disabled="@update" />
+                <p class="error-text">Отчество</p>
+                <input @bind-value="playerModel.LastName" disabled="@update" />
             </div>
             <div>
                 <p class="error-text">@result[4]</p>
-                <input @bind-value="playerModel.Birthday" type="date" placeholder="День рождения: @StaticResouses.mainControler.PlayerControler.nowPlayer.Birthday" disabled="@update" />
+                <p class="error-text">День рождения</p>
+                <input @bind-value="playerModel.Birthday" type="date" disabled="@update" />
             </div>
-
             <div>
                 <p class="error-text">@result[5]</p>
-                <input @bind-value="playerModel.ELORating" type="number" step="0.1" placeholder="Рейтинг: @StaticResouses.mainControler.PlayerControler.nowPlayer.ELORating" disabled="@update" />
+                <p class="error-text">Рейтинг</p>
+                <input @bind-value="playerModel.ELORating" type="number" step="0.1" disabled="@update"/>
             </div>
             <div>
                 <p class="error-text">@result[6]</p>
-                <input @bind-value="playerModel.Contry" placeholder="Страна: @StaticResouses.mainControler.PlayerControler.nowPlayer.Contry" disabled="@update" />
+                <p class="error-text">Страна</p>
+                <input @bind-value="playerModel.Contry" disabled="@update"/>
             </div>
             <div>
                 <p class="error-text">@result[7]</p>
-                <input @bind-value="playerModel.Passord" placeholder="Пароль: @StaticResouses.mainControler.PlayerControler.nowPlayer.Passord" disabled="@update" />
+                <p class="error-text">Пароль</p>
+                <input @bind-value="playerModel.Passord" disabled="@update"/>
             </div>
         </section>
     </div>
@@ -80,7 +83,7 @@
 </body>
 
 @code {
-    Data.Model.Player playerModel = new();
+    Data.Model.Player playerModel = StaticResouses.mainControler.PlayerControler.nowPlayer;
     int Fide = (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID;
     bool update = true;
     string[] result = new string[8];
@@ -91,16 +94,6 @@
 
     private async void OnUpdateButton()
     {
-
-        if (playerModel.FIDEID == null) playerModel.FIDEID = StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID;
-        if (playerModel.FirstName == null) playerModel.FirstName = StaticResouses.mainControler.PlayerControler.nowPlayer.FirstName;
-        if (playerModel.MiddleName == null) playerModel.MiddleName = StaticResouses.mainControler.PlayerControler.nowPlayer.MiddleName;
-        if (playerModel.LastName == null) playerModel.LastName = StaticResouses.mainControler.PlayerControler.nowPlayer.LastName;
-        if (playerModel.Birthday == null) playerModel.Birthday = StaticResouses.mainControler.PlayerControler.nowPlayer.Birthday;
-        if (playerModel.ELORating == null) playerModel.ELORating = StaticResouses.mainControler.PlayerControler.nowPlayer.ELORating;
-        if (playerModel.Contry == null) playerModel.Contry = StaticResouses.mainControler.PlayerControler.nowPlayer.Contry;
-        if (playerModel.Passord == null) playerModel.Passord = StaticResouses.mainControler.PlayerControler.nowPlayer.Passord;
-
         Array.Clear(result);
 
         result = await Helper.CheckPlayerUpAsync(playerModel, Fide);

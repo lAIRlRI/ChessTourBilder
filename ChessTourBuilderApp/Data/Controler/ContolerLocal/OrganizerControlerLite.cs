@@ -7,7 +7,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
 {
     internal class OrganizerControlerLite : IOrganizerControler
     {
-        public Organizer nowOrganizer { get; set; }
+        public Organizer nowOrganizer { get; set; } = new Organizer();
         private static List<IDbDataParameter> list;
         private static List<Organizer> models;
         private static readonly Func<IDataReader, Organizer> mapper = r => new Organizer()

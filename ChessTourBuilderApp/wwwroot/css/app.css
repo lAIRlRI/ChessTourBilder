@@ -2,6 +2,7 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #FFF9F9;
 }
 
 h1:focus {
@@ -82,3 +83,33 @@ a, .btn-link {
 		padding-left: env(safe-area-inset-left);
 	}
 }
+
+button {
+    border-radius: 8px;
+    border-color: transparent;
+    background-color: #F8B75C;
+    margin: 0.5rem;
+    padding: 0.5rem;
+}
+
+    button:hover {
+        border-color: white
+    }
+
+input {
+    outline: none;
+    border: none;
+    border-bottom: 3px solid #F8B75C;
+    margin: 1rem;
+    color: #A16B1E;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 35px;
+    background-color: transparent;
+    font-family: 'Roboto';
+}
+
+    input:hover {
+        box-shadow: 0.3em 0.3em 1em rgba(0,0,0,0.3);
+    }

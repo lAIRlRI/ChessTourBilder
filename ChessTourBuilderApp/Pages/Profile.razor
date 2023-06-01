@@ -1,5 +1,133 @@
-﻿<h3>Profile</h3>
+﻿@using ChessTourBuilderApp.Data.HelpClasses
+@page "/profile"
+@layout MainLayout
+@inject NavigationManager NavigationManager
+
+<body class="main-conteneer">
+    <div class="top-row-conteneer">
+        <div class="nav-item">
+            <button class="icon" @onclick="@(()=>OnClickNavigation("/navMenu"))"></button>
+            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/playerList"))">Назад</button>
+        </div>
+    </div>
+    <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+    <div class="info-conteneer">
+        <section class="image-conteneer info-item1">
+            <div class="image"></div>
+        </section>
+        <section class="info-item2">
+            @if (StaticResouses.IsPlayer) 
+            {
+                <div>
+                    <p class="error-text">@resultplayer[0]</p>
+                    <p class="error-text">FIDEID</p>
+                    <input @bind-value="playerModel.FIDEID" type="number" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[1]</p>
+                    <p class="error-text">Имя</p>
+                    <input @bind-value="playerModel.FirstName" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[2]</p>
+                    <p class="error-text">Фамилия</p>
+                    <input @bind-value="playerModel.MiddleName" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[3]</p>
+                    <p class="error-text">Отчество</p>
+                    <input @bind-value="playerModel.LastName" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[4]</p>
+                    <p class="error-text">День рождения</p>
+                    <input @bind-value="playerModel.Birthday" type="date" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[5]</p>
+                    <p class="error-text">Рейтинг</p>
+                    <input @bind-value="playerModel.ELORating" type="number" step="0.1" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[6]</p>
+                    <p class="error-text">Страна</p>
+                    <input @bind-value="playerModel.Contry" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultplayer[7]</p>
+                    <p class="error-text">Пароль</p>
+                    <input @bind-value="playerModel.Passord" disabled="@update" />
+                </div>
+            }
+            else
+            {
+                <div>
+                    <p class="error-text">@resultorganizate[0]</p>
+                    <p class="error-text">Имя</p>
+                    <input @bind-value="organizateModel.FirstName" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultorganizate[1]</p>
+                    <p class="error-text">Фамилия</p>
+                    <input @bind-value="organizateModel.MiddleName" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultorganizate[2]</p>
+                    <p class="error-text">Отчество</p>
+                    <input @bind-value="organizateModel.LastName" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultorganizate[4]</p>
+                    <p class="error-text">Login</p>
+                    <input @bind-value="organizateModel.Login" type="number" disabled="@update" />
+                </div>
+                <div>
+                    <p class="error-text">@resultorganizate[3]</p>
+                    <p class="error-text">Пароль</p>
+                    <input @bind-value="organizateModel.Password" disabled="@update" />
+                </div>
+            }
+        </section>
+    </div>
+    <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
+</body>
 
 @code {
+    Data.Model.Player playerModel = StaticResouses.mainControler.PlayerControler.nowPlayer;
+    Data.Model.Organizer organizateModel = StaticResouses.mainControler.OrganizerControler.nowOrganizer;
+    int Fide = StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID == null ? 0 : (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID;
+    string login = StaticResouses.mainControler.OrganizerControler.nowOrganizer.Login;
+    bool update = true;
+    string[] resultplayer = new string[8];
+    string[] resultorganizate = new string[5];
 
+    private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
+    private void OnUpdate() => update = !update;
+
+    private async void OnUpdateButton()
+    {
+        if (StaticResouses.IsPlayer)
+        {
+            Array.Clear(resultplayer);
+            resultplayer = await Helper.CheckPlayerUpAsync(playerModel, Fide);
+            if (!Helper.CheckStringArray(resultplayer)) return;
+            if (!await StaticResouses.mainControler.PlayerControler.Update(playerModel, Fide)) return;
+
+            update = false;
+            StaticResouses.mainControler.PlayerControler.nowPlayer = playerModel;
+            playerModel = new();
+
+        }
+        else 
+        {
+            Array.Clear(resultorganizate);
+
+            resultorganizate = await Data.HelpClasses.Helper.CheckOrganizerUpdate(organizateModel, login);
+
+            if (!Data.HelpClasses.Helper.CheckStringArray(resultorganizate)) return;
+
+            await StaticResouses.mainControler.OrganizerControler.Update(organizateModel, organizateModel.OrganizerID);
+        }
+        StateHasChanged();
+    }
 }

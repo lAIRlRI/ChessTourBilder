@@ -1,5 +1,6 @@
 ﻿@page "/eventPage"
 @layout MainLayout
+@using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
 @inject NavigationManager NavigationManager
@@ -82,7 +83,6 @@
                     </select>
                 </div>
                 <button disabled="@doit" @onclick="Add">Добавить</button>
-                <button disabled="@doit" @onclick="AddImport">Импрорт игроков</button>
             </div>
         }
     }
@@ -92,6 +92,10 @@
             <div class="element">
                 <div class="image-player"></div>
                 <h4 class="text">@(item.FirstName + " " + item.MiddleName)</h4>
+                @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer) 
+                {
+                    <h4 @onclick="async ()=>Remove((int)item.FIDEID)" class="text">Удалить</h4>
+                }
             </div>
         }
     </section>
@@ -145,6 +149,14 @@
         await StaticResouses.mainControler.EventPlayerControler.Insert(new Data.Model.EventPlayer() { PlayerID = FIDEID, EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID });
         list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
         doit = false;
+        StateHasChanged();
+    }
+
+    private async void Remove(int i)
+    {
+        if (i == 0) return;
+        DataBase.Execute($"DELETE FROM Event WHERE PlayerID = {i}");
+        list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
         StateHasChanged();
     }
 

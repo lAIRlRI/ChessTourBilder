@@ -19,6 +19,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
             string messege = $"CREATE TABLE {table} (" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "PlayerID INTEGER NOT NULL," +
+                "FigureID INTEGER NOT NULL," +
                 "Move NVARCHAR(10) NOT NULL," +
                 "Pozition NVARCHAR(10) NOT NULL," +
                 "ConsignmentID INTEGER NOT NULL," +

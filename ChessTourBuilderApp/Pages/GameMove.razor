@@ -132,13 +132,13 @@
 
     }
 
-    private void DeleteMove()
+    private async void DeleteMove()
     {
         if (!del) return;
         IsWhile = !IsWhile;
         Swap();
         del = false;
-        chessGame.DeleteLastMove(IsWhile);
+        await chessGame.DeleteLastMove(IsWhile);
         StateHasChanged();
     }
 

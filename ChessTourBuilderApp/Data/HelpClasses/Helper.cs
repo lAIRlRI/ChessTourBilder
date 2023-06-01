@@ -8,6 +8,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 {
     internal class Helper
     {
+        private const int _lenght = 30;
+
         private static readonly Regex regex = new("[^а-яА-Яa-zA-Z]");
 
         public static Hashtable StringToInt = new( new Dictionary<char, int>()
@@ -23,8 +25,13 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
         private static string Text() => $"Поле не должно быть пустым";
 
-
-        public static string CheckLenghtNumber(string str, int lenght = 50)
+        /// <summary>
+        /// проверяет строку на пустоту, лишнии пробелы и допустимую длинную строки
+        /// </summary>
+        /// <param name="str">проверяемая строка</param>
+        /// <param name="lenght">допустимая длинна</param>
+        /// <returns>null - если строка прошла все проверки, иначе текст ошибки</returns>
+        public static string CheckLenghtNumber(string str, int lenght = _lenght)
         {
             if (string.IsNullOrWhiteSpace(str)) 
                 return Text();
@@ -68,32 +75,72 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         {
             if (StaticResouses.mainControler.OrganizerControler.nowOrganizer == null) return false;
             return StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID == StaticResouses.mainControler.EventControler.nowEvent.OrganizerID || StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator != -1;
-        } 
+        }
+
+        /// <summary>
+        /// проверяет строку на пустоту, лишнии пробелы и допустимую длинную строки+ проверка на то чтобы в строке были только буквы 
+        /// </summary>
+        /// <param name="str">проверяемая строка</param>
+        /// <param name="lenght">допустимая длинна</param>
+        /// <returns>null - если строка прошла все проверки, иначе текст ошибки</returns>
+        private static string CheckTextParametr(string str, int lenght = _lenght)
+        {
+            string temp = CheckLenghtNumber(str, lenght);
+            if (temp == null)
+                if (regex.IsMatch(str))
+                    temp = "Поле может содержать только буквы";
+            return temp;
+        }
 
         public static async Task<string[]> CheckOrganizer(Organizer organizer)
         {
             string[] bools = new string[5];
 
-            bools[0] = CheckLenghtNumber(organizer.FirstName);
-            if (regex.IsMatch(organizer.FirstName))
-                bools[0] = "Поле может содержать только буквы";
+            bools[0] = CheckTextParametr(organizer.FirstName);
 
-            if (string.IsNullOrWhiteSpace(organizer.MiddleName))
-                bools[1] = Text();
-            else if (regex.IsMatch(organizer.MiddleName))
-                bools[1] = "Поле может содержать только буквы";
+            bools[1] = CheckTextParametr(organizer.MiddleName);
+
+            if (!string.IsNullOrWhiteSpace(organizer.LastName)) 
+            {
+                bools[2] = CheckTextParametr(organizer.LastName);
+            }
+
+            bools[3] = CheckLenghtNumber(organizer.Login);
+            if (bools[3] == null)
+            {
+                if (!await StaticResouses.mainControler.OrganizerControler.GetLogin(organizer.Login))
+                    bools[0] = "Пользователь уже существует";
+            }
+
+            bools[4] = CheckLenghtNumber(organizer.Password);
+
+            return bools;
+        }
+
+        public static async Task<string[]> CheckOrganizerUpdate(Organizer organizer, string login)
+        {
+            string[] bools = new string[5];
+
+            bools[0] = CheckTextParametr(organizer.FirstName);
+
+            bools[1] = CheckTextParametr(organizer.MiddleName);
 
             if (!string.IsNullOrWhiteSpace(organizer.LastName))
-                if (regex.IsMatch(organizer.LastName))
-                    bools[2] = "Поле может содержать только буквы";
+            {
+                bools[2] = CheckTextParametr(organizer.LastName);
+            }
 
-            if (string.IsNullOrWhiteSpace(organizer.Login))
-                bools[3] = Text();
-            else if (!await StaticResouses.mainControler.OrganizerControler.GetLogin(organizer.Login))
-                bools[3] = "Пользователь уже существует";
-
-            if (string.IsNullOrWhiteSpace(organizer.Password))
-                bools[4] = Text();
+            if (login != organizer.Login) 
+            {
+                bools[3] = CheckLenghtNumber(organizer.Login);
+                if (bools[3] == null)
+                {
+                    if (!await StaticResouses.mainControler.OrganizerControler.GetLogin(organizer.Login))
+                        bools[0] = "Пользователь уже существует";
+                }
+            }
+            
+            bools[4] = CheckLenghtNumber(organizer.Password);
 
             return bools;
         }

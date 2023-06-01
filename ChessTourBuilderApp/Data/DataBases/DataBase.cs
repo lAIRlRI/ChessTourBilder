@@ -36,7 +36,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 //using var reader = new StreamReader(stream);
 
                 //var contents = reader.ReadToEnd();
-                flag = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "wwwroot/DataBases/FlagBD.txt");
+                flag = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\FlagBD.txt");
 
             return await File.ReadAllTextAsync(flag);
         }

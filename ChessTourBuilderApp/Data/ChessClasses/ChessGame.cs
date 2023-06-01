@@ -1,4 +1,5 @@
-﻿using ChessTourBuilderApp.Data.HelpClasses;
+﻿using ChessTourBuilderApp.Data.DataBases;
+using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
 using System.Data;
 
@@ -217,6 +218,8 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             };
             await StaticResouses.mainControler.ResultTableControler.InsertResult(StaticResouses.mainControler.EventControler.nowEvent.GetTableName(), tableResult);
 
+            string formattable = $"DROP TABLE IF EXISTS {tableFigures};";
+            DataBase.Execute(formattable);
             return;
         }
 
@@ -236,7 +239,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return Math.Round(mPlayer + k * (result - Ea), 1);
         }
 
-        public async void DeleteLastMove(bool IsWhile)
+        public async Task DeleteLastMove(bool IsWhile)
         {
             MovePozition dataSet = await StaticResouses.mainControler.MoveTableControler.GetMovePozition(tableMove);
             string move = dataSet.Move.ToString();

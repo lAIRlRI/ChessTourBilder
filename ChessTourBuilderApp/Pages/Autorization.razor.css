@@ -34,10 +34,6 @@
     border: none;
 }
 
-button {
-    background-color: transparent;
-}
-
 .left-conteneer-color {
     background-color: #F8B75C;
 }
@@ -108,19 +104,6 @@ button {
     font-family: 'Roboto';
 }
 
-input {
-    outline: none;
-    border: none;
-    border-bottom: 3px solid #F8B75C;
-    margin: 1rem;
-    color: #A16B1E;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 35px;
-    background-color: transparent;
-    font-family: 'Roboto';
-}
 
 .color-first {
     background-color: #F8B75C;
