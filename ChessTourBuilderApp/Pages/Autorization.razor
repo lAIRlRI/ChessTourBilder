@@ -5,23 +5,22 @@
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
-    <section class="left-conteneer left-conteneer-color input-main first">
+    <section class="left-conteneer left-conteneer-color input-main">
         <div class="icon"></div>
-        <h1 class="text-color-left top-row-text text  big-text" href="">CTB</h1>
-        <h2 class="text text-color-left" href="">Chess Tour Bilder</h2>
+        <h1 class="title text-color-left">CTB</h1>
+        <h2 class="text text-color-left">Chess Tour Bilder</h2>
     </section>
-    <section class="left-conteneer input-main second">
-        <h1 class="top-row-text text text-color-right" href="">Авторизация</h1>
+    <section class="left-conteneer input-main">
+        <h1 class="title" href="">Авторизация</h1>
         <input @bind-value="organizer.Login" placeholder="Логин" type="text">
         <input @bind-value="organizer.Password" placeholder="Пароль" type="password">
-        <div style="display:flex;">
+        <div class="div-checkbox">
             <input @bind-value="IsPlayer" type="checkbox" />
             <h4>Войти как игрок</h4>
         </div>
-        <p>@q</p>
         @if (style)
         {
-            <h6 class="text alert">Неправильный логин или пароль</h6>
+            <h6 class="error-text">Неверный логин или пароль</h6>
         }
         <button disabled="@doit" @onclick="async ()=> await OnAvtorizate()">Войти</button>
         <button @onclick="@(()=>OnClickNavigate("/registration"))">Регистрация</button>

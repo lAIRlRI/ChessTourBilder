@@ -36,7 +36,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         public async Task<List<ResultSheme>> GetResultTable(string table) 
         {
             await Task.Delay(2);
-            string formattable = "WITH playerSum AS (SELECT PlayerID, SUM(Result) AS Points FROM EventControler WHERE Result <> 0.5 GROUP BY PlayerID) " +
+            string formattable = $"WITH playerSum AS (SELECT PlayerID, SUM(Result) AS Points FROM {table} WHERE Result <> 0.5 GROUP BY PlayerID) " +
                 "SELECT ROW_NUMBER() OVER (ORDER BY Points DESC) AS Pozition,FirstName || ' ' || MiddleName AS Fi,Points FROM Player AS pl " +
                 "INNER JOIN playerSum AS p ON pl.FIDEID = p.PlayerID ORDER BY Points DESC;";
             return DataBase.Read(formattable, mapper);
@@ -45,7 +45,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
         public async Task<List<ResultSheme>> GetResultTableСircle(string table) 
         {
             await Task.Delay(2);
-            string formattable = "WITH playerSum AS (SELECT PlayerID, SUM(Result) AS Points FROM EventControler GROUP BY PlayerID) " +
+            string formattable = $"WITH playerSum AS (SELECT PlayerID, SUM(Result) AS Points FROM {table} GROUP BY PlayerID) " +
                 "SELECT ROW_NUMBER() OVER (ORDER BY Points DESC) AS Pozition,FirstName || ' ' || MiddleName AS Fi,Points FROM Player AS pl " +
                 "INNER JOIN playerSum AS p ON pl.FIDEID = p.PlayerID ORDER BY Points DESC;";
             return DataBase.Read(formattable, mapper);

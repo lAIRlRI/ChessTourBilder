@@ -7,17 +7,17 @@
 
 <body class="main-conteneer">
     <section class="left-conteneer">
-        <h1 class="top-row-text text text-color-right" href="">Настройки</h1>
+        <h1 class="title" href="">Настройки</h1>
         <button @onclick="(()=>HandleSelectionChange(true))">Сервер</button>
         <button @onclick="(()=>HandleSelectionChange(false))">Локально</button>
         <div class="form">
             @if (IsServer)
             {
                 <div>
-                    <p class="text-color-right error-text">@result[0]</p>
+                    <p class="error-text">@result[0]</p>
                     <input @bind-value="values[0]" placeholder="IP" type="text">
                 </div>
-                <button class="text text-color-right border-none" @onclick="@Cheker" href="">Попробовать</button>
+                <button @onclick="@Cheker" href="">Попробовать</button>
             }
             else
             {
@@ -33,19 +33,19 @@
         {
             <div class="form">
                 <div>
-                    <p class="text-color-right error-text">@result[0]</p>
+                    <p class="error-text">@result[0]</p>
                     <input @bind-value="adminvalues[0]" placeholder="Имя" type="text">
                 </div>
                 <div>
-                    <p class="text-color-right error-text">@result[1]</p>
+                    <p class="error-text">@result[1]</p>
                     <input @bind-value="adminvalues[1]" placeholder="Фамилия" type="text">
                 </div>
                 <div>
-                    <p class="text-color-right error-text">@result[2]</p>
+                    <p class="error-text">@result[2]</p>
                     <input @bind-value="adminvalues[2]" placeholder="User Name" type="text">
                 </div>
                 <div>
-                    <p class="text-color-right error-text">@result[3]</p>
+                    <p class="error-text">@result[3]</p>
                     <input @bind-value="adminvalues[3]" placeholder="User Password" type="text">
                 </div>
             </div>

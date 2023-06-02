@@ -7,18 +7,17 @@
     <div class="top-row-conteneer">
         <div class="nav-item">
             <button class="icon" @onclick="@(()=>OnClickNavigation("/navMenu"))"></button>
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/tour"))">Назад</button>
+            <button @onclick="@(()=>OnClickNavigation("/tour"))">Назад</button>
         </div>
-        <h1 class="top-row-text text" href="">@(Data.HelpClasses.Helper.FI())</h1>
+        <h1 class="title" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
-    <div class="info-conteneer">
-        <section class="info-item3">
-            <h3 class="text">Белыми: @whiteP</h3>
-            <h3 class="text">Черными: @blackP</h3>
-            <h3 class="text">Время: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.DateStart</h3>
-            <h3 class="text">Результат: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
-            <h3 class="text">Стутус: @Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]</h3>
-        </section>
+    <div class="form">
+        <h3 class="text">Белыми: @whiteP</h3>
+        <h3 class="text">Черными: @blackP</h3>
+        <h3 class="text">Время: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.DateStart</h3>
+        <h3 class="text">Результат: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
+        <h3 class="text">Формат: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
+        <h3 class="text">Стутус: @Helper.status[StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID-1]</h3>
     </div>
     <section class="pozition-conteneer">
         <div class="element">
@@ -27,18 +26,18 @@
     </section>
     @if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID == 3 && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
     {
-        <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Смотреть</button>
+        <button @onclick="@(()=>OnClickNavigation("/gameMove"))">Смотреть</button>
     }
 
     @if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID != 1)
     {
         @if (check)
         {
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+            <button @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
         }
         else if (StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID == StaticResouses.mainControler.EventControler.nowEvent.OrganizerID)
         {
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть локально</button>
+            <button @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть локально</button>
         }
     }
 </body>

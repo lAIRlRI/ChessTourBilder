@@ -1,12 +1,17 @@
-﻿@page "/gameMove"
+﻿@implements IDisposable
+@page "/gameMove"
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.ChessClasses
+@using System.Timers
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
 <section class="main-conteneer">
-    <p class="top-row-text text">@str</p>
+    <p class="title">@str</p>
+    <p class="title">Б @aTimerWhite</p>
+    <p class="title">Ч @aTimerBlack</p>
+
     <div style="display: flex; flex-wrap: wrap;">
         @if (rpt)
         {
@@ -24,9 +29,9 @@
     @if (chessGame.IsGameContinues && StaticResouses.IsPlayer)
     {
         <div>
-            <button @onclick="SetMove" disabled="@pressed" class="text">Сделать ход</button>
-            <button @onclick="DeleteMove" disabled="@pressed" class="text">Удалить ход</button>
-            <button @onclick="Surrender" class="text">Сдаться</button>
+            <button @onclick="SetMove" disabled="@pressed">Сделать ход</button>
+            <button @onclick="DeleteMove" disabled="@pressed">Удалить ход</button>
+            <button @onclick="Surrender">Сдаться</button>
         </div>
         @if (End)
         {
@@ -36,12 +41,12 @@
                 <option value="0">Чёрные</option>
                 <option value="2">Ничья</option>
             </select>
-            <button @onclick="EndGame" class="text">Подвердить</button>
+            <button @onclick="EndGame">Подвердить</button>
         }
     }
     else
     {
-        <div>Белые @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
+        <div class="sub-title-input">Белые @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
         <button @onclick="Exit" class="text">Выйти</button>
     }
     <section>
@@ -71,14 +76,24 @@
 </section>
 
 @code {
-    List<Cell> cells = new();
-    ChessGame chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
-    bool IsWhile = true, End = false, del = false, rpt = false, dis = false, firstClick = true, pressed = false;
-    string move, str = "Белые", stage = "ok", newFigure, ColorfirstClick, ColorSecondClick;
-    double? result;
-    Figure figure = new Pawn("A8", true, -1);
-    Figure figureView;
-    Figure firstClickFigure;
+    private string aTimerWhite = $"00:00";
+    private string aTimerBlack = $"00:00";
+    private int tootalsecs = 720 * 60;
+    private int tootalmin = 720;
+    private DateTime startWhite;
+    private DateTime startBlack;
+    private bool IsFirstStartW = true, IsFirstStartB = true;
+    private Timer timerW = new Timer() { Interval = 1000 };
+    private Timer timerB = new Timer() { Interval = 1000 };
+
+    private List<Cell> cells = new();
+    private ChessGame chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
+    private bool IsWhile = true, End = false, del = false, rpt = false, dis = false, firstClick = true, pressed = false;
+    private string move, str = "Белые", stage = "ok", newFigure, ColorfirstClick, ColorSecondClick;
+    private double? result;
+    private Figure figure = new Pawn("A8", true, -1);
+    private Figure figureView;
+    private Figure firstClickFigure;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
@@ -87,7 +102,48 @@
     {
         chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
         await chessGame.InizializeGame();
+
+        timerW.Elapsed += async (obj, args) =>
+        {
+            if (tootalsecs == 0)
+            {
+                timerW.Stop();
+                chessGame.EndGame(0);
+            }
+            else
+            {
+                aTimerWhite =
+                    (TimeSpan.FromMinutes(tootalmin) - (DateTime.Now - startWhite))
+                    .ToString("hh\\:mm\\:ss");
+                tootalsecs--;
+                await InvokeAsync(StateHasChanged);
+            }
+        };
+
+        timerB.Elapsed += async (obj, args) =>
+        {
+            if (tootalsecs == 0)
+            {
+                timerW.Stop();
+                chessGame.EndGame(1);
+            }
+            else
+            {
+                aTimerBlack =
+                    (TimeSpan.FromMinutes(tootalmin) - (DateTime.Now - startBlack))
+                    .ToString("hh\\:mm\\:ss");
+                tootalsecs--;
+                await InvokeAsync(StateHasChanged);
+            }
+        };
+
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        timerW.Dispose();
+        timerB.Dispose();
     }
 
     private string ColorFigure(bool IsWhile)
@@ -98,7 +154,7 @@
 
     private Figure CheckFigure(int i, int j)
     {
-        if(chessGame.Figures == null) return default(Figure);
+        if (chessGame.Figures == null) return default(Figure);
         figureView = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
         return figureView;
     }
@@ -115,10 +171,10 @@
         if (firstClick)
         {
             firstClickFigure = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
-            if (firstClickFigure != null) 
+            if (firstClickFigure != null)
             {
                 if (firstClickFigure.IsWhile != IsWhile) firstClickFigure = null;
-            } 
+            }
             firstClick = false;
             ColorfirstClick = i.ToString() + j;
             ColorSecondClick = "";
@@ -166,12 +222,13 @@
         }
     }
 
-    private void SwitchStageSet()
+    private async Task SwitchStageSet()
     {
         switch (stage)
         {
             case "ok":
                 IsWhile = !IsWhile;
+                await SwithTimer();
                 del = true;
                 move = null;
                 Swap();
@@ -196,16 +253,18 @@
             pressed = false;
             return;
         }
-        if (firstClickFigure == null)  {
+
+        if (firstClickFigure == null)
+        {
             pressed = false;
             return;
-        } 
+        }
+
         if (await SwitchStageGet())
             stage = await chessGame.SetFigure(firstClickFigure, move);
-
+        await SwitchStageSet();
         pressed = false;
         await chessGame.GetFigures();
-        SwitchStageSet();
 
         ColorfirstClick = "";
         ColorSecondClick = "";
@@ -222,6 +281,7 @@
     {
         if (result == null) return;
         chessGame.EndGame(result);
+        Dispose();
         StateHasChanged();
     }
 
@@ -235,6 +295,42 @@
     {
         if (IsWhile) chessGame.EndGame(0);
         else chessGame.EndGame(1);
+        Dispose();
         StateHasChanged();
+    }
+
+    private async Task SwithTimer()
+    {
+        if (IsWhile)
+        {
+            if (IsFirstStartW)
+            {
+                startWhite = DateTime.Now;
+                IsFirstStartW = false;
+                timerW.Start();
+                timerB.Stop();
+            }
+            else
+            {
+                timerB.Stop();
+                timerW.Start();
+            }
+        }
+        else
+        {
+            if (IsFirstStartB)
+            {
+                startBlack = DateTime.Now;
+                IsFirstStartB = false;
+                timerB.Start();
+                timerW.Stop();
+            }
+            else
+            {
+                timerB.Start();
+                timerW.Stop();
+            }
+        }
+        await InvokeAsync(StateHasChanged);
     }
 }

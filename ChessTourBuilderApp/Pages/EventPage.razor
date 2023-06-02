@@ -10,52 +10,47 @@
     <div class="top-row-conteneer">
         <div class="nav-item">
             <button class="icon" @onclick="@(()=>OnClickNavigation("/navMenu"))"></button>
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/eventList"))">Назад</button>
+            <button @onclick="@(()=>OnClickNavigation("/eventList"))">Назад</button>
         </div>
-        <h1 class="top-row-text text" href="">@(Helper.FI())</h1>
+        <h1 class="title" href="">@(Helper.FI())</h1>
     </div>
     <div class="top-row-conteneer">
         <div class="nav-item">
-            <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))" class="top-row-text text">Результаты</button>
-            <button @onclick="@(()=>OnClickNavigation("/tourList"))" class="top-row-text text">Туры</button>
+            <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))">Результаты</button>
+            <button @onclick="@(()=>OnClickNavigation("/tourList"))">Туры</button>
             @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
             {
-                <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
-                <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+                <button @onclick="OnDelete">Удалить</button>
+                <button @onclick="OnUpdate">Изменить</button>
             }
         </div>
         <div>
             <p class="error-text">@result[0]</p>
-            <input class="top-row-text text" disabled="@update" @bind-value="eventModelupdate.Name"/>
+            <input disabled="@update" @bind-value="eventModelupdate.Name" />
         </div>
     </div>
-    <div class="info-conteneer">
-        <section class="image-conteneer info-item1">
-            <div class="image"></div>
-        </section>
-        <section class="info-item2">
-            <div>
-                <p class="error-text">@result[1]</p>
-                <p class="error-text">Призовой фонд</p>
-                <input @bind-value="eventModelupdate.PrizeFund" type="number" disabled="@update" />
-            </div>
-            <div>
-                <p class="error-text">@result[4]</p>
-                <p class="error-text">Место</p>
-                <input @bind-value="eventModelupdate.LocationEvent" disabled="@update" />
-            </div>
-            <div>
-                <p class="error-text">@result[2]</p>
-                <p class="error-text">Начало</p>
-                <input @bind-value="eventModelupdate.DataStart" type="datetime" disabled="@update" />
-            </div>
-            <div>
-                <p class="error-text">@result[3]</p>
-                <p class="error-text">Окончание</p>
-                <input @bind-value="eventModelupdate.DataFinish" type="datetime" disabled="@update" />
-            </div>
-            <input placeholder="Стутус: @Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]" disabled />
-        </section>
+    <div class="form">
+        <div>
+            <p class="error-text">@result[1]</p>
+            <p class="sub-title-input">Призовой фонд</p>
+            <input @bind-value="eventModelupdate.PrizeFund" type="number" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text">@result[4]</p>
+            <p class="sub-title-input">Место</p>
+            <input @bind-value="eventModelupdate.LocationEvent" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text">@result[2]</p>
+            <p class="sub-title-input">Начало</p>
+            <input @bind-value="eventModelupdate.DataStart" type="datetime" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text">@result[3]</p>
+            <p class="sub-title-input">Окончание</p>
+            <input @bind-value="eventModelupdate.DataFinish" type="datetime" disabled="@update" />
+        </div>
+        <input placeholder="Стутус: @Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]" disabled />
     </div>
     <div style="display:flex;">
         @if (!update)
@@ -64,12 +59,12 @@
                 <p>Публичный</p>
                 <input @bind-value="@StaticResouses.mainControler.EventControler.nowEvent.IsPublic" type="checkbox" />
             </div>
-            <button class="top-row-text text" @onclick="OnUpdateButton">Сохранить</button>
+            <button @onclick="OnUpdateButton">Сохранить</button>
         }
     </div>
     @if (addPlayer)
     {
-        <button class="top-row-text text" @onclick="OnAdd">Добавить игрока</button>
+        <button @onclick="OnAdd">Добавить игрока</button>
         @if (add)
         {
             <div class="element">
@@ -90,11 +85,10 @@
         @foreach (var item in list)
         {
             <div class="element">
-                <div class="image-player"></div>
                 <h4 class="text">@(item.FirstName + " " + item.MiddleName)</h4>
-                @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer) 
+                @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
                 {
-                    <h4 @onclick="async ()=>Remove((int)item.FIDEID)" class="text">Удалить</h4>
+                    <button @onclick="async ()=>Remove((int)item.FIDEID)" class="text">Удалить</button>
                 }
             </div>
         }
@@ -128,9 +122,9 @@
         NavigationManager.NavigateTo(str);
     }
 
-    private void OnAdd() 
+    private void OnAdd()
     {
-        add = !add; 
+        add = !add;
     }
 
     private async void Add()
@@ -140,7 +134,7 @@
         {
             doit = false;
             return;
-        } 
+        }
         if (list.FirstOrDefault(p => p.FIDEID == FIDEID) != default(Data.Model.Player))
         {
             doit = false;
@@ -155,7 +149,7 @@
     private async void Remove(int i)
     {
         if (i == 0) return;
-        DataBase.Execute($"DELETE FROM Event WHERE PlayerID = {i}");
+        DataBase.Execute($"DELETE FROM EventPlayer WHERE PlayerID = {i}");
         list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
         StateHasChanged();
     }
@@ -190,11 +184,11 @@
         Array.Clear(result);
         result = Helper.CheckEvent(eventModelupdate);
 
-        if (!Helper.CheckStringArray(result)) 
+        if (!Helper.CheckStringArray(result))
         {
             StateHasChanged();
             return;
-        } 
+        }
         if (!await StaticResouses.mainControler.EventControler.Update(eventModelupdate, StaticResouses.mainControler.EventControler.nowEvent.EventID))
         {
             StateHasChanged();

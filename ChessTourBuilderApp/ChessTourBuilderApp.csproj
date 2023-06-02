@@ -54,10 +54,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Content Remove="wwwroot\DataBases\FlagBD.txt" />
-  </ItemGroup>
-  
-  <ItemGroup>
     <None Remove="Resources\Raw\FlagBD.txt" />
   </ItemGroup>
 
@@ -80,12 +76,6 @@
     <MauiAsset Update="Resources\Raw\FlagBD.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </MauiAsset>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\DataBases\FlagBD.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

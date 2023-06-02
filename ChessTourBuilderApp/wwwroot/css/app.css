@@ -1,8 +1,8 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #FFF9F9;
+    font-family: 'Roboto';
 }
 
 h1:focus {
@@ -17,6 +17,10 @@ a, .btn-link {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
+}
+
+#app {
+    background-color: #FFF9F9;
 }
 
 .content {
@@ -85,31 +89,99 @@ a, .btn-link {
 }
 
 button {
-    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.4rem;
     border-color: transparent;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
     background-color: #F8B75C;
-    margin: 0.5rem;
-    padding: 0.5rem;
+    border-radius: 10px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 89%;
+    color: #FFF9F9;
 }
 
     button:hover {
-        border-color: white
+        border-color: #FFF9F9
     }
 
 input {
     outline: none;
     border: none;
     border-bottom: 3px solid #F8B75C;
-    margin: 1rem;
-    color: #A16B1E;
+    margin: 0.5rem;
+    padding-bottom: 8px;
     font-style: normal;
-    font-weight: 400;
-    font-size: 20px;
+    font-weight: 200;
+    font-size: 30px;
     line-height: 35px;
     background-color: transparent;
-    font-family: 'Roboto';
+    color: #4A3434;
 }
 
-    input:hover {
-        box-shadow: 0.3em 0.3em 1em rgba(0,0,0,0.3);
-    }
+.element:hover, input:hover {
+    box-shadow: 0.3em 0.3em 1em rgba(0,0,0,0.3);
+}
+
+::placeholder {
+    font-style: normal;
+    font-weight: 200;
+    font-size: 30px;
+    line-height: 35px;
+    color: #4A3434;
+}
+
+.error-text {
+    color: #C50B0B;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.text {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 35px;
+    color: #FFF9F9;
+}
+
+.sub-title-input {
+    font-style: normal;
+    font-weight: 200;
+    font-size: 16px;
+    line-height: 19px;
+    color: #B78B4D;
+
+}
+
+.title {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 47px;
+    color: #B78B4D;
+}
+
+.div-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.top-row-conteneer {
+    display: flex;
+    padding: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}

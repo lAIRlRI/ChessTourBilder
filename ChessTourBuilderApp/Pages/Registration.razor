@@ -4,34 +4,39 @@
 @inject NavigationManager NavigationManager
 
 
-<body class="main-conteneer">
-    <section class="left-conteneer">
-        <h1 class="top-row-text text text-color-right" href="">Регистрация</h1>
+<body class="sub-main">
+    <div class="main-conteneer">
+        <h1 class="title">Регистрация</h1>
         <div class="form">
             <div>
-                <p class="text-color-right error-text">@result[0]</p>
-                <input @bind-value="organizer.FirstName" placeholder="Имя" type="text">
+                <p class="error-text">@result[0]</p>
+                <p class="sub-title-input">Имя</p>
+                <input @bind-value="organizer.FirstName" />
             </div>
             <div>
-                <p class="text-color-right error-text">@result[1]</p>
-                <input @bind-value="organizer.MiddleName" placeholder="Фамилия" type="text">
+                <p class="error-text">@result[1]</p>
+                <p class="sub-title-input">Фамилия</p>
+                <input @bind-value="organizer.MiddleName" />
             </div>
             <div>
-                <p class="text-color-right error-text">@result[2]</p>
-                <input @bind-value="organizer.LastName" placeholder="Отчество" type="text">
+                <p class="error-text">@result[2]</p>
+                <p class="sub-title-input">Отчество</p>
+                <input @bind-value="organizer.LastName" />
             </div>
             <div>
-                <p class="text-color-right error-text">@result[3]</p>
-                <input @bind-value="organizer.Login" placeholder="Логин" type="text">
+                <p class="error-text">@result[4]</p>
+                <p class="sub-title-input">Login</p>
+                <input @bind-value="organizer.Login" />
             </div>
             <div>
-                <p class="text-color-right error-text">@result[4]</p>
-                <input @bind-value="organizer.Password" placeholder="Пароль" type="password">
+                <p class="error-text">@result[3]</p>
+                <p class="sub-title-input">Пароль</p>
+                <input @bind-value="organizer.Password" />
             </div>
         </div>
-        <button disabled="@pressed" @onclick="@Cheker" href="">Зарегистрироваться</button>
-        <button disabled="@pressed" @onclick="@(()=>OnClickNavigate("/"))" href="">Войти</button>
-    </section>
+        <button disabled="@pressed" @onclick="@Cheker">Зарегистрироваться</button>
+        <button disabled="@pressed" @onclick="@(()=>OnClickNavigate("/"))">Войти</button>
+    </div>
 </body>
 
 @code {
@@ -48,13 +53,13 @@
 
         result = await Data.HelpClasses.Helper.CheckOrganizer(organizer);
 
-        if (!Data.HelpClasses.Helper.CheckStringArray(result)) 
+        if (!Data.HelpClasses.Helper.CheckStringArray(result))
         {
             pressed = false;
 
             StateHasChanged();
             return;
-        } 
+        }
 
         if (await StaticResouses.mainControler.OrganizerControler.Insert(organizer))
         {

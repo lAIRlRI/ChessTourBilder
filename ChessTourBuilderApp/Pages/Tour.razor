@@ -7,7 +7,7 @@
     <div class="top-row-conteneer">
         <div class="nav-item">
             <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigate("/tourList"))">Назад</button>
+            <button @onclick="@(()=>OnClickNavigate("/tourList"))">Назад</button>
         </div>
         <h1 class="top-row-text text"> @(Helper.FI())</h1>
     </div>
@@ -15,12 +15,12 @@
         <input class="input-main" placeholder="Поиск" type="text">
     </section>
     <div class="top-row-conteneer">
-        <h1 class="title-text">Партии</h1>
+        <h1 class="title">Партии</h1>
         @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
-            <button class="top-row-text text" @onclick="OnDelete">Удалить</button>
-            <button class="top-row-text text" @onclick="AddClick">@addstr</button>
-            <button class="top-row-text text" @onclick="OnUpdate">Изменить</button>
+            <button @onclick="OnDelete">Удалить</button>
+            <button @onclick="AddClick">@addstr</button>
+            <button @onclick="OnUpdate">Изменить</button>
         }
         <input class="title-text" @bind-value="resultTour" disabled="@update"/>
     </div>
@@ -59,10 +59,10 @@
         @foreach (var item in models)
         {
             <div @onclick="@(() => OnClickNavigateEvent(item))" class="element">
-                <div class="text-pozition">Белыми: @item.whitePlayer.player.FirstName</div>
-                <div class="text-pozition">Черными: @item.blackPlayer.player.FirstName</div>
-                <div class="text-pozition">Время: @item.DateStart</div>
-                <div class="text-pozition">Результат: @item.whitePlayer.Result @item.blackPlayer.Result</div>
+                <div class="text">Белыми: @item.whitePlayer.player.FirstName</div>
+                <div class="text">Черными: @item.blackPlayer.player.FirstName</div>
+                <div class="text">Время: @item.DateStart</div>
+                <div class="text">Результат: @item.whitePlayer.Result @item.blackPlayer.Result</div>
             </div>
         }
     </section>
@@ -98,7 +98,7 @@
             return;
         } 
 
-        model.StatusID = 1;
+        model.StatusID = 2;
         model.TourID = StaticResouses.mainControler.TourControler.nowTour.TourID;
 
         if (await StaticResouses.mainControler.ConsignmentControler.Insert(model))
