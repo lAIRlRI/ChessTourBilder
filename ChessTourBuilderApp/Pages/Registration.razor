@@ -11,27 +11,27 @@
             <div>
                 <p class="error-text">@result[0]</p>
                 <p class="sub-title-input">Имя</p>
-                <input @bind-value="organizer.FirstName" />
+                <input @bind-value="organizer.FirstName"/>
             </div>
             <div>
                 <p class="error-text">@result[1]</p>
                 <p class="sub-title-input">Фамилия</p>
-                <input @bind-value="organizer.MiddleName" />
+                <input @bind-value="organizer.MiddleName"/>
             </div>
             <div>
                 <p class="error-text">@result[2]</p>
                 <p class="sub-title-input">Отчество</p>
-                <input @bind-value="organizer.LastName" />
+                <input @bind-value="organizer.LastName"/>
             </div>
             <div>
                 <p class="error-text">@result[4]</p>
                 <p class="sub-title-input">Login</p>
-                <input @bind-value="organizer.Login" />
+                <input @bind-value="organizer.Login"/>
             </div>
             <div>
                 <p class="error-text">@result[3]</p>
                 <p class="sub-title-input">Пароль</p>
-                <input @bind-value="organizer.Password" />
+                <input @bind-value="organizer.Password"/>
             </div>
         </div>
         <button disabled="@pressed" @onclick="@Cheker">Зарегистрироваться</button>

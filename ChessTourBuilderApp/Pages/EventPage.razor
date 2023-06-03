@@ -50,7 +50,11 @@
             <p class="sub-title-input">Окончание</p>
             <input @bind-value="eventModelupdate.DataFinish" type="datetime" disabled="@update" />
         </div>
-        <input placeholder="Стутус: @Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]" disabled />
+        <div>
+            <p class="error-text">@result[3]</p>
+            <p class="sub-title-input">Стутус</p>
+            <input placeholder="@Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]" disabled />
+        </div>
     </div>
     <div style="display:flex;">
         @if (!update)

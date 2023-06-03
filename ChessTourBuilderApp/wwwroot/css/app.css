@@ -11,6 +11,7 @@ h1:focus {
 
 a, .btn-link {
     color: #0071c1;
+    text-decoration: none;
 }
 
 .btn-primary {
@@ -120,7 +121,7 @@ input {
     font-weight: 200;
     font-size: 30px;
     line-height: 35px;
-    background-color: transparent;
+    background-color: #FFF9F9;
     color: #4A3434;
 }
 
@@ -166,6 +167,10 @@ input {
     font-size: 40px;
     line-height: 47px;
     color: #B78B4D;
+}
+
+.big-text {
+    font-size: 45px;
 }
 
 .div-checkbox {

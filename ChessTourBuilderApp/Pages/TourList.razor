@@ -19,7 +19,6 @@
         {
             <button @onclick="AddClick">Добавить</button>
         }
-
     </div>
     @if (add)
     {
@@ -39,7 +38,7 @@
         @foreach (var item in models.Where(p => Regex.IsMatch(p.NameTour, like + @"(\w*)", RegexOptions.IgnoreCase)))
         {
             <div @onclick="@(()=>OnClickNavigateEvent(item))" class="element">
-                <div class="element">@item.NameTour</div>
+                <div class="text big-text">@item.NameTour</div>
             </div>
         }
     </section>
@@ -59,9 +58,9 @@
     private async void Add()
     {
         result = "";
-        if (string.IsNullOrWhiteSpace(model.NameTour))
+        if (Helper.CheckLenghtNumber(model.NameTour) == null)
         {
-            result = "Поле не должно быть пустым";
+            result = Helper.CheckLenghtNumber(model.NameTour);
             return;
         }
 

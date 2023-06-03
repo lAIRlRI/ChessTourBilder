@@ -12,12 +12,31 @@
         <h1 class="title" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <div class="form">
-        <h3 class="text">Белыми: @whiteP</h3>
-        <h3 class="text">Черными: @blackP</h3>
-        <h3 class="text">Время: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.DateStart</h3>
-        <h3 class="text">Результат: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
-        <h3 class="text">Формат: @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
-        <h3 class="text">Стутус: @Helper.status[StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID-1]</h3>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Белыми</p>
+            <input @bind-value="whiteP" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Черными</p>
+            <input @bind-value="blackP" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Время</p>
+            <input @bind-value="@StaticResouses.mainControler.ConsignmentControler.nowConsignment.DateStart" type="datetime-local" disabled="@update" />
+        </div>
+         <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Результат</p>
+            <input @bind-value="@result" disabled />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Стутус</p>
+            <input @bind-value="@Helper.status[StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID-1]" disabled />
+        </div>
     </div>
     <section class="pozition-conteneer">
         <div class="element">
@@ -44,7 +63,9 @@
 
 @code {
     bool check = OnCheck();
+    bool update = true;
 
+    string result = $"{StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result} : {StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result}";
     string blackP = StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.player.FirstName + " " + StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.player.MiddleName;
     string whiteP = StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.player.FirstName + " " + StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.player.MiddleName;
 

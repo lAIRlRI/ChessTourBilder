@@ -30,3 +30,10 @@
     background-color: #A16B1E;
     margin: 1rem;
 }
+
+.element {
+    border-radius: 8px;
+    background: #F8B75C;
+    margin: 1rem;
+    padding: 0.5rem;
+}
