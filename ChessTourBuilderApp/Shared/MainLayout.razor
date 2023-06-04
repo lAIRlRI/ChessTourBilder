@@ -2,6 +2,7 @@
 @using ChessTourBuilderApp.Data.HelpClasses
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject Data.Settings.ISettingServise settingsService
 
 <div class="">
     <div class="">
@@ -13,6 +14,19 @@
 {
     protected override async void OnInitialized()
     {
+        if (DeviceInfo.Platform == DevicePlatform.Android) 
+        {
+            if (settingsService.IsFirstRun)
+            {
+                // Выполните действия только при первом запуске
+                await DoFirstRunActions();
+
+                // Установите флаг первого запуска в false
+                settingsService.IsFirstRun = false;
+            }
+        }
+
+
         string flag = await DataBase.GetFlag();
         if (Convert.ToInt32(flag) == 1)
         {
@@ -24,5 +38,22 @@
             if (!DataBase.ChangeConnectionLite()) NavigationManager.NavigateTo("/setting");
             StaticResouses.mainControler = new(false);
         }
+
+        
+    }
+
+    private async Task DoFirstRunActions()
+    {
+        string tempFilePath = Path.Combine(FileSystem.CacheDirectory, "temp.txt");
+        await File.WriteAllTextAsync(tempFilePath, "0");
+        string localFilePath = Path.Combine(FileSystem.AppDataDirectory, "FlagBD.txt");
+        File.Copy(tempFilePath, localFilePath, overwrite: true);
+        File.Delete(tempFilePath);
+
+        tempFilePath = Path.Combine(FileSystem.CacheDirectory, "serverSetting.txt");
+        await File.WriteAllTextAsync(tempFilePath, "");
+        localFilePath = Path.Combine(FileSystem.AppDataDirectory, "serverSetting.txt");
+        File.Copy(tempFilePath, localFilePath, overwrite: true);
+        File.Delete(tempFilePath);
     }
 }

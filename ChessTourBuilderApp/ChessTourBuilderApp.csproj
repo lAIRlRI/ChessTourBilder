@@ -52,10 +52,6 @@
     <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <None Remove="Resources\Raw\FlagBD.txt" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.2.4" />
@@ -70,12 +66,9 @@
     <None Update="Data\DataBases\serverSetting.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Data\DataBases\БДLite.txt">
+    <None Update="Resources\Raw\DBLite.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <MauiAsset Update="Resources\Raw\FlagBD.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </MauiAsset>
   </ItemGroup>
 
 </Project>

@@ -147,9 +147,9 @@
         }
     }
 
-    private void ChekerLite()
+    private async void ChekerLite()
     {
-        DBChangeResult = DataBase.NewConnectionLite();
+        DBChangeResult = await DataBase.NewConnectionLite();
 
         switch (DBChangeResult)
         {

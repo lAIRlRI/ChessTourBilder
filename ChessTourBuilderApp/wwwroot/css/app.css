@@ -190,3 +190,47 @@ input {
     justify-content: space-between;
     align-items: center;
 }
+
+@media (min-width: 1px) {
+    html {
+        font-size: 10px;
+    }
+
+    .title {
+        font-size: 30px;
+    }
+
+    .text {
+        font-size: 16px;
+    }
+
+    input {
+        width: 80%;
+    }
+
+    #right-conteneer {
+        display:none;
+    }
+}
+
+@media (max-width: 1200px) {
+    html {
+        font-size: 14px;
+    }
+
+    .title {
+        font-size: 30px;
+    }
+
+    input {
+        width: 80%;
+    }
+
+    #right-conteneer {
+        display: none;
+    }
+
+    .text {
+        font-size: 16px;
+    }
+}
