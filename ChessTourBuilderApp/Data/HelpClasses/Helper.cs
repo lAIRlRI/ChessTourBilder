@@ -180,8 +180,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (player.FIDEID.ToString().Length != 7)
                 bools[0] = "FIDEID должен состоять из 7 цифр";
-
-            if (!await StaticResouses.mainControler.PlayerControler.GetLogin(player.FIDEID.ToString()))
+            else if (!await StaticResouses.mainControler.PlayerControler.GetLogin(player.FIDEID.ToString()))
                 bools[0] = "Игрок уже существует";
 
             bools[1] = CheckTextParametr(player.FirstName);
@@ -198,6 +197,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (player.ELORating == null)
                 bools[5] = Text();
+            else if (player.ELORating > 50000)
+                bools[5] = "Не может быть больше 50000";
             else if (player.ELORating <= 0)
                 bools[5] = "Не может быть меньше 0";
 
@@ -214,8 +215,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
             {
                 if (player.FIDEID.ToString().Length != 7)
                     bools[0] = "Должен состоять из 7 цифр";
-
-                if (!await StaticResouses.mainControler.PlayerControler.GetLogin(player.FIDEID.ToString()))
+                else if (!await StaticResouses.mainControler.PlayerControler.GetLogin(player.FIDEID.ToString()))
                     bools[0] = "Игрок уже существует";
             }
 
@@ -233,6 +233,8 @@ namespace ChessTourBuilderApp.Data.HelpClasses
 
             if (player.ELORating == null)
                 bools[5] = Text();
+            else if (player.ELORating > 50000)
+                bools[5] = "Не может быть больше 50000";
             else if (player.ELORating <= 0)
                 bools[5] = "Не может быть меньше 0";
 
