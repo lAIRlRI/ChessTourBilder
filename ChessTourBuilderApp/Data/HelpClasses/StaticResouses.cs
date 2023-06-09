@@ -7,5 +7,7 @@ namespace ChessTourBuilderApp.Data.HelpClasses
         public static MainControler mainControler = new(true);
 
         public static bool IsPlayer = false;
+
+        public static bool IsView = true;
     }
 }

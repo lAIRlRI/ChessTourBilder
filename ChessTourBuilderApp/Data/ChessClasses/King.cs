@@ -152,12 +152,12 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in cells)
             {
-                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell) != default(Figure)) return false;
+                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.InGame == true) != default(Figure)) return false;
             }
 
             foreach (var cell in cells)
             {
-                foreach (var figure in figures.Where(p => p.IsWhile != IsWhile))
+                foreach (var figure in figures.Where(p => p.IsWhile != IsWhile && p.InGame == true))
                 {
                     if (figure.Move(cell, figures) != null) return false;
                 }
@@ -203,7 +203,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
         {
             if (figures.FirstOrDefault(p => p.Pozition.cell == figure.cell && p.IsWhile == IsWhile && p.InGame == true) != default(Figure)) return false;
 
-            foreach (var item in figures.Where(p => p.IsWhile != IsWhile))
+            foreach (var item in figures.Where(p => p.IsWhile != IsWhile && p.InGame == true))
             {
                 if (item.Move(figure, figures) != null) return false;
             }

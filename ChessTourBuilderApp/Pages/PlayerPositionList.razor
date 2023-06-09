@@ -7,7 +7,11 @@
 
 <body class="main-conteneer">
     <div class="top-row-conteneer">
-        <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
+        <div class="nav-item">
+            <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
+            <button @onclick="@(()=>OnClickNavigate("/eventPage"))">Назад</button>
+            <h1 class="title"> @StaticResouses.mainControler.EventControler.nowEvent.Name</h1>
+        </div>
         <h1 class="title" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <section class="main-conteneer-block">

@@ -2,6 +2,7 @@
 @layout MainLayout
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
+@using System.Timers
 @inject NavigationManager NavigationManager
 
 
@@ -13,10 +14,19 @@
         </div>
         <h1 class="title">@(Helper.FI())</h1>
     </div>
+    <div class="top-row-conteneer">
+        <h1 class="title">Профиль игрока</h1>
+    </div>
     <div class="nav-item">
         @if (StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator != -1)
         {
-            <button @onclick="OnDelete">Удалить</button>
+            <div>
+                @if (isTextVisible)
+                {
+                    <p class="sub-title-input">@displayText</p>
+                }
+                <button disabled="@isButtonDisabled" @onclick="OnDelete">Удалить</button>
+            </div>
             <button @onclick="OnUpdate">Изменить</button>
         }
     </div>
@@ -84,6 +94,11 @@
     string[] result = new string[8];
     List<TourPozition> ds = new();
 
+    private bool isTextVisible = false;
+    private bool isButtonDisabled = false;
+    private string displayText = "Нажмите ещё раз для потверждения";
+    private Timer timer;
+
     private void OnUpdate() => update = !update;
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
 
@@ -104,8 +119,31 @@
 
     private async void OnDelete()
     {
-        if (!await StaticResouses.mainControler.PlayerControler.Delete((int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID)) return;
-        OnClickNavigation("/eventList");
+        if (isTextVisible)
+        {
+            if (!await StaticResouses.mainControler.PlayerControler.Delete((int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID))
+            {
+                displayText = "Не удалось удалить";
+                return;
+            }
+            OnClickNavigation("/playerList");
+        }
+        else
+        {
+            isTextVisible = true;
+
+            timer = new Timer(5000);
+
+            timer.Elapsed += (obj, args) =>
+            {
+                isTextVisible = false;
+                isButtonDisabled = false;
+                InvokeAsync(StateHasChanged);
+            };
+
+            timer.AutoReset = false;
+            timer.Start();
+        }
     }
 
     public class TourPozition

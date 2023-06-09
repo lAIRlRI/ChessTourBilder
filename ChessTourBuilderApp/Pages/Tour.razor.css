@@ -48,3 +48,15 @@
 .input-main {
     width: 62%;
 }
+
+.nav-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 1rem;
+    border: none;
+}
+
+.sub-title-input {
+    color: #FFF9F9;
+}

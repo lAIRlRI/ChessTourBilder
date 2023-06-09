@@ -161,7 +161,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
              return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
         }
 
-        public async void EndGame(double? result)
+        public async Task EndGame(double? result)
         {
             await StaticResouses.mainControler.MoveTableControler.PutLastMove(tableMove);
 
@@ -220,6 +220,9 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             string formattable = $"DROP TABLE IF EXISTS {tableFigures};";
             DataBase.Execute(formattable);
+
+            StaticResouses.IsView = true;
+
             return;
         }
 

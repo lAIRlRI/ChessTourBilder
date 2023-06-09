@@ -3,6 +3,7 @@
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Controler
+@using System.Timers
 @inject NavigationManager NavigationManager
 
 
@@ -15,12 +16,21 @@
         <h1 class="title" href="">@(Helper.FI())</h1>
     </div>
     <div class="top-row-conteneer">
-        <div class="nav-item">
+        <h1 class="title">Профиль турнира</h1>
+    </div>
+    <div class="top-row-conteneer wrap">
+        <div class="nav-item wrap">
             <button @onclick="@(()=>OnClickNavigation("/playerPositionList"))">Результаты</button>
             <button @onclick="@(()=>OnClickNavigation("/tourList"))">Туры</button>
             @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
             {
-                <button @onclick="OnDelete">Удалить</button>
+                <div>
+                    @if (isTextVisible)
+                    {
+                        <p class="sub-title-input">@displayText</p>
+                    }
+                    <button disabled="@isButtonDisabled" @onclick="OnDelete">Удалить</button>
+                </div>
                 <button @onclick="OnUpdate">Изменить</button>
             }
         </div>
@@ -43,16 +53,16 @@
         <div>
             <p class="error-text">@result[2]</p>
             <p class="sub-title-input">Начало</p>
-            <input @bind-value="eventModelupdate.DataStart" type="datetime" disabled="@update" />
+            <input @bind-value="eventModelupdate.DataStart" type="date" disabled="@update" />
         </div>
         <div>
             <p class="error-text">@result[3]</p>
             <p class="sub-title-input">Окончание</p>
-            <input @bind-value="eventModelupdate.DataFinish" type="datetime" disabled="@update" />
+            <input @bind-value="eventModelupdate.DataFinish" type="date" disabled="@update" />
         </div>
         <div>
             <p class="error-text">@result[3]</p>
-            <p class="sub-title-input">Стутус</p>
+            <p class="sub-title-input">Статус</p>
             <input placeholder="@Helper.status[StaticResouses.mainControler.EventControler.nowEvent.StatusID-1]" disabled />
         </div>
     </div>
@@ -109,6 +119,11 @@
     List<Data.Model.Player> list = new();
     List<Data.Model.Player> listPlayer = new();
 
+    private bool isTextVisible = false;
+    private bool isButtonDisabled = false;
+    private string displayText = "Нажмите ещё раз для потверждения";
+    private Timer timer;
+
     protected override async Task OnInitializedAsync()
     {
         list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
@@ -154,6 +169,7 @@
     {
         if (i == 0) return;
         DataBase.Execute($"DELETE FROM EventPlayer WHERE PlayerID = {i}");
+
         list = await StaticResouses.mainControler.PlayerControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
         StateHasChanged();
     }
@@ -201,13 +217,35 @@
 
         update = false;
         StaticResouses.mainControler.EventControler.nowEvent = eventModelupdate;
-        eventModelupdate = new();
         StateHasChanged();
     }
 
     private async void OnDelete()
     {
-        if (!await StaticResouses.mainControler.EventControler.Delete(StaticResouses.mainControler.EventControler.nowEvent.EventID)) return;
-        OnClickNavigation("/eventList");
+        if (isTextVisible)
+        {
+            if (!await StaticResouses.mainControler.EventControler.Delete(StaticResouses.mainControler.EventControler.nowEvent.EventID))
+            {
+                displayText = "Не удалось удалить";
+                return;
+            }
+            OnClickNavigation("/eventList");
+        }
+        else
+        {
+            isTextVisible = true;
+
+            timer = new Timer(5000);
+
+            timer.Elapsed += (obj, args) =>
+            {
+                isTextVisible = false;
+                isButtonDisabled = false;
+                InvokeAsync(StateHasChanged);
+            };
+
+            timer.AutoReset = false;
+            timer.Start();
+        }
     }
 }

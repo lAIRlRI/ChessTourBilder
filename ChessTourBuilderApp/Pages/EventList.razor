@@ -2,6 +2,7 @@
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Model
 @using Data.Controler
+@using System
 @using System.Text.RegularExpressions
 @layout Shared.MainLayout
 @inject NavigationManager NavigationManager
@@ -29,34 +30,34 @@
                 <div>
                     <p class="error-text">@result[0]</p>
                     <p class="sub-title-input">Название турнира</p>
-                    <input @bind-value="eventModel.Name" />
+                    <input maxlength="50" @bind-value="eventModel.Name" />
                 </div>
                 <div>
                     <p class="error-text">@result[1]</p>
-                    <p class="sub-title-input">Призовой фонд</p>
+                    <p class="sub-title-input">Призовой фонд (р.)</p>
                     <input @bind-value="eventModel.PrizeFund" type="number" />
                 </div>
                 <div>
                     <p class="error-text">@result[2]</p>
                     <p class="sub-title-input">Дата начала</p>
-                    <input @bind-value="eventModel.DataStart" type="datetime-local" />
+                    <input @bind-value="eventModel.DataStart" maxlength="10" type="date" />
                 </div>
                 <div>
                     <p class="error-text">@result[3]</p>
                     <p class="sub-title-input">Дата окончания</p>
-                    <input @bind-value="eventModel.DataFinish" type="datetime-local" />
+                    <input @bind-value="eventModel.DataFinish" maxlength="10" type="date" />
                 </div>
                 <div>
                     <p class="error-text">@result[4]</p>
                     <p class="sub-title-input">Место проведения</p>
-                    <input @bind-value="eventModel.LocationEvent" />
+                    <input maxlength="80" @bind-value="eventModel.LocationEvent" />
                 </div>
                 <div class="div-checkbox">
-                    <p>Публичный</p>
+                    <p class="text">Публичный</p>
                     <input @bind-value="eventModel.IsPublic" type="checkbox" class="text" />
                 </div>
                 <div class="div-checkbox">
-                    <p>Круговой</p>
+                    <p class="text">Круговой</p>
                     <input @bind-value="eventModel.TypeEvent" type="checkbox" class="text" />
                 </div>
                 <button disabled="@doit" @onclick="Add">Добавить</button>
@@ -67,10 +68,10 @@
         {
             <div class="element" @onclick="@(()=>OnClickNavigateEvent(item))">
                 <div class="text">Название турнира: @item.Name</div>
-                <div class="text">Дата проведения: @item.DataStart-@item.DataFinish</div>
+                <div class="text">Дата проведения: @(((DateTime)item.DataStart).ToShortDateString())-@(((DateTime)item.DataFinish).ToShortDateString())</div>
                 <div class="text">Место проведения: @item.LocationEvent</div>
                 <div class="text">Призовой фонд: @item.PrizeFund р.</div>
-                <div class="text">Cтвтус: @Helper.status[item.StatusID-1]</div>
+                <div class="text">Cтатус: @Helper.status[item.StatusID-1]</div>
             </div>
         }
     </section>
@@ -82,11 +83,13 @@
     bool add = false, doit = false;
     string[] result = new string[5];
     Data.Model.Event eventModel = new();
+    DateTime dateTime = new DateTime();
 
     protected override async Task OnInitializedAsync() => await Inizaliz();
 
     private async Task Inizaliz()
     {
+
         await StaticResouses.mainControler.EventControler.UpdateStatus();
         if (StaticResouses.IsPlayer)
         {
@@ -109,6 +112,7 @@
 
         if (!Data.HelpClasses.Helper.CheckStringArray(result))
         {
+            doit = false;
             StateHasChanged();
             return;
         }
@@ -122,6 +126,7 @@
             await StaticResouses.mainControler.EventControler.UpdateStatus();
             OnClickNavigateEvent(await StaticResouses.mainControler.EventControler.GetLast());
         }
+
         doit = false;
         StateHasChanged();
     }

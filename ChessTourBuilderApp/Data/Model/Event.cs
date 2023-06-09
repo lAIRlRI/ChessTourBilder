@@ -15,7 +15,7 @@
 
         public string GetTableName()
         {
-            return "[Result" + Name + EventID + "]";
+            return "[Result" + EventID + "]";
         }
 
     }

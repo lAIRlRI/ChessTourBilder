@@ -24,14 +24,15 @@
     {
         <div class="element">
             <div>
-                <p>@result</p>
-                <input @bind-value="model.NameTour" placeholder="Название тура" />
+                <p class="error-text">@result</p>
+                <p class="sub-title-input">Название тура</p>
+                <input @bind-value="model.NameTour" maxlength="30"/>
             </div>
             <button @onclick="Add">Добавить</button>
         </div>
     }
     <section class="main-conteneer-block">
-        <input @bind-value="like" class="input-main" placeholder="Поиск" type="text">
+        <input @bind-value="like" class="input-main" placeholder="Поиск" maxlength="30" type="text">
     </section>
     <h1 class="title">Туры</h1>
     <section class="pozition-conteneer">
@@ -58,7 +59,7 @@
     private async void Add()
     {
         result = "";
-        if (Helper.CheckLenghtNumber(model.NameTour) == null)
+        if (Helper.CheckLenghtNumber(model.NameTour) != null)
         {
             result = Helper.CheckLenghtNumber(model.NameTour);
             return;

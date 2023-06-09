@@ -17,7 +17,7 @@
                 <div>
                     <p class="error-text">@resultplayer[0]</p>
                     <p class="sub-title-input">FIDEID</p>
-                    <input @bind-value="playerModel.FIDEID" type="number" disabled="@update" />
+                    <input @bind-value="playerModel.FIDEID" type="number" disabled />
                 </div>
                 <div>
                     <p class="error-text">@resultplayer[1]</p>
@@ -42,7 +42,7 @@
                 <div>
                     <p class="error-text">@resultplayer[5]</p>
                     <p class="sub-title-input">Рейтинг</p>
-                    <input @bind-value="playerModel.ELORating" type="number" step="0.1" disabled="@update" />
+                    <input @bind-value="playerModel.ELORating" type="number" step="0.1" disabled />
                 </div>
                 <div>
                     <p class="error-text">@resultplayer[6]</p>
@@ -73,12 +73,12 @@
                     <input @bind-value="organizateModel.LastName" disabled="@update" />
                 </div>
                 <div>
-                    <p class="error-text">@resultorganizate[4]</p>
+                    <p class="error-text">@resultorganizate[3]</p>
                     <p class="sub-title-input">Логин</p>
                     <input @bind-value="organizateModel.Login" disabled="@update" />
                 </div>
                 <div>
-                    <p class="error-text">@resultorganizate[3]</p>
+                    <p class="error-text">@resultorganizate[4]</p>
                     <p class="sub-title-input">Пароль</p>
                     <input @bind-value="organizateModel.Password" disabled="@update" />
                 </div>
@@ -110,18 +110,16 @@
 
             update = false;
             StaticResouses.mainControler.PlayerControler.nowPlayer = playerModel;
-            playerModel = new();
-
         }
         else 
         {
             Array.Clear(resultorganizate);
 
-            resultorganizate = await Data.HelpClasses.Helper.CheckOrganizerUpdate(organizateModel, login);
+            resultorganizate = await Helper.CheckOrganizerUpdate(organizateModel, login);
 
-            if (!Data.HelpClasses.Helper.CheckStringArray(resultorganizate)) return;
+            if (!Helper.CheckStringArray(resultorganizate)) return;
 
-            await StaticResouses.mainControler.OrganizerControler.Update(organizateModel, organizateModel.OrganizerID);
+            if (!await StaticResouses.mainControler.OrganizerControler.Update(organizateModel, organizateModel.OrganizerID)) return;
         }
         StateHasChanged();
     }

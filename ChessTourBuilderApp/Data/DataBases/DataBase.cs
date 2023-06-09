@@ -8,7 +8,6 @@ namespace ChessTourBuilderApp.Data.DataBases
 {
     internal class DataBase
     {
-        static string pathsSQL;
         static string flag;
         public static IDbConnection connection;
         public static SqliteConnection tempLite;

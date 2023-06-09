@@ -1,6 +1,7 @@
 ﻿@page "/tour"
 @layout MainLayout
 @using ChessTourBuilderApp.Data.HelpClasses
+@using System.Timers
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
@@ -9,32 +10,45 @@
             <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
             <button @onclick="@(()=>OnClickNavigate("/tourList"))">Назад</button>
         </div>
-        <h1 class="top-row-text text"> @(Helper.FI())</h1>
+        <h1 class="title"> @(Helper.FI())</h1>
     </div>
     <section class="main-conteneer-block">
         <input class="input-main" placeholder="Поиск" type="text">
     </section>
-    <div class="top-row-conteneer">
+    <div class="top-row-conteneer wrap">
         <h1 class="title">Партии</h1>
         @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
-            <button @onclick="OnDelete">Удалить</button>
+            <div>
+                @if (isTextVisible)
+                {
+                    <p class="sub-title-input">@displayText</p>
+                }
+                <button disabled="@isButtonDisabled" @onclick="OnDelete">Удалить</button>
+            </div>
             <button @onclick="AddClick">@addstr</button>
             <button @onclick="OnUpdate">Изменить</button>
+            @if(update) 
+            {
+                <button @onclick="OnUpdateButton">Сохранить</button>
+            }
         }
-        <input class="title-text" @bind-value="resultTour" disabled="@update"/>
+        <div>
+            <p class="error-text">@errTour</p>
+            <input disabled="@(!update)" @bind-value="resultTour" />
+        </div>
     </div>
     @if (add)
     {
         <div class="element">
             <div>
-                <p>@result[0]</p>
-                <p>Дата начала</p>
+                <p class="error-text">@result[0]</p>
+                <p class="sub-title-input">Дата начала</p>
                 <input @bind-value="model.DateStart" type="datetime-local"/>
             </div>
             <div>
-                <p>@result[1]</p>
-                <p>Белыми</p>
+                <p class="error-text">@result[1]</p>
+                <p class="sub-title-input">Белыми</p>
                 <select @bind="@model.whitePlayer.PlayerID">
                     <option value="0">Белыми</option>
                     @foreach (var item in list)
@@ -42,8 +56,8 @@
                         <option value="@item.FIDEID">@item.FirstName @item.MiddleName @item.ELORating</option>
                     }
                 </select>
-                <p>@result[2]</p>
-                <p>Черными</p>
+                <p class="error-text">@result[2]</p>
+                <p class="sub-title-input">Черными</p>
                 <select @bind="@model.blackPlayer.PlayerID">
                     <option value="0">Черными</option>
                     @foreach (var item in list)
@@ -70,12 +84,17 @@
 
 @code {
     List<Data.Model.Consignment> models = new();
-    string addstr = "Добавить", resultTour = StaticResouses.mainControler.TourControler.nowTour.NameTour;
+    string addstr = "Добавить", resultTour = StaticResouses.mainControler.TourControler.nowTour.NameTour, errTour;
     string[] result = new string[3];
     Data.Model.Consignment model = new() { whitePlayer = new(), blackPlayer = new() };
-    bool update = true;
+    bool update = false;
     bool add = false;
     List<Data.Model.Player> list = new();
+
+    private bool isTextVisible = false;
+    private bool isButtonDisabled = false;
+    private string displayText = "Нажмите ещё раз для потверждения";
+    private Timer timer;
 
     protected override async Task OnInitializedAsync() => await Inizaliz();
 
@@ -118,7 +137,12 @@
 
     private async void OnUpdateButton()
     {
-        if (string.IsNullOrWhiteSpace(resultTour)) resultTour = StaticResouses.mainControler.TourControler.nowTour.NameTour;
+        errTour = Data.HelpClasses.Helper.CheckLenghtNumber(resultTour);
+        if (errTour != null) 
+        {
+            StateHasChanged();
+            return;
+        }
         StaticResouses.mainControler.TourControler.nowTour.NameTour = resultTour;
         if (!await StaticResouses.mainControler.TourControler.Update(StaticResouses.mainControler.TourControler.nowTour, StaticResouses.mainControler.TourControler.nowTour.TourID))
         {
@@ -137,7 +161,30 @@
 
     private async void OnDelete()
     {
-        await StaticResouses.mainControler.TourControler.Delete(StaticResouses.mainControler.TourControler.nowTour.TourID);
-        OnClickNavigate("/tourList");
+        if (isTextVisible)
+        {
+            if (!await StaticResouses.mainControler.TourControler.Delete(StaticResouses.mainControler.TourControler.nowTour.TourID))
+            {
+                displayText = "Не удалось удалить";
+                return;
+            }
+            OnClickNavigate("/tourList");
+        }
+        else
+        {
+            isTextVisible = true;
+
+            timer = new Timer(5000);
+
+            timer.Elapsed += (obj, args) =>
+            {
+                isTextVisible = false;
+                isButtonDisabled = false;
+                InvokeAsync(StateHasChanged);
+            };
+
+            timer.AutoReset = false;
+            timer.Start();
+        }
     }
 }

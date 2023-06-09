@@ -46,13 +46,7 @@
     width: 50%;
 }
 
-@media (min-width: 1px) {
-    .input-main {
-        width: 100%;
-    }
-}
-
-@media (max-width: 1200px) {
+@media (max-width: 1000px) {
     .input-main {
         width: 100%;
     }

@@ -46,7 +46,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             {
                 Cell cell = new(Pozition.X, Pozition.Y + (vector * 2));
                 Cell cellChange = new(Pozition.X, Pozition.Y + vector);
-                if (figures.FirstOrDefault(p => p.Pozition.cell == cellChange.cell) == default(Figure))
+                if (figures.FirstOrDefault(p => p.Pozition.cell == cellChange.cell && p.InGame == true) == default(Figure))
                 {
                     cells.Add(cell);
                 }
@@ -149,7 +149,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             if (moveChange != $"{move[0]}{vectorE}") return null;
             if (pozitionChange != $"{move[0]}{vectorN}") return null;
 
-            Figure figure = figures.FirstOrDefault(p => p.Pozition.cell == moveChange);
+            Figure figure = figures.FirstOrDefault(p => p.Pozition.cell == moveChange && p.InGame == true);
 
             if (figure == default(Figure)) return null;
             oreder++;

@@ -158,7 +158,6 @@ input {
     font-size: 16px;
     line-height: 19px;
     color: #B78B4D;
-
 }
 
 .title {
@@ -191,29 +190,7 @@ input {
     align-items: center;
 }
 
-@media (min-width: 1px) {
-    html {
-        font-size: 10px;
-    }
-
-    .title {
-        font-size: 30px;
-    }
-
-    .text {
-        font-size: 16px;
-    }
-
-    input {
-        width: 80%;
-    }
-
-    #right-conteneer {
-        display:none;
-    }
-}
-
-@media (max-width: 1200px) {
+@media (max-width: 1000px) {
     html {
         font-size: 14px;
     }
@@ -233,4 +210,31 @@ input {
     .text {
         font-size: 16px;
     }
+}
+
+.nav-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 1rem;
+    border: none;
+}
+
+button:disabled {
+    background-color: #75562C;
+}
+
+a {
+    color: #FFF9F9 !important;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
+
+.icon {
+    background-color: brown;
+    height: 5rem;
+    width: 5rem;
+    margin: 2rem;
 }

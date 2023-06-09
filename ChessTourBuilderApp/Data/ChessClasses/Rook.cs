@@ -86,7 +86,7 @@
 
             foreach (var item in cellsDiapozon)
             {
-                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell) != default(Figure)) return false;
+                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.InGame == true) != default(Figure)) return false;
             }
 
             return true;

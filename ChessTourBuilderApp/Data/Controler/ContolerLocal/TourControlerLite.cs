@@ -46,7 +46,7 @@ namespace ChessTourBuilderApp.Data.Controler.ControlerServer
             return DataBase.Execute($"UPDATE Tour " +
                 $"SET EventID = @EventID" +
                 $",NameTour = @NameTour" +
-                $" WHERE ID = {model.TourID}", list.ToArray());
+                $" WHERE TourID = {model.TourID}", list.ToArray());
         }
 
         public async Task<bool> Delete(int id)
