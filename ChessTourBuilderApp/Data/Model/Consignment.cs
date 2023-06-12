@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChessTourBuilderApp.Data.Model
+﻿namespace ChessTourBuilderApp.Data.Model
 {
     internal class Consignment
     {
@@ -13,6 +7,7 @@ namespace ChessTourBuilderApp.Data.Model
         public int StatusID { get; set; }
         public DateTime? DateStart { get; set; }
         public string GameMove { get; set; }
+        public string TableName { get; set; }
 
         public ConsignmentPlayer whitePlayer;
         public ConsignmentPlayer blackPlayer;

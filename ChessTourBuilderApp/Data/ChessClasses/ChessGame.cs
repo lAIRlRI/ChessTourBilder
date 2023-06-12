@@ -1,52 +1,53 @@
-﻿using ChessTourBuilderApp.Data.Controler;
-using ChessTourBuilderApp.Data.DataBases;
+﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.ChessClasses
 {
     internal class ChessGame
     {
+        private readonly string tableMove = "[" + StaticResouses.mainControler.EventControler.nowEvent.Name + DateTime.UtcNow + "]";
+        private readonly string tableFigures = "[Figures" + DateTime.UtcNow + "]";
+        private readonly char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
+
         private Consignment consignment;
-        private readonly string tableMove = "[" + EventControler.nowEvent.Name + DateTime.UtcNow + "]";
-        private readonly string tableFigures = "[#Figures" + DateTime.UtcNow + "]";
         private Cell lastPozition;
         private int orderCaptures = 0;
         private int lastIDFigure;
 
-        public Figure[] Figures { get; private set; } = new Figure[32];
+        public Figure[] Figures { get; private set; }
         public List<string> Move { get; } = new List<string>();
         public bool IsGameContinues { get; private set; } = true;
 
         public ChessGame(Consignment consignment)
         {
-            DataBase.OpenConn();
             this.consignment = consignment;
-            DataBase.ExecuteFull(StaticResouses.dBQ.GetTableMove(tableMove));
-
-            DataBase.ExecuteFull($"update Consignment set TableName = '{tableMove}' where ConsignmentID = {consignment.ConsignmentID}");
-            CreateChessTable();
-
-            GetFigures();
         }
 
-        private void GetFigures()
+        public async Task InizializeGame() 
         {
-            var table = DataBase.ReadFull($"select * from {tableFigures}", FigureScheme.mapper);
+            await StaticResouses.mainControler.MoveTableControler.CreateTableMove(tableMove);
+
+            consignment.TableName = tableMove;
+
+            await StaticResouses.mainControler.ConsignmentControler.Update(consignment, consignment.ConsignmentID);
+
+            if (await StaticResouses.mainControler.FigureTableControler.CreateFigureMove(tableFigures)) 
+            {
+               await GetFigures();
+            }
+        }
+
+        public async Task GetFigures()
+        {
+            var table = await StaticResouses.mainControler.FigureTableControler.GetAll(tableFigures);
             int i = 0;
             Figures = new Figure[table.Count];
 
             foreach (var item in table)
             {
-                //хештаблицы???; избавиться от object
-                switch (item.Name)
+                switch (item.Figure)
                 {
                     case "":
                         Figures[i] = new Pawn(item.Pozition, item.IsWhile, item.ID)
@@ -95,11 +96,11 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             }
         }
 
-        public string SetFigure(Figure figure, string move)
+        public async Task<string> SetFigure(Figure figure, string move)
         {
             if (figure == null) return "no";
 
-            (string, int) function = figure.SetFigureTrueMove(Figures, move, tableFigures, orderCaptures, tableMove);
+            (string, int) function = await figure.SetFigure(Figures, move, tableFigures, orderCaptures, tableMove);
 
             string insertMove = function.Item1;
             orderCaptures = function.Item2;
@@ -107,84 +108,62 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             if (insertMove == null) return "no";
             if ("rpt" == insertMove) return "rpt";
 
-            string str;
-
             int ID = figure.IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
-            str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID, Pozition)" +
-                        $" values ({ID},'{insertMove}',{consignment.ConsignmentID},{consignment.TourID},'{figure.Pozition.cell}')";
-            DataBase.ExecuteFull(str);
+
+            MoveTableModel moveTableModel = new()
+            {
+                ID = ID,
+                Move = insertMove,
+                ConsignmentID = consignment.ConsignmentID,
+                TourID = consignment.TourID,
+                Pozition = figure.Pozition.cell
+            };
+
+            await StaticResouses.mainControler.MoveTableControler.PostMove(tableMove, moveTableModel);
 
             lastPozition = figure.Pozition;
             lastIDFigure = figure.ID;
 
             Move.Add(insertMove);
 
-            GetFigures();
-
             return "ok";
         }
 
-        public bool InsertFigure(string pozition, string name, bool IsWhile)
+        public async Task<bool> InsertFigure(string pozition, string name, bool IsWhile)
         {
-            int b = IsWhile ? 1 : 0;
-            string str = $"insert into {tableFigures} (Figure,Pozition,IsWhile)" +
-                $"values ('{name}','{pozition}',{b})";
-            DataBase.ExecuteFull(str);
+            FigureScheme figureScheme = new() 
+            {
+                Figure = name, 
+                Pozition = pozition,
+                IsWhile = IsWhile
+            };
+            await StaticResouses.mainControler.FigureTableControler.InsertFigure(tableFigures, figureScheme);
+
             int ID = IsWhile ? consignment.whitePlayer.PlayerID : consignment.blackPlayer.PlayerID;
-            str = $"insert into {tableMove} (PlayerID,Move,ConsignmentID,TourID)" +
-                        $" values ({ID},'{pozition + name}',{consignment.ConsignmentID},{consignment.TourID})";
-            DataBase.ExecuteFull(str);
-            GetFigures();
+
+            MoveTableModel moveTableModel = new()
+            {
+                ID = ID,
+                Move = pozition + name,
+                ConsignmentID = consignment.ConsignmentID,
+                TourID = consignment.TourID,
+                Pozition = pozition + name
+            };
+            await StaticResouses.mainControler.MoveTableControler.PostMove(tableMove, moveTableModel);
+
+            await GetFigures();
             Move.Add(pozition + name);
             return true;
         }
 
-        public Figure[] GetFigure(bool IsWhile) => Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
-
-        private void CreateChessTable()
+        public Figure[] GetFigure(bool IsWhile) 
         {
-            string str = StaticResouses.dBQ.GetTableFigures(tableFigures);
-            DataBase.ExecuteFull(str);
-            str = $"INSERT INTO {tableFigures} (Figure,Pozition,IsWhile)" +
-                "values ('','A2', 1)," +
-                "('','B2', 1)," +
-                "('','C2', 1)," +
-                "('','D2', 1)," +
-                "('','E2', 1)," +
-                "('','F2', 1)," +
-                "('','G2', 1)," +
-                "('','H2', 1)," +
-                "('','A7', 0)," +
-                "('','B7', 0)," +
-                "('','C7', 0)," +
-                "('','D7', 0)," +
-                "('','E7', 0)," +
-                "('','F7', 0)," +
-                "('','G7', 0)," +
-                "('','H7', 0)," +
-                "('K','E1', 1)," +
-                "('K','E8', 0)," +
-                "('Q','D1', 1)," +
-                "('Q','D8', 0)," +
-                "('B','C1', 1)," +
-                "('B','C8', 0)," +
-                "('B','F1', 1)," +
-                "('B','F8', 0)," +
-                "('N','G1', 1)," +
-                "('N','G8', 0)," +
-                "('N','B1', 1)," +
-                "('N','B8', 0)," +
-                "('R','H1', 1)," +
-                "('R','H8', 0)," +
-                "('R','A1', 1)," +
-                "('R','A8', 0)";
-            DataBase.ExecuteFull(str);
+             return Figures.Where(p => p.IsWhile == IsWhile && p.InGame == true).ToArray();
         }
 
-        public void EndGame(double? result)
+        public async Task EndGame(double? result)
         {
-            string str = StaticResouses.dBQ.GetLastMove(tableMove);
-            DataBase.ExecuteFull(str);
+            await StaticResouses.mainControler.MoveTableControler.PutLastMove(tableMove);
 
             if (result == 2)
             {
@@ -207,11 +186,8 @@ namespace ChessTourBuilderApp.Data.ChessClasses
                     consignment.blackPlayer.Result = 1;
                 }
 
-                str = StaticResouses.dBQ.GetWinner(tableMove, ID);
-
+                await StaticResouses.mainControler.MoveTableControler.PutWinner(tableMove, ID);
             }
-            DataBase.ExecuteFull(str);
-            DataBase.CloseCon();
 
             consignment.whitePlayer.player.ELORating = ELO((double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.Result);
             consignment.blackPlayer.player.ELORating = ELO((double)consignment.blackPlayer.player.ELORating, (double)consignment.whitePlayer.player.ELORating, (double)consignment.blackPlayer.Result);
@@ -220,25 +196,34 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             consignment.StatusID = 1;
 
-            ConsignmentControler.Update(consignment);
+            await StaticResouses.mainControler.ConsignmentControler.Update(consignment, consignment.ConsignmentID);
 
             IsGameContinues = false;
 
-            if (result != 2)
+            TableResult tableResult = new() 
             {
-                DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                   $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},{consignment.whitePlayer.Result},{consignment.ConsignmentID})");
-                DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                    $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},{consignment.blackPlayer.Result},{consignment.ConsignmentID})");
-                return;
-            }
+                EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID,
+                PlayerID = consignment.whitePlayer.PlayerID,
+                Result = (double)consignment.whitePlayer.Result,
+                ConsignmentID = consignment.ConsignmentID
+            };
+            await StaticResouses.mainControler.ResultTableControler.InsertResult(StaticResouses.mainControler.EventControler.nowEvent.GetTableName(), tableResult);
 
-            DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                $"Values ({EventControler.nowEvent.EventID},{consignment.whitePlayer.PlayerID},0.5,{consignment.ConsignmentID})");
-            DataBase.ExecuteFull($"insert into {EventControler.nowEvent.GetTableName()} (EventID,PlayerID,Result,ConsignmentID)" +
-                $"Values ({EventControler.nowEvent.EventID},{consignment.blackPlayer.PlayerID},0.5,{consignment.ConsignmentID})");
+            tableResult = new()
+            {
+                EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID,
+                PlayerID = consignment.blackPlayer.PlayerID,
+                Result = (double)consignment.blackPlayer.Result,
+                ConsignmentID = consignment.ConsignmentID
+            };
+            await StaticResouses.mainControler.ResultTableControler.InsertResult(StaticResouses.mainControler.EventControler.nowEvent.GetTableName(), tableResult);
 
+            string formattable = $"DROP TABLE IF EXISTS {tableFigures};";
+            DataBase.Execute(formattable);
 
+            StaticResouses.IsView = true;
+
+            return;
         }
 
         private static double ELO(double mPlayer, double sPlayer, double result)
@@ -257,76 +242,67 @@ namespace ChessTourBuilderApp.Data.ChessClasses
             return Math.Round(mPlayer + k * (result - Ea), 1);
         }
 
-        public void DeleteLastMove(bool IsWhile)
+        public async Task DeleteLastMove(bool IsWhile)
         {
-            List<TableFiguresScheme> dataSet = DataBase.ReadFull(StaticResouses.dBQ.GetMovePozition(tableMove), TableFiguresScheme.mapper);
-            string move = dataSet[0].Move.ToString();
+            MovePozition dataSet = await StaticResouses.mainControler.MoveTableControler.GetMovePozition(tableMove);
+            string move = dataSet.Move.ToString();
 
-            DataBase.ExecuteFull(StaticResouses.dBQ.DeleteTableMove(tableMove));
+            await StaticResouses.mainControler.MoveTableControler.DeleteLastMove(tableMove);
 
-            string str = $"UPDATE {tableFigures} " +
-               $"SET Pozition = '{lastPozition.cell}'" +
-               $" WHERE ID = {lastIDFigure}";
-            DataBase.ExecuteFull(str);
+            UpdateFigureModel updateFigureModel = new()
+            {
+                Item1 = lastPozition.cell,
+                Item2 = lastIDFigure.ToString()
+            };
+
+            await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
 
             if (move[1] == 'x' || move[0] == 'x')
             {
-                str = $"UPDATE {tableFigures} " +
-                $"SET InGame = 1" +
-                $" WHERE EatID = {orderCaptures}";
-                DataBase.ExecuteFull(str);
+                updateFigureModel = new()
+                {
+                    Item1 = orderCaptures.ToString()
+                };
+                await StaticResouses.mainControler.FigureTableControler.UpdateInGame(tableFigures, updateFigureModel);
             }
 
             int pozition = IsWhile ? 1 : 8;
 
             if (move == "O-O-O")
             {
-                str = $"UPDATE {tableFigures} " +
-                     $"SET Pozition = 'E{pozition}'," +
-                     $"IsMoving = 0" +
-                     $" WHERE Pozition = 'C{pozition}'";
-                DataBase.ExecuteFull(str);
-
-                str = $"UPDATE {tableFigures} " +
-                     $"SET Pozition = 'A{pozition}'," +
-                     $"IsMoving = 0" +
-                     $" WHERE Pozition = 'D{pozition}'";
-                DataBase.ExecuteFull(str);
+                updateFigureModel = new()
+                {
+                    Item1 = pozition.ToString(),
+                    Item2 = "0"
+                };
+                await StaticResouses.mainControler.FigureTableControler.UpdateCastlingLong(tableFigures, updateFigureModel);
             }
 
             if (move == "O-O")
             {
-                str = $"UPDATE {tableFigures} " +
-                     $"SET Pozition = 'E{pozition}'," +
-                     $"IsMoving = 0" +
-                     $" WHERE Pozition = 'G{pozition}'";
-                DataBase.ExecuteFull(str);
-
-                str = $"UPDATE {tableFigures} " +
-                     $"SET Pozition = 'H{pozition}'," +
-                     $"IsMoving = 0" +
-                     $" WHERE Pozition = 'F{pozition}'";
-                DataBase.ExecuteFull(str);
+                updateFigureModel = new()
+                {
+                    Item1 = pozition.ToString(),
+                    Item2 = "0"
+                };
+                await StaticResouses.mainControler.FigureTableControler.UpdateCastlingShort(tableFigures, updateFigureModel);
             }
-
-            char[] figure = new char[] { 'Q', 'N', 'B', 'R' };
 
             char temp = figure.FirstOrDefault(p => p == move[^1]);
 
             if (temp != default(char))
             {
-                str = $"UPDATE {tableFigures} " +
-               $"SET Pozition = '{lastPozition.cell}'" +
-               $" WHERE ID = {lastIDFigure}";
-                DataBase.ExecuteFull(str);
-
-                str = StaticResouses.dBQ.GetTableFigures(tableFigures);
-                DataBase.ExecuteFull(str);
+                updateFigureModel = new()
+                {
+                    Item1 = lastPozition.cell,
+                    Item2 = lastIDFigure.ToString()
+                };
+                await StaticResouses.mainControler.FigureTableControler.UpdatePozition(tableFigures,true, updateFigureModel);
             }
 
             Move.RemoveAt(Move.Count - 1);
 
-            GetFigures();
+            await GetFigures();
         }
     }
 }

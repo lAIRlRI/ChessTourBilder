@@ -1,56 +1,132 @@
 ﻿@page "/game"
 @layout MainLayout
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Data.Controler
+@using System.Timers
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
     <div class="top-row-conteneer">
         <div class="nav-item">
             <button class="icon" @onclick="@(()=>OnClickNavigation("/navMenu"))"></button>
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/tour"))">Назад</button>
+            <button @onclick="@(()=>OnClickNavigation("/tour"))">Назад</button>
         </div>
-        <h1 class="top-row-text text" href="">@(Data.HelpClasses.Helper.FI())</h1>
+        <h1 class="title" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
-    <div class="info-conteneer">
-        <section class="info-item3">
-            <h3 class="text">Белыми: @whiteP</h3>
-            <h3 class="text">Черными: @blackP</h3>
-            <h3 class="text">Время: @ConsignmentControler.nowConsignment.DateStart</h3>
-            <h3 class="text">Результат: @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result</h3>
-            <h3 class="text">Стутус: @Helper.status[EventControler.nowEvent.StatusID-1]</h3>
-        </section>
+    <div class="top-row-conteneer">
+        <h1 class="title">Профиль турнира</h1>
+        @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID != 1 && !StaticResouses.IsPlayer)
+        {
+            <div>
+                @if (isTextVisible)
+                {
+                    <p class="sub-title-input">@displayText</p>
+                }
+                <button disabled="@isButtonDisabled" @onclick="OnDelete">Удалить</button>
+            </div>
+        }
+    </div>
+    <div class="form">
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Белыми</p>
+            <input @bind-value="whiteP" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Черными</p>
+            <input @bind-value="blackP" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Время</p>
+            <input @bind-value="@StaticResouses.mainControler.ConsignmentControler.nowConsignment.DateStart" type="datetime-local" disabled="@update" />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Результат</p>
+            <input @bind-value="@result" disabled />
+        </div>
+        <div>
+            <p class="error-text"></p>
+            <p class="sub-title-input">Статус</p>
+            <input @bind-value="@Helper.status[StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID-1]" disabled />
+        </div>
     </div>
     <section class="pozition-conteneer">
         <div class="element">
-            <h3 class="text">@ConsignmentControler.nowConsignment.GameMove</h3>
+            <h3 class="text">@StaticResouses.mainControler.ConsignmentControler.nowConsignment.GameMove</h3>
         </div>
     </section>
-    @if (ConsignmentControler.nowConsignment.StatusID == 2 && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
+    @if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID == 3 && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
     {
-        <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Смотреть</button>
+        <button @onclick="@(()=>OnClickNavigation("/gameMove"))">Смотреть</button>
     }
-    @if (check) 
+
+    @if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.StatusID != 1)
     {
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+        @if (check)
+        {
+            <button @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть</button>
+        }
+        else if (StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID == StaticResouses.mainControler.EventControler.nowEvent.OrganizerID)
+        {
+            StaticResouses.IsView = false;
+            <button @onclick="@(()=>OnClickNavigation("/gameMove"))">Играть локально</button>
+        }
     }
 </body>
 
 @code {
     bool check = OnCheck();
+    bool update = true;
 
-    string blackP = ConsignmentControler.nowConsignment.blackPlayer.player.FirstName + " " + ConsignmentControler.nowConsignment.blackPlayer.player.MiddleName;
-    string whiteP = ConsignmentControler.nowConsignment.whitePlayer.player.FirstName + " " + ConsignmentControler.nowConsignment.whitePlayer.player.MiddleName;
+    private bool isTextVisible = false;
+    private bool isButtonDisabled = false;
+    private string displayText = "Нажмите ещё раз для потверждения";
+    private Timer timer;
+
+    string result = $"{StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result} : {StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result}";
+    string blackP = StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.player.FirstName + " " + StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.player.MiddleName;
+    string whiteP = StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.player.FirstName + " " + StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.player.MiddleName;
 
     private void OnClickNavigation(string str) => NavigationManager.NavigateTo(str);
 
-    private static bool OnCheck() 
+    private static bool OnCheck()
     {
-        if(StaticResouses.IsPlayer)
+        if (StaticResouses.IsPlayer)
         {
-            if (ConsignmentControler.nowConsignment.blackPlayer.PlayerID == (int)PlayerControler.nowPlayer.FIDEID) return true;
-            if (ConsignmentControler.nowConsignment.whitePlayer.PlayerID == (int)PlayerControler.nowPlayer.FIDEID) return true;
+            if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.PlayerID == (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID) return true;
+            if (StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.PlayerID == (int)StaticResouses.mainControler.PlayerControler.nowPlayer.FIDEID) return true;
         }
         return false;
+    }
+
+    private async void OnDelete()
+    {
+        if (isTextVisible)
+        {
+            if (!await StaticResouses.mainControler.ConsignmentControler.Delete(StaticResouses.mainControler.ConsignmentControler.nowConsignment.ConsignmentID))
+            {
+                displayText = "Не удалось удалить";
+                return;
+            }
+            OnClickNavigation("/tour");
+        }
+        else
+        {
+            isTextVisible = true;
+
+            timer = new Timer(5000);
+
+            timer.Elapsed += (obj, args) =>
+            {
+                isTextVisible = false;
+                isButtonDisabled = false;
+                InvokeAsync(StateHasChanged);
+            };
+
+            timer.AutoReset = false;
+            timer.Start();
+        }
     }
 }

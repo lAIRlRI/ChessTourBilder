@@ -1,17 +1,21 @@
 ﻿@page "/playerPositionList"
 @layout MainLayout
-@using System.Data
-@using ChessTourBuilderApp.Data.DataBases
 @using System.Text.RegularExpressions
+@using ChessTourBuilderApp.Data.HelpClasses
+@using ChessTourBuilderApp.Data.Model
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
     <div class="top-row-conteneer">
-        <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
-        <h1 class="top-row-text text" href="">@(Data.HelpClasses.Helper.FI())</h1>
+        <div class="nav-item">
+            <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
+            <button @onclick="@(()=>OnClickNavigate("/eventPage"))">Назад</button>
+            <h1 class="title"> @StaticResouses.mainControler.EventControler.nowEvent.Name</h1>
+        </div>
+        <h1 class="title" href="">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <section class="main-conteneer-block">
-        <input @bind-value="like" class="input-main" placeholder="Поиск" type="text">
+        <input @bind-value="like" placeholder="Поиск" type="text">
     </section>
     <section>
         <div class="color-first pozition-conteneer">
@@ -31,36 +35,24 @@
 </body>
 
 @code {
-    List<ResultSheme> ds = Initializa();
 
     string like;
+    static List<ResultSheme> ds = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Initializa();
+        if (ds == null) ds = new();
+        StateHasChanged();
+    }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private static List<ResultSheme> Initializa()
+    private async static Task Initializa()
     {
-        List<ResultSheme> ds = Data.Controler.EventControler.nowEvent.TypeEvent ?
-            DataBase.Read(Data.HelpClasses.StaticResouses.dBQ.GetResult(), ResultSheme.mapper)
+        ds = StaticResouses.mainControler.EventControler.nowEvent.TypeEvent ?
+           await StaticResouses.mainControler.ResultTableControler.GetResultTable(StaticResouses.mainControler.EventControler.nowEvent.GetTableName())
         :
-            DataBase.Read(Data.HelpClasses.StaticResouses.dBQ.GetResultСircle(), ResultSheme.mapper);
-
-        for (int i = 0; i < ds.Count; i++)
-        {
-            ds[i].Pozition = i + 1;
-        }
-
-        return ds;
-    }
-
-    public class ResultSheme
-    {
-        public static readonly Func<IDataReader, ResultSheme> mapper = r => new ResultSheme()
-        {
-            Points = r["Points"].ToString(),
-            Fi = r["Fi"].ToString(),
-        };
-        public int Pozition { get; set; }
-        public string Points { get; set; }
-        public string Fi { get; set; }
+           await StaticResouses.mainControler.ResultTableControler.GetResultTableСircle(StaticResouses.mainControler.EventControler.nowEvent.GetTableName());
     }
 }

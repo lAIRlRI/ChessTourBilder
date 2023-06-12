@@ -1,19 +1,14 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
-using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ChessTourBuilderApp.Data.Controler
+namespace ChessTourBuilderApp.Data.Controler.ControlerServer
 {
-    internal class TourControler
+    internal class TourControlerLite : ITourControler
     {
-        public static Tour nowTour = new();
+        public Tour nowTour { get; set; }
+
         static List<Tour> models;
         private static List<IDbDataParameter> list;
         private static readonly Func<IDataReader, Tour> mapper = r => new Tour()
@@ -36,44 +31,54 @@ namespace ChessTourBuilderApp.Data.Controler
                 );
         }
 
-        public static bool Insert(Tour model)
+        public async Task<bool> Insert(Tour model)
         {
+            await Task.Delay(2);
             SqlParameterSet(model);
             return DataBase.Execute("INSERT INTO Tour(EventID,NameTour)" +
                                                           "VALUES(@EventID,@NameTour)", list.ToArray());
         }
 
-        public static bool Update(Tour model)
+        public async Task<bool> Update(Tour model, int id)
         {
+            await Task.Delay(2);
             SqlParameterSet(model);
             return DataBase.Execute($"UPDATE Tour " +
                 $"SET EventID = @EventID" +
                 $",NameTour = @NameTour" +
-                $" WHERE ID = {model.TourID}", list.ToArray());
+                $" WHERE TourID = {model.TourID}", list.ToArray());
         }
 
-        public static bool Delete(int id) => DataBase.Execute($"DELETE FROM Tour WHERE TourID = {id}");
-
-        public static List<Tour> Get(string str)
+        public async Task<bool> Delete(int id)
         {
-            models = DataBase.Read(str, mapper);
-            return models;
+            await Task.Delay(2);
+            return DataBase.Execute($"DELETE FROM Tour WHERE TourID = {id}");
         }
 
-        public static List<Tour> Get()
+        public async Task<List<Tour>> GetAll() 
         {
+            await Task.Delay(2);
             models = DataBase.Read("SELECT * FROM Tour", mapper);
             return models;
         }
 
-        public static Tour Get(int id)
+        public async Task<List<Tour>> GetByEventId(int id)
         {
+            await Task.Delay(2);
+            models = DataBase.Read($"SELECT * FROM Tour WHERE EventId = {id}", mapper);
+            return models;
+        }
+
+        public async Task<Tour> GetById(int id) 
+        {
+            await Task.Delay(2);
             models = DataBase.Read($"SELECT * FROM Tour WHERE TourID = {id}", mapper);
             return models[0];
         }
 
-        public static Tour GetLast()
+        public async Task<Tour> GetLast()
         {
+            await Task.Delay(2);
             models = DataBase.Read("SELECT * FROM Tour where TourID = (select max(TourID) from Tour)", mapper);
             return models[0];
         }

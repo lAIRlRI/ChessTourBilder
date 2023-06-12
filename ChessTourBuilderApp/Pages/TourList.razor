@@ -1,7 +1,6 @@
 ﻿@page "/tourList"
 @layout MainLayout
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Data.Controler
 @using System.Text.RegularExpressions
 @inject NavigationManager NavigationManager
 
@@ -10,70 +9,67 @@
     <div class="top-row-conteneer">
         <div class="nav-item">
             <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
-            <button class="top-row-text text" @onclick="@(()=>OnClickNavigate("/eventPage"))">Назад</button>
+            <button @onclick="@(()=>OnClickNavigate("/eventPage"))">Назад</button>
         </div>
-        <h1 class="top-row-text text">@(Data.HelpClasses.Helper.FI())</h1>
+        <h1 class="title">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <div class="top-row-conteneer">
-        <h1 class="top-row-text text">@(EventControler.nowEvent.Name)</h1>
-        @if (Helper.CheckDeleteButton() && EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
+        <h1 class="title">@(StaticResouses.mainControler.EventControler.nowEvent.Name)</h1>
+        @if (Helper.CheckDeleteButton() && StaticResouses.mainControler.EventControler.nowEvent.StatusID != 1 && !StaticResouses.IsPlayer)
         {
-            <h1 class="top-row-text text" @onclick="AddClick">Добавить</h1>
+            <button @onclick="AddClick">Добавить</button>
         }
-
     </div>
     @if (add)
     {
         <div class="element">
             <div>
-                <p>@result</p>
-                <input @bind-value="model.NameTour" placeholder="Название тура" />
+                <p class="error-text">@result</p>
+                <p class="sub-title-input">Название тура</p>
+                <input @bind-value="model.NameTour" maxlength="30"/>
             </div>
             <button @onclick="Add">Добавить</button>
         </div>
     }
     <section class="main-conteneer-block">
-        <input @bind-value="like" class="input-main" placeholder="Поиск" type="text">
+        <input @bind-value="like" class="input-main" placeholder="Поиск" maxlength="30" type="text">
     </section>
-    <h1 class="title-text">Туры</h1>
+    <h1 class="title">Туры</h1>
     <section class="pozition-conteneer">
         @foreach (var item in models.Where(p => Regex.IsMatch(p.NameTour, like + @"(\w*)", RegexOptions.IgnoreCase)))
         {
             <div @onclick="@(()=>OnClickNavigateEvent(item))" class="element">
-                <div class="image image-text">@item.NameTour</div>
+                <div class="text big-text">@item.NameTour</div>
             </div>
         }
     </section>
 </body>
 
 @code {
-    List<Data.Model.Tour> models = TourControler.Get().Where(p => p.EventID == EventControler.nowEvent.EventID).ToList();
-    static string like = "", addstr = "Добавить";
+    List<Data.Model.Tour> models = new();
+    string like = "", addstr = "Добавить";
     bool add;
     string result = "";
     Data.Model.Tour model = new();
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        add = false;
-        addstr = "Добавить";
-    }
+    protected override async Task OnInitializedAsync() => models = await StaticResouses.mainControler.TourControler.GetByEventId(StaticResouses.mainControler.EventControler.nowEvent.EventID);
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Add()
+    private async void Add()
     {
         result = "";
-        if (string.IsNullOrWhiteSpace(model.NameTour))
+        if (Helper.CheckLenghtNumber(model.NameTour) != null)
         {
-            result = "Поле не должно быть пустым";
+            result = Helper.CheckLenghtNumber(model.NameTour);
             return;
         }
-        model.EventID = EventControler.nowEvent.EventID;
-        if (TourControler.Insert(model))
+
+        model.EventID = StaticResouses.mainControler.EventControler.nowEvent.EventID;
+
+        if (await StaticResouses.mainControler.TourControler.Insert(model))
         {
-            model = TourControler.GetLast();
+            model = await StaticResouses.mainControler.TourControler.GetLast();
             OnClickNavigateEvent(model);
         }
     }
@@ -86,7 +82,7 @@
 
     private void OnClickNavigateEvent(Data.Model.Tour ev)
     {
-        TourControler.nowTour = ev;
+        StaticResouses.mainControler.TourControler.nowTour = ev;
         NavigationManager.NavigateTo("/tour");
     }
 }

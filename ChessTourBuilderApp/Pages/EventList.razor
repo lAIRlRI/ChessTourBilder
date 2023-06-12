@@ -2,6 +2,7 @@
 @using ChessTourBuilderApp.Data.HelpClasses
 @using Data.Model
 @using Data.Controler
+@using System
 @using System.Text.RegularExpressions
 @layout Shared.MainLayout
 @inject NavigationManager NavigationManager
@@ -10,16 +11,16 @@
 <body class="main-conteneer">
     <div class="top-row-conteneer">
         <button @onclick="@(()=>OnClickNavigate("/navMenu"))" class="icon"></button>
-        <h1 class="top-row-text text">@(Data.HelpClasses.Helper.FI())</h1>
+        <h1 class="title">@(Data.HelpClasses.Helper.FI())</h1>
     </div>
     <section class="main-conteneer-block">
         <input @bind-value="like" class="input-main" placeholder="Поиск" type="text">
     </section>
     <div class="top-row-conteneer">
-        <h1 class="title-text">Турниры</h1>
+        <h1 class="title">Турниры</h1>
         @if (!StaticResouses.IsPlayer)
         {
-            <h1 class="title-text" @onclick="AddClick">@addstr</h1>
+            <button @onclick="AddClick">@addstr</button>
         }
     </div>
     <section class="pozition-conteneer">
@@ -28,83 +29,106 @@
             <div class="element add-element">
                 <div>
                     <p class="error-text">@result[0]</p>
-                    <input @bind-value="eventModel.Name" placeholder="Название турнира" />
+                    <p class="sub-title-input">Название турнира</p>
+                    <input maxlength="50" @bind-value="eventModel.Name" />
                 </div>
                 <div>
                     <p class="error-text">@result[1]</p>
-                    <input @bind-value="eventModel.PrizeFund" type="number" placeholder="Призовой фонд" />
+                    <p class="sub-title-input">Призовой фонд (р.)</p>
+                    <input @bind-value="eventModel.PrizeFund" type="number" />
                 </div>
                 <div>
                     <p class="error-text">@result[2]</p>
-                    <input @bind-value="eventModel.DataStart" type="datetime-local" placeholder="Дата начала" />
+                    <p class="sub-title-input">Дата начала</p>
+                    <input @bind-value="eventModel.DataStart" maxlength="10" type="date" />
                 </div>
                 <div>
                     <p class="error-text">@result[3]</p>
-                    <input @bind-value="eventModel.DataFinish" type="datetime-local" placeholder="Дата окончания" />
+                    <p class="sub-title-input">Дата окончания</p>
+                    <input @bind-value="eventModel.DataFinish" maxlength="10" type="date" />
                 </div>
                 <div>
                     <p class="error-text">@result[4]</p>
-                    <input @bind-value="eventModel.LocationEvent" placeholder="Место проведения" />
+                    <p class="sub-title-input">Место проведения</p>
+                    <input maxlength="80" @bind-value="eventModel.LocationEvent" />
                 </div>
-                <div style="display:flex;">
-                    <p>Публичный</p>
-                    <input @bind-value="eventModel.IsPublic" type="checkbox" class="text-pozition"/>
+                <div class="div-checkbox">
+                    <p class="text">Публичный</p>
+                    <input @bind-value="eventModel.IsPublic" type="checkbox" class="text" />
                 </div>
-                 <div style="display:flex;">
-                    <p>Круговой</p>
-                    <input @bind-value="eventModel.TypeEvent" type="checkbox" class="text-pozition"/>
+                <div class="div-checkbox">
+                    <p class="text">Круговой</p>
+                    <input @bind-value="eventModel.TypeEvent" type="checkbox" class="text" />
                 </div>
-                <button class="top-row-text text" @onclick="Add">Добавить</button>
+                <button disabled="@doit" @onclick="Add">Добавить</button>
             </div>
         }
 
         @foreach (var item in eventModels.Where(p => Regex.IsMatch(p.Name, like + @"(\w*)", RegexOptions.IgnoreCase)))
         {
             <div class="element" @onclick="@(()=>OnClickNavigateEvent(item))">
-                <div class="text-pozition">Название турнира: @item.Name</div>
-                <div class="text-pozition">Дата проведения: @item.DataStart-@item.DataFinish</div>
-                <div class="text-pozition">Место проведения: @item.LocationEvent</div>
-                <div class="text-pozition">Призовой фонд: @item.PrizeFund р.</div>
-                <div class="text-pozition">Cтвтус: @Helper.status[item.StatusID-1]</div>
+                <div class="text">Название турнира: @item.Name</div>
+                <div class="text">Дата проведения: @(((DateTime)item.DataStart).ToShortDateString())-@(((DateTime)item.DataFinish).ToShortDateString())</div>
+                <div class="text">Место проведения: @item.LocationEvent</div>
+                <div class="text">Призовой фонд: @item.PrizeFund р.</div>
+                <div class="text">Cтатус: @Helper.status[item.StatusID-1]</div>
             </div>
         }
     </section>
 </body>
 
 @code {
-    List<Data.Model.Event> eventModels = Inizilize();
-    static string like = "", addstr = "Добавить";
-    bool add =  false;
+    List<Data.Model.Event> eventModels = new();
+    string like = "", addstr = "Добавить";
+    bool add = false, doit = false;
     string[] result = new string[5];
     Data.Model.Event eventModel = new();
+    DateTime dateTime = new DateTime();
 
-    private static List<Data.Model.Event> Inizilize()
+    protected override async Task OnInitializedAsync() => await Inizaliz();
+
+    private async Task Inizaliz()
     {
-        if (StaticResouses.IsPlayer) 
+
+        await StaticResouses.mainControler.EventControler.UpdateStatus();
+        if (StaticResouses.IsPlayer)
         {
-            return Data.DataBases.DataBase.Read("select * from Event e " +
-                            $"Inner join EventPlayer ep on e.EventID = ep.EventID where ep.PlayerID = {PlayerControler.nowPlayer.FIDEID}", EventControler.mapper);
+            eventModels = await StaticResouses.mainControler.EventControler.GetPlayerEvent();
         }
-        else return OrganizerControler.nowOrganizer.Administrator == -1
-                                        ? EventControler.Get()
-                                            .Where(p => p.OrganizerID == OrganizerControler.nowOrganizer.OrganizerID
-                                                || p.IsPublic == true).ToList() : EventControler.Get();
+        else eventModels = StaticResouses.mainControler.OrganizerControler.nowOrganizer.Administrator == -1 ?
+                                                        await StaticResouses.mainControler.EventControler.GetPublic()
+                                                    :
+                                                        await StaticResouses.mainControler.EventControler.GetAll();
+        if (eventModels == null) eventModels = new List<Event>();
     }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Add()
+    private async void Add()
     {
+        doit = true;
         Array.Clear(result);
-        if (!Data.HelpClasses.Helper.CheckEvent(eventModel, ref result)) return;
-        eventModel.OrganizerID = OrganizerControler.nowOrganizer.OrganizerID;
+        result = Data.HelpClasses.Helper.CheckEvent(eventModel);
+
+        if (!Data.HelpClasses.Helper.CheckStringArray(result))
+        {
+            doit = false;
+            StateHasChanged();
+            return;
+        }
+
+        eventModel.OrganizerID = StaticResouses.mainControler.OrganizerControler.nowOrganizer.OrganizerID;
         eventModel.StatusID = 1;
-        if (EventControler.Insert(eventModel))
+
+        if (await StaticResouses.mainControler.EventControler.Insert(eventModel))
         {
             add = false;
-            EventControler ev = new();
-            OnClickNavigateEvent(EventControler.GetLast());
+            await StaticResouses.mainControler.EventControler.UpdateStatus();
+            OnClickNavigateEvent(await StaticResouses.mainControler.EventControler.GetLast());
         }
+
+        doit = false;
+        StateHasChanged();
     }
 
     private void AddClick()
@@ -115,7 +139,7 @@
 
     private void OnClickNavigateEvent(Event ev)
     {
-        EventControler.nowEvent = ev;
+        StaticResouses.mainControler.EventControler.nowEvent = ev;
         NavigationManager.NavigateTo("/eventPage");
     }
 }

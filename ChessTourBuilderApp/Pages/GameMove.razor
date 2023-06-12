@@ -1,110 +1,154 @@
-﻿@page "/gameMove"
+﻿@implements IDisposable
+@page "/gameMove"
 @using ChessTourBuilderApp.Data.DataBases
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Data.Controler
 @using Data.ChessClasses
+@using System.Timers
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
-<section class="main-conteneer">
-    <p class="top-row-text text">@str</p>
-    <div style="display: flex; flex-wrap: wrap;">
-        <div>
-            <select disabled="@dis" @bind="index">
-                <option selected value="">Выберете фигуру</option>
-                @foreach (var item in chessGame.GetFigure(IsWhile))
-                {
-                    <option value="@item.ID">@item.Name@item.Pozition.cell</option>
-                }
-            </select>
+<body class="sub-main">
+    <section class="main-conteneer">
+        <p class="title">@str</p>
+        <div style="display: flex; flex-wrap: wrap;">
+            <p class="title" style="margin-block-end: 10px;">@aTimerWhite </p>
+            <p class="title" style="color: black"> @aTimerBlack</p>
         </div>
-        <div>
-            <select disabled="@dis" @bind="move">
-                <option selected value="">Выберете ход</option>
-                @if (index != null)
-                {
-                    foreach (var item in chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index).GetCells(chessGame.Figures))
-                    {
-                        <option value="@item.cell">@item.cell</option>
-                    }
-                }
-            </select>
+        <div style="display: flex; flex-wrap: wrap;">
+            @if (rpt)
+            {
+                <div>
+                    <select @bind="newFigure">
+                        <option selected value="">Выберете фигуру</option>
+                        <option value="Q">Ферзь</option>
+                        <option value="N">Конь</option>
+                        <option value="B">Слон</option>
+                        <option value="R">Ладья</option>
+                    </select>
+                </div>
+            }
         </div>
-        @if (rpt)
+        @if (chessGame.IsGameContinues && (StaticResouses.IsPlayer || !StaticResouses.IsView))
         {
-            <div>
-                <select @bind="newFigure">
-                    <option selected value="">Выберете фигуру</option>
-                    <option value="Q">Ферзь</option>
-                    <option value="N">Конь</option>
-                    <option value="B">Слон</option>
-                    <option value="R">Ладья</option>
+            <div class="wrap" style="display:flex;">
+                <button @onclick="SetMove" disabled="@pressed">Сделать ход</button>
+                <button @onclick="DeleteMove" disabled="@pressed">Удалить ход</button>
+                <button @onclick="Surrender">Сдаться</button>
+            </div>
+            @if (End)
+            {
+                <select @bind="result">
+                    <option value="">Выберете результат</option>
+                    <option value="1">Белые</option>
+                    <option value="0">Чёрные</option>
+                    <option value="2">Ничья</option>
                 </select>
-            </div>
+                <button @onclick="EndGame">Подвердить</button>
+            }
         }
-
-    </div>
-    @if (chessGame.IsGameContinues && StaticResouses.IsPlayer)
-    {
-        <div>
-            <button @onclick="SetMove" class="text">Сделать ход</button>
-            <button @onclick="SwapEnd" class="text">Завершить партию</button>
-            <button @onclick="DeleteMove" class="text">Удалить ход</button>
-            <button @onclick="Surrender" class="text">Сдаться</button>
+        else
+        {
+            <div class="sub-title-input">Белые @StaticResouses.mainControler.ConsignmentControler.nowConsignment.whitePlayer.Result : @StaticResouses.mainControler.ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
+            <button @onclick="Exit" class="text">Выйти</button>
+        }
+        <section>
+            @for (var i = 8; i > 0; i--)
+            {
+                <div style="display: flex;">
+                    @for (int j = 1; j < 9; j++)
+                    {
+                        int currentI = i;
+                        int currentJ = j;
+                        <div @onclick="(()=> OnCkickTable(currentI, currentJ))" style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid @CheckFigureColor(i,j)">
+                            @if (CheckFigure(i, j) != default(Figure))
+                            {
+                                <p style="color: @ColorFigure(figureView.IsWhile)">@figureView.Name@figureView.Pozition.cell</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+        <div class="sub-title-input">
+            @foreach (var item in chessGame.Move)
+            {
+                @(item + "; ")
+            }
         </div>
-        @if (End)
-        {
-            <select @bind="result">
-                <option value="">Выберете результат</option>
-                <option value="1">Белые</option>
-                <option value="0">Чёрные</option>
-                <option value="2">Ничья</option>
-            </select>
-            <button @onclick="EndGame" class="text">Подвердить</button>
-        }
-    }
-    else
-    {
-        <div>Белые @ConsignmentControler.nowConsignment.whitePlayer.Result : @ConsignmentControler.nowConsignment.blackPlayer.Result Чёрные</div>
-        <button @onclick="Exit" class="text">Выйти</button>
-    }
-
-    <div>
-        @foreach (var item in chessGame.Move)
-        {
-            @(item + "; ")
-        }
-    </div>
-    <section>
-        @for (var i = 8; i > 0; i--)
-        {
-            <div style="display: flex;">
-                @for (int j = 1; j < 9; j++)
-                {
-                    <div style="width: 40px; height: 40px; background-color:burlywood; border: 2px solid black">
-                        @if (CheckFigure(i, j) != default(Figure))
-                        {
-                            <p style="color: @ColorFigure(figureView.IsWhile)">@figureView.Name@figureView.Pozition.cell</p>
-                        }
-                    </div>
-                }
-            </div>
-        }
     </section>
-</section>
+
+</body>
 
 @code {
-    List<Cell> cells = new();
-    ChessGame chessGame = new(ConsignmentControler.nowConsignment);
-    bool IsWhile = true, End = false, del = false, rpt = false, dis = false;
-    string move, str = "Белые", stage = "ok", newFigure;
-    int? index = null;
-    double? result;
-    Figure figure = new Pawn("A8", true, -1);
-    Figure figureView;
+    private string aTimerWhite = $"10:00";
+    private string aTimerBlack = $"10:00";
+    private int tootalsecs = 10 * 60;
+    private int tootalmin = 10;
+    private DateTime startWhite;
+    private DateTime startBlack;
+    private bool IsFirstStartW = true, IsFirstStartB = true;
+    private Timer timerW = new Timer() { Interval = 1000 };
+    private Timer timerB = new Timer() { Interval = 1000 };
+
+    private List<Cell> cells = new();
+    private ChessGame chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
+    private bool IsWhile = true, End = false, del = false, rpt = false, dis = false, firstClick = true, pressed = false;
+    private string move, str = "Белые", stage = "ok", newFigure, ColorfirstClick, ColorSecondClick;
+    private double? result;
+    private Figure figure = new Pawn("A8", true, -1);
+    private Figure figureView;
+    private Figure firstClickFigure;
 
     private void Swap() => str = IsWhile ? "Белые" : "Чёрные";
     private void SwapEnd() => End = !End;
+
+    protected async override Task OnInitializedAsync()
+    {
+        chessGame = new(StaticResouses.mainControler.ConsignmentControler.nowConsignment);
+        await chessGame.InizializeGame();
+
+        timerW.Elapsed += async (obj, args) =>
+        {
+            if (tootalsecs == 0)
+            {
+                timerW.Stop();
+                await chessGame.EndGame(0);
+            }
+            else
+            {
+                aTimerWhite =
+                    (TimeSpan.FromMinutes(tootalmin) - (DateTime.Now - startWhite))
+                    .ToString("hh\\:mm\\:ss");
+                tootalsecs--;
+                await InvokeAsync(StateHasChanged);
+            }
+        };
+
+        timerB.Elapsed += async (obj, args) =>
+        {
+            if (tootalsecs == 0)
+            {
+                timerW.Stop();
+                await chessGame.EndGame(1);
+            }
+            else
+            {
+                aTimerBlack =
+                    (TimeSpan.FromMinutes(tootalmin) - (DateTime.Now - startBlack))
+                    .ToString("hh\\:mm\\:ss");
+                tootalsecs--;
+                await InvokeAsync(StateHasChanged);
+            }
+        };
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        timerW.Dispose();
+        timerB.Dispose();
+    }
 
     private string ColorFigure(bool IsWhile)
     {
@@ -114,21 +158,51 @@
 
     private Figure CheckFigure(int i, int j)
     {
+        if (chessGame.Figures == null) return default(Figure);
         figureView = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
         return figureView;
     }
 
-    private void DeleteMove()
+    private string CheckFigureColor(int i, int j)
+    {
+        if (i.ToString() + j == ColorfirstClick) return "red";
+        else if (i.ToString() + j == ColorSecondClick) return "green";
+        return "black";
+    }
+
+    private void OnCkickTable(int i, int j)
+    {
+        if (firstClick)
+        {
+            firstClickFigure = chessGame.Figures.FirstOrDefault(p => p.Pozition.X == j && p.Pozition.Y == i && p.InGame == true);
+            if (firstClickFigure != null)
+            {
+                if (firstClickFigure.IsWhile != IsWhile) firstClickFigure = null;
+            }
+            firstClick = false;
+            ColorfirstClick = i.ToString() + j;
+            ColorSecondClick = "";
+        }
+        else
+        {
+            move = (new Cell(j, i)).cell;
+            firstClick = true;
+            ColorSecondClick = i.ToString() + j;
+        }
+
+    }
+
+    private async void DeleteMove()
     {
         if (!del) return;
         IsWhile = !IsWhile;
-        index = null;
         Swap();
         del = false;
-        chessGame.DeleteLastMove(IsWhile);
+        await chessGame.DeleteLastMove(IsWhile);
+        StateHasChanged();
     }
 
-    private bool SwitchStageGet()
+    private async Task<bool> SwitchStageGet()
     {
         switch (stage)
         {
@@ -136,27 +210,29 @@
                 return true;
             case "rpt":
                 if (newFigure == null) return false;
-                chessGame.InsertFigure(move, newFigure, IsWhile);
+                await chessGame.InsertFigure(move, newFigure, IsWhile);
                 dis = false;
                 rpt = false;
                 stage = "ok";
+                StateHasChanged();
                 return false;
             case "end":
-                if (IsWhile) chessGame.EndGame(1);
-                else chessGame.EndGame(0);
+                if (IsWhile) await chessGame.EndGame(1);
+                else await chessGame.EndGame(0);
+                StateHasChanged();
                 return false;
             default:
                 return false;
         }
     }
 
-    private void SwitchStageSet()
+    private async Task SwitchStageSet()
     {
         switch (stage)
         {
             case "ok":
                 IsWhile = !IsWhile;
-                index = null;
+                await SwithTimer();
                 del = true;
                 move = null;
                 Swap();
@@ -173,13 +249,30 @@
         }
     }
 
-    private void SetMove()
+    private async void SetMove()
     {
-        if (index == null) return;
-        if (move == null) return;
-        if (SwitchStageGet())
-            stage = chessGame.SetFigure(chessGame.GetFigure(IsWhile).FirstOrDefault(p => p.ID == index), move);
-        SwitchStageSet();
+        pressed = true;
+        if (move == null)
+        {
+            pressed = false;
+            return;
+        }
+
+        if (firstClickFigure == null)
+        {
+            pressed = false;
+            return;
+        }
+
+        if (await SwitchStageGet())
+            stage = await chessGame.SetFigure(firstClickFigure, move);
+        await SwitchStageSet();
+        pressed = false;
+        await chessGame.GetFigures();
+
+        ColorfirstClick = "";
+        ColorSecondClick = "";
+        StateHasChanged();
     }
 
     private void RPT()
@@ -188,10 +281,12 @@
         rpt = true;
     }
 
-    private void EndGame()
+    private async Task EndGame()
     {
         if (result == null) return;
-        chessGame.EndGame(result);
+        await chessGame.EndGame(result);
+        Dispose();
+        StateHasChanged();
     }
 
     private void Exit()
@@ -200,9 +295,46 @@
         NavigationManager.NavigateTo("/game");
     }
 
-    private void Surrender()
+    private async Task Surrender()
     {
-        if (IsWhile) chessGame.EndGame(0);
-        else chessGame.EndGame(1);
+        if (IsWhile) await chessGame.EndGame(0);
+        else await chessGame.EndGame(1);
+        Dispose();
+        StateHasChanged();
+    }
+
+    private async Task SwithTimer()
+    {
+        if (IsWhile)
+        {
+            if (IsFirstStartW)
+            {
+                startWhite = DateTime.Now;
+                IsFirstStartW = false;
+                timerW.Start();
+                timerB.Stop();
+            }
+            else
+            {
+                timerB.Stop();
+                timerW.Start();
+            }
+        }
+        else
+        {
+            if (IsFirstStartB)
+            {
+                startBlack = DateTime.Now;
+                IsFirstStartB = false;
+                timerB.Start();
+                timerW.Stop();
+            }
+            else
+            {
+                timerB.Start();
+                timerW.Stop();
+            }
+        }
+        await InvokeAsync(StateHasChanged);
     }
 }

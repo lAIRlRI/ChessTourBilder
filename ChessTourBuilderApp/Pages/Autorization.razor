@@ -1,74 +1,101 @@
 ﻿@page "/"
+@using ChessTourBuilderApp.Data.HelpClasses
+@using Newtonsoft.Json
 @layout MainLayout
 @inject NavigationManager NavigationManager
 
 <body class="main-conteneer">
-    <section class="left-conteneer left-conteneer-color input-main first">
+    <section id="right-conteneer" class="left-conteneer left-conteneer-color input-main">
         <div class="icon"></div>
-        <h1 class="text-color-left top-row-text text  big-text" href="">CTB</h1>
-        <h2 class="text text-color-left" href="">Chess Tour Bilder</h2>
+        <h1 class="title text-color-left">CTB</h1>
+        <h2 class="text text-color-left">Chess Tour Bilder</h2>
     </section>
-    <section class="left-conteneer input-main second">
-        <h1 class="top-row-text text text-color-right" href="">Авторизация</h1>
+    <section class="left-conteneer input-main">
+        <h1 class="title" href="">Авторизация</h1>
         <input @bind-value="organizer.Login" placeholder="Логин" type="text">
         <input @bind-value="organizer.Password" placeholder="Пароль" type="password">
-        <div style="display:flex;">
+        <div class="div-checkbox">
             <input @bind-value="IsPlayer" type="checkbox" />
             <h4>Войти как игрок</h4>
         </div>
         @if (style)
         {
-            <h6 class="text alert">Неправильный логин или пароль</h6>
+            <h6 class="error-text">Неверный логин или пароль</h6>
         }
-        <button class="text text-color-right border-none" @onclick="@OnAvtorizate">Войти</button>
-        <button class="text text-color-right border-none" @onclick="@(()=>OnClickNavigate("/registration"))">Регистрация</button>
+        <button disabled="@doit" @onclick="async ()=> await OnAvtorizate()">Войти</button>
+        <button @onclick="@(()=>OnClickNavigate("/registration"))">Регистрация</button>
     </section>
 </body>
 
 @code
 {
     private Data.Model.Organizer organizer = new();
-    private bool style = false, IsPlayer = false;
-
+    private bool style = false, IsPlayer = false, doit = false;
+    string q;
 
     void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    void OnAvtorizate()
+    async Task OnAvtorizate()
     {
-        if (IsPlayer)
+        doit = true;
+        if (StaticResouses.mainControler.IsServer)
         {
-            Data.Controler.PlayerControler.nowPlayer = Data.Controler.PlayerControler.Get()
-                                                                .FirstOrDefault(p => p.FIDEID.ToString() == organizer.Login
-                                                                                        && p.Passord == organizer.Password);
-            Data.Controler.OrganizerControler.nowOrganizer = new Data.Model.Organizer();
+            if (IsPlayer)
+            {
+                q = await Data.Api.ApiControler.Post("Account/autorizatePlayer", new { Login = organizer.Login, Password = organizer.Password });
+            }
+            else q = await Data.Api.ApiControler.Post("Account/autorizate", new { Login = organizer.Login, Password = organizer.Password });
+
+            if (q == "Nice")
+            {
+                if (IsPlayer)
+                    StaticResouses.mainControler.PlayerControler.nowPlayer = JsonConvert.DeserializeObject<Data.Model.Player>(await Data.Api.ApiControler.Get("Account/getInfoPlayer"));
+                else StaticResouses.mainControler.OrganizerControler.nowOrganizer = JsonConvert.DeserializeObject<Data.Model.Organizer>(await Data.Api.ApiControler.Get("Account/getInfo"));
+
+                OnClickNavigate("/eventList");
+            }
+            else style = true;
         }
         else 
         {
-            Data.Controler.OrganizerControler.nowOrganizer = Data.Controler.OrganizerControler.Get()
-                                                                .FirstOrDefault(p => p.Login == organizer.Login
-                                                                                        && p.Password == organizer.Password);
-        }
-
-        Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
-
-        if (IsPlayer)
-        {
-            if (Data.Controler.PlayerControler.nowPlayer == null)
+            if (IsPlayer)
             {
-                style = true;
-                return;
+                StaticResouses.mainControler.PlayerControler.nowPlayer = (await StaticResouses.mainControler.PlayerControler.GetAll())
+                                                                    .FirstOrDefault(p => p.FIDEID.ToString() == organizer.Login
+                                                                                            && p.Passord == organizer.Password);
+                StaticResouses.mainControler.OrganizerControler.nowOrganizer = new Data.Model.Organizer();
             }
-        }
-        else 
-        {
-            if (Data.Controler.OrganizerControler.nowOrganizer == null)
+            else
             {
-                style = true;
-                return;
+                StaticResouses.mainControler.OrganizerControler.nowOrganizer = (await StaticResouses.mainControler.OrganizerControler.GetAll())
+                                                                    .FirstOrDefault(p => p.Login == organizer.Login
+                                                                                            && p.Password == organizer.Password);
             }
+
+            Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
+
+            if (IsPlayer)
+            {
+                if (StaticResouses.mainControler.PlayerControler.nowPlayer == null)
+                {
+                    style = true;
+                    doit = false;
+                    return;
+                }
+            }
+            else
+            {
+                if (StaticResouses.mainControler.OrganizerControler.nowOrganizer == null)
+                {
+                    style = true;
+                    doit = false;
+                    return;
+                }
+            }
+            OnClickNavigate("/eventList");
         }
 
-        Data.HelpClasses.StaticResouses.IsPlayer = IsPlayer;
-        OnClickNavigate("/eventList");
+        doit = false;
+        StateHasChanged();
     }
 }

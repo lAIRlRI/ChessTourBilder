@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChessTourBuilderApp.Data.Model
+﻿namespace ChessTourBuilderApp.Data.Model
 {
     internal class Event
     {
@@ -21,7 +15,7 @@ namespace ChessTourBuilderApp.Data.Model
 
         public string GetTableName()
         {
-            return "[Result" + Name + EventID + "]";
+            return "[Result" + EventID + "]";
         }
 
     }

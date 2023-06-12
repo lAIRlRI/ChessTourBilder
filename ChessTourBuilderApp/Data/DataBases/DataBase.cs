@@ -1,116 +1,88 @@
-﻿using ChessTourBuilderApp.Data.HelpClasses;
-using Microsoft.Data.SqlClient;
+﻿using ChessTourBuilderApp.Data.Api;
+using ChessTourBuilderApp.Data.HelpClasses;
 using Microsoft.Data.Sqlite;
-using Microsoft.Maui.Controls;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChessTourBuilderApp.Data.DataBases
 {
     internal class DataBase
     {
-        static string paths;
-        static string pathsSQL;
         static string flag;
         public static IDbConnection connection;
         public static SqliteConnection tempLite;
         public static bool serverOrLite = true;
- 
+
         public static List<IDbDataParameter> SetParameters(List<ParametrBD> parametrs)
         {
             List<IDbDataParameter> temp = new();
 
-            if (serverOrLite)
+            foreach (var item in parametrs)
             {
-                foreach (var item in parametrs)
+                SqliteParameter sqlParameter = new()
                 {
-                    SqlParameter sqlParameter = new()
-                    {
-                        ParameterName = item.ParameterName,
-                        Value = item.ParameterValue
-                    };
-                    temp.Add(sqlParameter);
-                }
-            }
-            else 
-            {
-                foreach (var item in parametrs)
-                {
-                    SqliteParameter sqlParameter = new()
-                    {
-                        ParameterName = item.ParameterName,
-                        Value = item.ParameterValue
-                    };
-                    temp.Add(sqlParameter);
-                }
+                    ParameterName = item.ParameterName,
+                    Value = item.ParameterValue
+                };
+                temp.Add(sqlParameter);
             }
             return temp;
         }
 
-        public static string GetFlag()
+        public async static Task<string> GetFlag()
         {
-            flag = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\FlagBD.txt");
-            return File.ReadAllText(flag);
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+            {
+                flag = Path.Combine(FileSystem.AppDataDirectory, @"FlagBD.txt");
+            }
+            else 
+            {
+                flag = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\FlagBD.txt");
+            }
+            return await File.ReadAllTextAsync(flag);
         }
 
-        public static string GetTables()
+        public async static Task<string> GetTablesLite()
         {
-            pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БД.sql");
-            return File.ReadAllText(pathsSQL);
+            using var stream = await FileSystem.OpenAppPackageFileAsync("DBLite.txt");
+            using var reader = new StreamReader(stream);
+
+            var contents = reader.ReadToEnd();
+
+            return contents;
         }
 
-        public static string GetTablesLite()
-        {
-            pathsSQL = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\БДLite.txt");
-            return File.ReadAllText(pathsSQL);
-        }
+        public static void OpenConn() => connection.Open();
 
-        public static void OpenConn()
-        {
-            connection.Open();
-        }
+        public static void CloseCon() => connection.Close();
 
-        public static void CloseCon()
-        {
-            connection.Close();
-        }
-
-        public static bool ChangeConnection()
+        public async static Task<bool> ChangeConnection()
         {
             try
             {
-                paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
-                string[] lines = File.ReadAllLines(paths);
+                string paths;
+                string[] lines = new string[5];
+                if (DeviceInfo.Platform == DevicePlatform.Android)
+                {
+                    paths = Path.Combine(FileSystem.AppDataDirectory, @"serverSetting.txt");
+                    string absolutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), paths);
+                    lines = File.ReadAllLines(absolutePath);
+                }
+                else 
+                {
+                    paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
+                    lines = File.ReadAllLines(paths);
+                }
 
-                if (lines.Length != 4) return false;
+                ApiControler.baseURL = lines[0];
 
-                string sqlcon = $"Data Source = {lines[0]}; " +
-                                      $"Initial Catalog = {lines[1]}; " +
-                                      $"User ID = {lines[2]};" +
-                                      $"Password = {lines[3]};" +
-                                      $"Trusted_Connection = true;" +
-                                      $"TrustServerCertificate = true;" +
-                                      $"Encrypt = false;" +
-                                      $"Integrated Security = true;";
-                connection = new SqlConnection(sqlcon);
-
-                connection.Open();
-                using var sqlCommand = connection.CreateCommand();
-                sqlCommand.CommandText = "select 1 from Organizer";
-                sqlCommand.ExecuteNonQuery();
-                connection.Close();
+                StaticResouses.mainControler = new(true);
+                await StaticResouses.mainControler.OrganizerControler.GetAll();
 
                 using (StreamWriter w = new(flag))
                 {
                     w.WriteLine("1");
                 }
-                serverOrLite = true;
-                StaticResouses.dBQ = new ServerQ();
 
                 return true;
             }
@@ -124,12 +96,23 @@ namespace ChessTourBuilderApp.Data.DataBases
         {
             try
             {
-                string pathsLite = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db");
-                string lines = File.ReadAllText(pathsLite);
-
+                string paths;
+                string lines;
+                if (DeviceInfo.Platform == DevicePlatform.Android)
+                {
+                    paths = Path.Combine(FileSystem.AppDataDirectory, @"local.db");
+                    string absolutePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), paths);
+                    lines = File.ReadAllText(absolutePath);
+                }
+                else 
+                {
+                    paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db");
+                    lines = File.ReadAllText(paths);
+                }
+               
                 if (lines == null) return false;
 
-                connection = new SqliteConnection("DataSource = " + pathsLite + ";Mode = ReadWrite;");
+                connection = new SqliteConnection("DataSource = " + paths + ";Mode = ReadWrite;");
 
                 connection.Open();
                 using var sqlCommand = connection.CreateCommand();
@@ -141,8 +124,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 {
                     w.WriteLine("0");
                 }
-                serverOrLite = false;
-                StaticResouses.dBQ = new LiteQ();
+                StaticResouses.mainControler = new(false);
 
                 return true;
             }
@@ -152,76 +134,65 @@ namespace ChessTourBuilderApp.Data.DataBases
             }
         }
 
-        public static string NewConnection(string[] values)
+        public static async Task<string> NewConnection(string[] values)
         {
             try
             {
-                connection = new SqlConnection($"Data Source = {values[0]}; " +
-                             $"Initial Catalog = {values[1]}; " +
-                             $"User ID = {values[2]};" +
-                             $"Password = {values[3]};" +
-                             $"Trusted_Connection = true;" +
-                             $"TrustServerCertificate = true;" +
-                             $"Encrypt = false;" +
-                             $"Integrated Security = true;");
-                connection.Open();
-                using var command = connection.CreateCommand();
-                command.CommandText = $"use {values[1]}";
-                command.ExecuteNonQuery();
-                connection.Close();
+                StaticResouses.mainControler = new(true);
+                ApiControler.baseURL = values[0];
+                await StaticResouses.mainControler.OrganizerControler.GetAll();
+
+                string paths;
+                if (DeviceInfo.Platform == DevicePlatform.Android)
+                {
+                    paths = Path.Combine(FileSystem.AppDataDirectory, @"serverSetting.txt");
+                    paths = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), paths);
+                }
+                else 
+                {
+                    paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
+                }
+                
+                using (StreamWriter w = new(paths))
+                {
+                    w.WriteLine(values[0]);
+                }
+
+                using (StreamWriter w = new(flag))
+                {
+                    w.WriteLine("1");
+                }
+                StaticResouses.mainControler = new(true);
             }
             catch
             {
                 return "NoDB";
             }
 
-            try
-            {
-                connection.Open();
-                using var command = connection.CreateCommand();
-                command.CommandText = "select 1 from Organizer";
-                command.ExecuteNonQuery();
-                connection.Close();
-            }
-            catch
-            {
-                return "NoTable";
-            }
-
-
-            paths = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\serverSetting.txt");
-
-            using (StreamWriter w = new(paths))
-            {
-                w.WriteLine(values[0]);
-                w.WriteLine(values[1]);
-                w.WriteLine(values[2]);
-                w.WriteLine(values[3]);
-            }
-
-            using (StreamWriter w = new(flag))
-            {
-                w.WriteLine("1");
-            }
-            serverOrLite = true;
-            StaticResouses.dBQ = new ServerQ();
-
             return "ok";
         }
 
-        public static string NewConnectionLite()
+        public async static Task<string> NewConnectionLite()
         {
             SqliteCommand sqlCommand;
 
             try
             {
-                tempLite = new SqliteConnection("DataSource = "+ Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db"));
+                if (DeviceInfo.Platform == DevicePlatform.Android)
+                {
+                    tempLite = new SqliteConnection("DataSource = " + Path.Combine(FileSystem.AppDataDirectory, @"local.db"));
+                }
+                else 
+                {
+                    tempLite = new SqliteConnection("DataSource = " + Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Data\DataBases\local.db"));
+                }
+
                 tempLite.Open();
-                sqlCommand = new SqliteCommand(GetTablesLite(), tempLite);
+                sqlCommand = new SqliteCommand(await GetTablesLite(), tempLite);
                 sqlCommand.ExecuteNonQuery();
                 tempLite.Close();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return e.Message;
             }
@@ -232,8 +203,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             {
                 w.WriteLine("0");
             }
-            serverOrLite = false;
-            StaticResouses.dBQ = new LiteQ();
+            StaticResouses.mainControler = new(false);
 
             return "ok";
         }
@@ -253,6 +223,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 }
             }
             connection.Close();
+
             return result;
         }
 
@@ -281,6 +252,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             AddParameters(command, parameters);
             bool result = command.ExecuteNonQuery() > 0;
             connection.Close();
+
             return result;
         }
 
@@ -290,6 +262,7 @@ namespace ChessTourBuilderApp.Data.DataBases
             using var command = connection.CreateCommand();
             command.CommandText = query;
             AddParameters(command, parameters);
+
             return command.ExecuteNonQuery() > 0;
         }
 
@@ -311,6 +284,7 @@ namespace ChessTourBuilderApp.Data.DataBases
                 command.CommandText = str;
                 command.ExecuteNonQuery();
                 connection.Close();
+
                 return true;
             }
             catch (Exception e)

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ChessTourBuilderApp.Data.ChessClasses
+﻿namespace ChessTourBuilderApp.Data.ChessClasses
 {
     internal class Bishop : Figure
     {
@@ -105,7 +99,7 @@ namespace ChessTourBuilderApp.Data.ChessClasses
 
             foreach (var item in cellsDiapozon)
             {
-                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell) != default(Figure)) return false;
+                if (figures.FirstOrDefault(p => p.Pozition.cell == item.cell && p.InGame == true) != default(Figure)) return false;
             }
 
             return true;

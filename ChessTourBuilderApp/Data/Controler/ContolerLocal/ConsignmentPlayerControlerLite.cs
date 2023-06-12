@@ -1,17 +1,11 @@
 ﻿using ChessTourBuilderApp.Data.DataBases;
 using ChessTourBuilderApp.Data.HelpClasses;
 using ChessTourBuilderApp.Data.Model;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ChessTourBuilderApp.Data.Controler
+namespace ChessTourBuilderApp.Data.Controler.ContolerLocal
 {
-    internal class ConsignmentPlayerControler
+    internal class ConsignmentPlayerControlerLite
     {
         static List<ConsignmentPlayer> models;
         static List<IDbDataParameter> list;
@@ -55,7 +49,7 @@ namespace ChessTourBuilderApp.Data.Controler
                                                                 $"@Result)", list.ToArray());
         }
 
-        public static bool Update(ConsignmentPlayer model)
+        public static async Task<bool> Update(ConsignmentPlayer model)
         {
             SqlParameterSet(model);
             if (!DataBase.Execute($"UPDATE ConsignmentPlayer " +
@@ -64,32 +58,31 @@ namespace ChessTourBuilderApp.Data.Controler
                 $",IsWhile = @IsWhile" +
                 $",Result = @Result" +
                 $" WHERE ConsignmentPlayerID = {model.ConsignmentPlayerID}", list.ToArray())) return false;
-            if (!PlayerControler.Update(model.player, model.PlayerID)) return false;
+            if (!await StaticResouses.mainControler.PlayerControler.Update(model.player, model.PlayerID)) return false;
             return true;
-
         }
 
         public static bool Delete(int id) => DataBase.Execute($"DELETE FROM ConsignmentPlayer WHERE ConsignmentPlayerID = {id}");
 
-        public static List<ConsignmentPlayer> Get(string str)
-        {
-            models = DataBase.Read(str, mapper);
-            ConsignmentPlayerPlayerGet();
-            return models;
-        }
-
-        public static List<ConsignmentPlayer> Get()
+        public static async Task<List<ConsignmentPlayer>> Get()
         {
             models = DataBase.Read("select * from ConsignmentPlayer", mapper);
-            ConsignmentPlayerPlayerGet();
+            await ConsignmentPlayerPlayerGet();
             return models;
         }
 
-        private static void ConsignmentPlayerPlayerGet()
+        public static async Task<List<ConsignmentPlayer>> Get(string str)
+        {
+            models = DataBase.Read(str, mapper);
+            await ConsignmentPlayerPlayerGet();
+            return models;
+        }
+
+        private static async Task ConsignmentPlayerPlayerGet()
         {
             foreach (var item in models)
             {
-                item.player = PlayerControler.Get().Where(p => p.FIDEID == item.PlayerID).First();
+                item.player = await StaticResouses.mainControler.PlayerControler.GetById(item.PlayerID);
             }
         }
     }

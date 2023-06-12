@@ -1,7 +1,8 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #FFF9F9;
+    font-family: 'Roboto';
 }
 
 h1:focus {
@@ -10,12 +11,17 @@ h1:focus {
 
 a, .btn-link {
     color: #0071c1;
+    text-decoration: none;
 }
 
 .btn-primary {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
+}
+
+#app {
+    background-color: #FFF9F9;
 }
 
 .content {
@@ -81,4 +87,154 @@ a, .btn-link {
 	.flex-column, .navbar-brand {
 		padding-left: env(safe-area-inset-left);
 	}
+}
+
+button {
+    padding: 1rem;
+    margin: 0.4rem;
+    border-color: transparent;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background-color: #F8B75C;
+    border-radius: 10px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 89%;
+    color: #FFF9F9;
+}
+
+    button:hover {
+        border-color: #FFF9F9
+    }
+
+input {
+    outline: none;
+    border: none;
+    border-bottom: 3px solid #F8B75C;
+    margin: 0.5rem;
+    padding-bottom: 8px;
+    font-style: normal;
+    font-weight: 200;
+    font-size: 30px;
+    line-height: 35px;
+    background-color: #FFF9F9;
+    color: #4A3434;
+}
+
+.element:hover, input:hover {
+    box-shadow: 0.3em 0.3em 1em rgba(0,0,0,0.3);
+}
+
+::placeholder {
+    font-style: normal;
+    font-weight: 200;
+    font-size: 30px;
+    line-height: 35px;
+    color: #4A3434;
+}
+
+.error-text {
+    color: #C50B0B;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1rem;
+}
+
+.text {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 35px;
+    color: #FFF9F9;
+}
+
+.sub-title-input {
+    font-style: normal;
+    font-weight: 200;
+    font-size: 16px;
+    line-height: 19px;
+    color: #B78B4D;
+}
+
+.title {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 47px;
+    color: #B78B4D;
+}
+
+.big-text {
+    font-size: 45px;
+}
+
+.div-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.top-row-conteneer {
+    display: flex;
+    padding: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 1000px) {
+    html {
+        font-size: 14px;
+    }
+
+    .title {
+        font-size: 30px;
+    }
+
+    input {
+        width: 80%;
+    }
+
+    #right-conteneer {
+        display: none;
+    }
+
+    .text {
+        font-size: 16px;
+    }
+}
+
+.nav-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 1rem;
+    border: none;
+}
+
+button:disabled {
+    background-color: #75562C;
+}
+
+a {
+    color: #FFF9F9 !important;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
+
+.icon {
+    background-color: brown;
+    height: 5rem;
+    width: 5rem;
+    margin: 2rem;
 }

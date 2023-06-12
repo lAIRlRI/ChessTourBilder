@@ -1,7 +1,6 @@
 ﻿@page "/playerList"
 @layout MainLayout
 @using ChessTourBuilderApp.Data.HelpClasses
-@using Data.Controler
 @using System.Text.RegularExpressions
 @inject NavigationManager NavigationManager
 
@@ -9,16 +8,16 @@
 <body class="main-conteneer">
     <div class="top-row-conteneer">
         <button class="icon" @onclick="@(()=>OnClickNavigate("/navMenu"))"></button>
-        <h1 class="top-row-text text" href="">@(Helper.FI())</h1>
+        <h1 class="title" href="">@(Helper.FI())</h1>
     </div>
     <section class="main-conteneer-block">
-        <input @bind-value="like" class="input input-main text-small" placeholder="Поиск" type="text">
+        <input @bind-value="like" placeholder="Поиск" type="text" class="input-main">
     </section>
     <div class="top-row-conteneer">
-        <h1 class="title-text">Игроки</h1>
-        @if(!StaticResouses.IsPlayer)
+        <h1 class="title">Игроки</h1>
+        @if (!StaticResouses.IsPlayer)
         {
-            <h1 class="title-text" @onclick="AddClick">Добавить</h1>
+            <button class="title-text" @onclick="AddClick">Добавить</button>
         }
     </div>
     @if (add)
@@ -26,33 +25,40 @@
         <div class="element add-element">
             <div>
                 <p class="error-text">@result[0]</p>
-                <input @bind-value="playerModel.FIDEID" type="number" placeholder="FIDEID" />
+                <p class="sub-title-input">FIDE</p>
+                <input @bind-value="playerModel.FIDEID" type="number" />
             </div>
             <div>
                 <p class="error-text">@result[1]</p>
-                <input @bind-value="playerModel.FirstName" placeholder="Имя" />
+                <p class="sub-title-input">Имя</p>
+                <input @bind-value="playerModel.FirstName"/>
             </div>
             <div>
                 <p class="error-text">@result[2]</p>
-                <input @bind-value="playerModel.MiddleName" placeholder="Фамилия" />
+                <p class="sub-title-input">Фамилия</p>
+                <input @bind-value="playerModel.MiddleName"/>
             </div>
             <div>
                 <p class="error-text">@result[3]</p>
-                <input @bind-value="playerModel.LastName" placeholder="Отчество" />
+                <p class="sub-title-input">Отчество</p>
+                <input @bind-value="playerModel.LastName" />
             </div>
             <div>
                 <p class="error-text">@result[4]</p>
-                <input @bind-value="playerModel.Birthday" type="date" placeholder="Дата рождения" />
+                <p class="sub-title-input">Дета рождения</p>
+                <input @bind-value="playerModel.Birthday" type="date" />
             </div>
             <div>
                 <p class="error-text">@result[5]</p>
-                <input @bind-value="playerModel.ELORating" step="0.1" type="number" placeholder="Рейтинг ELO" />
+                <p class="sub-title-input">Рейтинг ELO</p>
+                <input @bind-value="playerModel.ELORating" maxlength="4" max="9999" step="0.1" type="number"/>
             </div>
             <div>
                 <p class="error-text">@result[6]</p>
-                <input @bind-value="playerModel.Contry" placeholder="Страна" />
+                <p class="sub-title-input">Страна</p>
+                <input @bind-value="playerModel.Contry"/>
             </div>
-            <button class="title-text" @onclick="Add">Добавить</button>
+            <button disabled="@pressed" @onclick="Add">Добавить</button>
         </div>
     }
 
@@ -60,29 +66,49 @@
         @foreach (var item in playerModels.Where(p => Regex.IsMatch(p.FirstName, like + @"(\w*)", RegexOptions.IgnoreCase)))
         {
             <div @onclick="@(()=>OnClickNavigateToPlayer(item))" class="element">
-                <div class="image"></div>
-                <div class="text-pozition">@(item.FirstName + " " + item.LastName)</div>
+                <div class="text">@(item.FirstName + " " + item.MiddleName + " " + item.LastName)</div>
+                <div class="text">@item.ELORating</div>
+                <div class="text">@(((DateTime)item.Birthday).ToShortDateString())</div>
+                <div class="text">@item.Contry</div>
             </div>
         }
     </section>
 </body>
 
 @code {
-    List<Data.Model.Player> playerModels = PlayerControler.Get();
-    static string like = "", addstr = "Добавить";
+    List<Data.Model.Player> playerModels = new();
+    string like = "", addstr = "Добавить";
     bool add = false;
+    bool pressed = false;
     string[] result = new string[7];
     Data.Model.Player playerModel = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        playerModels = await StaticResouses.mainControler.PlayerControler.GetAll();
+    }
 
     private void OnClickNavigate(string str) => NavigationManager.NavigateTo(str);
 
-    private void Add()
+    private async void Add()
     {
         Array.Clear(result);
-        if (!Helper.CheckPlayer(playerModel, ref result)) return;
-        if (!PlayerControler.Insert(playerModel)) return;
-        PlayerControler ev = new();
+        pressed = true;
+        result = await Data.HelpClasses.Helper.CheckPlayer(playerModel);
+
+        if (!Data.HelpClasses.Helper.CheckStringArray(result))
+        {
+            pressed = false;
+            StateHasChanged();
+            return;
+        }
+        if (!await StaticResouses.mainControler.PlayerControler.Insert(playerModel))
+        {
+            pressed = false;
+            StateHasChanged();
+            return;
+        }
+
         OnClickNavigateToPlayer(playerModel);
     }
 
@@ -94,7 +120,7 @@
 
     private void OnClickNavigateToPlayer(Data.Model.Player player)
     {
-        PlayerControler.nowPlayer = player;
+        StaticResouses.mainControler.PlayerControler.nowPlayer = player;
         NavigationManager.NavigateTo("/player");
     }
 }
